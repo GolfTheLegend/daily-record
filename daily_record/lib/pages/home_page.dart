@@ -1,5 +1,6 @@
 import 'package:daily_record/components/activity_card.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -163,6 +164,25 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         ),
+      ),
+      floatingActionButton: SpeedDial(
+        icon: Icons.add,
+        activeIcon: Icons.close,
+        buttonSize: const Size(70.0, 70.0),
+        backgroundColor: Colors.pink, //พื้นหลังปุ่มก่อนกด
+        activeBackgroundColor: Colors.black, //พื้นหลังปุ่มหลังกด
+        children: [
+          SpeedDialChild(
+            child: Icon(Icons.edit),
+            label: 'เพิ่มงาน',
+            onTap: () {},
+          ),
+          SpeedDialChild(
+            child: Icon(Icons.alarm),
+            label: 'เพิ่มแจ้งเตือน',
+            onTap: () {},
+          ),
+        ],
       ),
     );
   }

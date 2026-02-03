@@ -36,60 +36,74 @@ class ActivityCardState extends State<ActivityCard> {
       child: Column(
         children: [
           Container(
+            padding: const EdgeInsets.fromLTRB(5, 5, 5, 0),
             margin: const EdgeInsets.only(bottom: 12),
-            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(14),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.3),
-                  blurRadius: 6,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+              color: const Color(0xFFFFAAEA),
+              borderRadius: BorderRadius.circular(12),
             ),
-            child: Row(
-              children: [
-                Container(
-                  width: 60,
-                  height: 60,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.pink, width: 4),
-                  ),
-                  child: Icon(widget.icon,size: 40),
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(0, 0, 0, 12),
+              decoration: BoxDecoration(
+                color: const Color.fromARGB(255, 224, 97, 193),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.3),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+                child: Row(
+                  children: [
+                    Container(
+                      width: 60,
+                      height: 60,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.pink, width: 4),
+                      ),
+                      child: Icon(widget.icon, size: 40),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.title,
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: widget.titleColor,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'เวลา : ${widget.time}',
+                            style: const TextStyle(fontSize: 15),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (widget.trailing != null)
                       Text(
-                        widget.title,
+                        widget.trailing!,
                         style: TextStyle(
-                          fontSize: 20,
+                          color: widget.trailingColor,
                           fontWeight: FontWeight.bold,
-                          color: widget.titleColor,
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'เวลา : ${widget.time}',
-                        style: const TextStyle(fontSize: 15),
-                      ),
-                    ],
-                  ),
+                  ],
                 ),
-                if (widget.trailing != null)
-                  Text(
-                    widget.trailing!,
-                    style: TextStyle(
-                      color: widget.trailingColor,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-              ],
+              ),
             ),
           ),
 
@@ -104,34 +118,24 @@ class ActivityCardState extends State<ActivityCard> {
                     Container(
                       child: Row(
                         children: [
-                          Expanded(
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.red,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                              ),
-                              onPressed: () {
-                                print('ไม่สำเร็จ');
-                              },
-                              child: const Text('ไม่สำเร็จ',style: TextStyle(color: Colors.white ,fontWeight: FontWeight.bold,fontSize: 16),),
-                            ),
+                          _ButtonBox(
+                            'ไม่สำเร็จ',
+                            () {
+                              print('ไม่สำเร็จ');
+                            },
+                            const Color.fromARGB(255, 102, 12, 6),
+                            const Color.fromARGB(255, 252, 95, 83),
+                            const Color.fromARGB(255, 102, 12, 6),
                           ),
                           const SizedBox(width: 8),
-                          Expanded(
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.green,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                              ),
-                              onPressed: () {
-                                print('สำเร็จ');
-                              },
-                              child: const Text('สำเร็จ',style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 16),),
-                            ),
+                          _ButtonBox(
+                            'สำเร็จ',
+                            () {
+                              print('สำเร็จ');
+                            },
+                            const Color.fromARGB(255, 7, 68, 9),
+                            Colors.green,
+                            const Color.fromARGB(255, 7, 68, 9),
                           ),
                         ],
                       ),
@@ -146,4 +150,85 @@ class ActivityCardState extends State<ActivityCard> {
       ),
     );
   }
+}
+
+class _PressScale extends StatefulWidget {
+  final Widget child;
+  final VoidCallback onTap;
+
+  const _PressScale({required this.child, required this.onTap});
+
+  @override
+  State<_PressScale> createState() => _PressScaleState();
+}
+
+class _PressScaleState extends State<_PressScale> {
+  bool _pressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _pressed = true),
+      onTapUp: (_) {
+        setState(() => _pressed = false);
+        widget.onTap();
+      },
+      onTapCancel: () => setState(() => _pressed = false),
+      child: AnimatedScale(
+        scale: _pressed ? 0.9 : 1.0, // ยุบลง
+        duration: const Duration(milliseconds: 100),
+        curve: Curves.easeOut,
+        child: AnimatedOpacity(
+          opacity: _pressed ? 0.85 : 1,
+          duration: const Duration(milliseconds: 100),
+          child: widget.child,
+        ),
+      ),
+    );
+  }
+}
+
+Widget _ButtonBox(
+  String tittle,
+  VoidCallback onPressed,
+  Color textColor,
+  Color color1,
+  Color color2,
+) {
+  return Expanded(
+    flex: 1,
+    child: Container(
+      padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+      decoration: BoxDecoration(
+        color: color1,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: _PressScale(
+        onTap: onPressed,
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(0, 0, 0, 12),
+          decoration: BoxDecoration(
+            color: color2,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Container(
+            height: 40,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              tittle,
+              style: TextStyle(
+                color: textColor,
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
 }
