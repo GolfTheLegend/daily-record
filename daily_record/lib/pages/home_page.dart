@@ -12,193 +12,108 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
+    final List<Map<String, dynamic>> activities = [
+      {
+        'icon': Icons.description,
+        'title': 'ทำงาน',
+        'time': '09:00',
+        'titleColor': Colors.red,
+        'trailing': 'สำคัญ',
+        'trailingColor': Colors.red,
+      },
+      {
+        'icon': Icons.restaurant,
+        'title': 'ทานอาหาร',
+        'time': '09:00',
+        'titleColor': Colors.green,
+        'trailing': 'ทุกวัน',
+        'trailingColor': Colors.green,
+      },
+      {'icon': Icons.local_cafe, 'title': 'พักผ่อน', 'time': '09:00'},
+    ];
+
     return Scaffold(
       backgroundColor: Colors.black,
-      body: _BackGroundLayer(
-        Color(0xFFEB00B1),
-        0,
-        _BackGroundLayer(
-          Color(0xFFFFAAEA),
-          10,
-          _BackGroundLayer(
-            Colors.white,
-            10,
-            _BackGroundLayer(
-              Colors.transparent,
-              10,
-              Column(
-                children: [
-                  Expanded(
-                    flex: 1,
-                    child: Container(width: double.infinity, child: _Header()),
-                  ),
-
-                  Expanded(
-                    flex: 2,
-                    child: Container(
-                      margin: const EdgeInsets.only(bottom: 20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10),
-                            child: Column(
-                              children: [
-                                _sectionHeader('ขณะนี้'),
-                                ActivityCard(
-                                  icon: Icons.directions_run,
-                                  title: 'ออกกำลังกาย',
-                                  time: '06:00',
-                                ),
-                                _sectionHeader('รายการถัดไป'),
-                              ],
-                            ),
-                          ),
-                          Expanded(
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis.vertical,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 10,
-                                ),
-                                child: Column(
-                                  children: [
-                                    ActivityCard(
-                                      icon: Icons.description,
-                                      title: 'ทำงาน',
-                                      time: '09:00',
-                                      titleColor: Colors.red,
-                                      trailing: 'สำคัญ',
-                                      trailingColor: Colors.red,
-                                    ),
-                                    ActivityCard(
-                                      icon: Icons.restaurant,
-                                      title: 'ทานอาหาร',
-                                      time: '09:00',
-                                      titleColor: Colors.green,
-                                      trailing: 'ทุกวัน',
-                                      trailingColor: Colors.green,
-                                    ),
-                                    ActivityCard(
-                                      icon: Icons.local_cafe,
-                                      title: 'พักผ่อน',
-                                      time: '09:00',
-                                    ),
-                                    ActivityCard(
-                                      icon: Icons.restaurant,
-                                      title: 'ทานอาหาร',
-                                      time: '09:00',
-                                      titleColor: Colors.green,
-                                      trailing: 'ทุกวัน',
-                                      trailingColor: Colors.green,
-                                    ),
-                                    ActivityCard(
-                                      icon: Icons.local_cafe,
-                                      title: 'พักผ่อน',
-                                      time: '09:00',
-                                    ),
-                                    ActivityCard(
-                                      icon: Icons.restaurant,
-                                      title: 'ทานอาหาร',
-                                      time: '09:00',
-                                      titleColor: Colors.green,
-                                      trailing: 'ทุกวัน',
-                                      trailingColor: Colors.green,
-                                    ),
-                                    ActivityCard(
-                                      icon: Icons.local_cafe,
-                                      title: 'พักผ่อน',
-                                      time: '09:00',
-                                    ),
-                                    ActivityCard(
-                                      icon: Icons.restaurant,
-                                      title: 'ทานอาหาร',
-                                      time: '09:00',
-                                      titleColor: Colors.green,
-                                      trailing: 'ทุกวัน',
-                                      trailingColor: Colors.green,
-                                    ),
-                                    ActivityCard(
-                                      icon: Icons.local_cafe,
-                                      title: 'พักผ่อน',
-                                      time: '09:00',
-                                    ),
-                                    ActivityCard(
-                                      icon: Icons.restaurant,
-                                      title: 'ทานอาหาร',
-                                      time: '09:00',
-                                      titleColor: Colors.green,
-                                      trailing: 'ทุกวัน',
-                                      trailingColor: Colors.green,
-                                    ),
-                                    ActivityCard(
-                                      icon: Icons.local_cafe,
-                                      title: 'พักผ่อน',
-                                      time: '09:00',
-                                    ),
-                                    ActivityCard(
-                                      icon: Icons.restaurant,
-                                      title: 'ทานอาหาร',
-                                      time: '09:00',
-                                      titleColor: Colors.green,
-                                      trailing: 'ทุกวัน',
-                                      trailingColor: Colors.green,
-                                    ),
-                                    ActivityCard(
-                                      icon: Icons.local_cafe,
-                                      title: 'พักผ่อน',
-                                      time: '09:00',
-                                    ),
-                                  ],
-                                ),
+      body: Stack(
+        children: [
+          _BackGroundLayer(color: Color(0xFFEB00B1), vMargin: 5),
+          _BackGroundLayer(color: Color(0xFFFFAAEA), vMargin: 15),
+          _BackGroundLayer(color: Colors.white, vMargin: 25),
+          SafeArea(
+            child: Column(
+              children: [
+                Expanded(
+                  flex: 1,
+                  child: Container(width: double.infinity, child: _Header()),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: Container(
+                    margin: const EdgeInsets.only(bottom: 20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: Column(
+                            children: [
+                              _sectionHeader('ขณะนี้'),
+                              ActivityCard(
+                                icon: Icons.directions_run,
+                                title: 'ออกกำลังกาย',
+                                time: '06:00',
                               ),
-                            ),
+                              _sectionHeader('รายการถัดไป'),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                        Expanded(
+                          child: ListView.separated(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 10,
+                            ), // เผื่อที่ให้ปุ่ม Floating
+                            itemCount: activities.length,
+                            separatorBuilder: (context, index) =>
+                                const SizedBox(height: 0),
+                            itemBuilder: (context, index) {
+                              final item = activities[index];
+
+                              return ActivityCard(
+                                icon: item['icon'],
+                                title: item['title'],
+                                time: item['time'],
+                                titleColor: item['titleColor'] ?? Colors.black,
+                                trailing: item['trailing'],
+                                trailingColor:
+                                    item['trailingColor'] ?? Colors.black,
+                              );
+                            },
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ),
-        ),
-      ),
-      floatingActionButton: SpeedDial(
-        icon: Icons.add,
-        activeIcon: Icons.close,
-        buttonSize: const Size(70.0, 70.0),
-        backgroundColor: Colors.pink, //พื้นหลังปุ่มก่อนกด
-        activeBackgroundColor: Colors.black, //พื้นหลังปุ่มหลังกด
-        children: [
-          SpeedDialChild(
-            child: Icon(Icons.edit),
-            label: 'เพิ่มงาน',
-            onTap: () {},
-          ),
-          SpeedDialChild(
-            child: Icon(Icons.alarm),
-            label: 'เพิ่มแจ้งเตือน',
-            onTap: () {},
           ),
         ],
       ),
+      floatingActionButton: _floatingButton(),
     );
   }
 }
 
-Widget _BackGroundLayer(Color color, double margin, Widget? child) {
+Widget _BackGroundLayer({required Color color, double vMargin = 0}) {
   return Container(
+    margin: EdgeInsets.symmetric(vertical: vMargin),
     decoration: BoxDecoration(
       color: color,
-      borderRadius: BorderRadius.circular(80),
+      borderRadius: BorderRadius.circular(40),
     ),
     width: double.infinity,
     height: double.infinity,
-    margin: EdgeInsets.symmetric(vertical: margin),
-    child: child,
-    clipBehavior: Clip.antiAlias,
   );
 }
 
@@ -309,5 +224,23 @@ Widget _sectionHeader(String text) {
         const Expanded(child: Divider(thickness: 1.5)),
       ],
     ),
+  );
+}
+
+Widget _floatingButton() {
+  return SpeedDial(
+    icon: Icons.add,
+    activeIcon: Icons.close,
+    buttonSize: const Size(70.0, 70.0),
+    backgroundColor: Colors.pink, //พื้นหลังปุ่มก่อนกด
+    activeBackgroundColor: Colors.black, //พื้นหลังปุ่มหลังกด
+    children: [
+      SpeedDialChild(child: Icon(Icons.edit), label: 'เพิ่มงาน', onTap: () {}),
+      SpeedDialChild(
+        child: Icon(Icons.alarm),
+        label: 'เพิ่มแจ้งเตือน',
+        onTap: () {},
+      ),
+    ],
   );
 }
