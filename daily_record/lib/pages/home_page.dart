@@ -1,4 +1,5 @@
 import 'package:daily_record/components/activity_card.dart';
+import 'package:daily_record/components/activity_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
@@ -44,7 +45,10 @@ class _HomePageState extends State<HomePage> {
               children: [
                 Expanded(
                   flex: 1,
-                  child: Container(width: double.infinity, child: _Header()),
+                  child: Container(
+                    width: double.infinity,
+                    child: const ActivityHeader(),
+                  ),
                 ),
                 Expanded(
                   flex: 2,
@@ -114,100 +118,6 @@ Widget _BackGroundLayer({required Color color, double vMargin = 0}) {
     ),
     width: double.infinity,
     height: double.infinity,
-  );
-}
-
-Widget _Header() {
-  return Column(
-    children: [
-      const SizedBox(height: 20),
-      const Text(
-        'รายการวันนี้',
-        style: TextStyle(
-          fontSize: 40,
-          fontWeight: FontWeight.w800,
-          color: Colors.black,
-        ),
-      ),
-      const SizedBox(height: 10),
-      const Text(
-        '04:00',
-        style: TextStyle(
-          fontSize: 64,
-          fontWeight: FontWeight.bold,
-          color: Colors.black,
-        ),
-      ),
-      const SizedBox(height: 10),
-      const Text(
-        '1 กุมภาพันธ์ 2568',
-        style: TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.w800,
-          color: Colors.black,
-        ),
-      ),
-      const SizedBox(height: 20),
-      Expanded(
-        flex: 1,
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Container(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const SizedBox(width: 10),
-                _DateBox('วันนี้'),
-                const SizedBox(width: 10),
-
-                ...List.generate(
-                  30,
-                  (index) => Padding(
-                    padding: const EdgeInsets.only(right: 10),
-                    child: _DateBox('${index + 1}'),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    ],
-  );
-}
-
-Widget _DateBox(String text) {
-  return Container(
-    width: 80,
-    height: 50,
-    padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
-    decoration: BoxDecoration(
-      color: const Color(0xFFFFAAEA),
-      borderRadius: BorderRadius.circular(12),
-    ),
-    child: Container(
-      padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
-      decoration: BoxDecoration(
-        color: const Color.fromARGB(255, 224, 97, 193),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Center(
-          child: Text(
-            text,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
-          ),
-        ),
-      ),
-    ),
   );
 }
 
@@ -282,11 +192,7 @@ Widget _circleButton(IconData icon, double size) {
             ),
           ),
           child: Center(
-            child: Icon(
-              icon,
-              color: Colors.black,
-              size: size * 0.45,
-            ),
+            child: Icon(icon, color: Colors.black, size: size * 0.45),
           ),
         ),
       ),
