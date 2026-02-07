@@ -228,19 +228,68 @@ Widget _sectionHeader(String text) {
 }
 
 Widget _floatingButton() {
+  final double mainButtonSize = 75;
+  final double childrenButtonSize = 65;
   return SpeedDial(
     icon: Icons.add,
     activeIcon: Icons.close,
-    buttonSize: const Size(70.0, 70.0),
-    backgroundColor: Colors.pink, //พื้นหลังปุ่มก่อนกด
-    activeBackgroundColor: Colors.black, //พื้นหลังปุ่มหลังกด
+    spaceBetweenChildren: 10, // <<< ระยะห่างจริง
+    backgroundColor: Colors.black,
+    overlayColor: Colors.black,
+    elevation: 0,
+    childPadding: const EdgeInsets.all(0),
+    buttonSize: Size(mainButtonSize, mainButtonSize),
+    childrenButtonSize: Size(childrenButtonSize, childrenButtonSize),
+
     children: [
-      SpeedDialChild(child: Icon(Icons.edit), label: 'เพิ่มงาน', onTap: () {}),
-      SpeedDialChild(
-        child: Icon(Icons.alarm),
-        label: 'เพิ่มแจ้งเตือน',
-        onTap: () {},
-      ),
+      _customDial(Icons.settings, childrenButtonSize),
+      _customDial(Icons.calendar_month, childrenButtonSize),
     ],
+
+    child: _circleButton(Icons.add, mainButtonSize),
+  );
+}
+
+SpeedDialChild _customDial(IconData icon, double size) {
+  return SpeedDialChild(
+    backgroundColor: Colors.transparent,
+    elevation: 0,
+    child: _circleButton(icon, size),
+  );
+}
+
+Widget _circleButton(IconData icon, double size) {
+  const double outerBorder = 4;
+  const double innerBorder = 4;
+
+  return SizedBox(
+    width: size + outerBorder * 2,
+    height: size + outerBorder * 2,
+    child: DecoratedBox(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(color: Colors.pink, width: outerBorder),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(outerBorder),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.white,
+            border: Border.all(
+              color: const Color(0xFFFFAAEA),
+              width: innerBorder,
+            ),
+          ),
+          child: Center(
+            child: Icon(
+              icon,
+              color: Colors.black,
+              size: size * 0.45,
+            ),
+          ),
+        ),
+      ),
+    ),
   );
 }
