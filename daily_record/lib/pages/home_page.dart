@@ -1,5 +1,6 @@
 import 'package:daily_record/components/activity_card.dart';
 import 'package:daily_record/components/activity_header.dart';
+import 'package:daily_record/components/background.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
@@ -33,92 +34,69 @@ class _HomePageState extends State<HomePage> {
       {'icon': Icons.local_cafe, 'title': 'พักผ่อน', 'time': '09:00'},
     ];
 
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: Stack(
+    return Background(
+      floatingActionButton: _floatingButton(),
+      child: Column(
         children: [
-          _BackGroundLayer(color: Color(0xFFEB00B1), vMargin: 5),
-          _BackGroundLayer(color: Color(0xFFFFAAEA), vMargin: 15),
-          _BackGroundLayer(color: Colors.white, vMargin: 25),
-          SafeArea(
-            child: Column(
-              children: [
-                Expanded(
-                  flex: 1,
-                  child: Container(
-                    width: double.infinity,
-                    child: const ActivityHeader(),
-                  ),
-                ),
-                Expanded(
-                  flex: 2,
-                  child: Container(
-                    margin: const EdgeInsets.only(bottom: 20),
+          Expanded(
+            flex: 1,
+            child: Container(
+              width: double.infinity,
+              child: const ActivityHeader(),
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Container(
+              margin: const EdgeInsets.only(bottom: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
-                          child: Column(
-                            children: [
-                              _sectionHeader('ขณะนี้'),
-                              ActivityCard(
-                                icon: Icons.directions_run,
-                                title: 'ออกกำลังกาย',
-                                time: '06:00',
-                              ),
-                              _sectionHeader('รายการถัดไป'),
-                            ],
-                          ),
+                        _sectionHeader('ขณะนี้'),
+                        ActivityCard(
+                          icon: Icons.directions_run,
+                          title: 'ออกกำลังกาย',
+                          time: '06:00',
                         ),
-                        Expanded(
-                          child: ListView.separated(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 10,
-                            ), // เผื่อที่ให้ปุ่ม Floating
-                            itemCount: activities.length,
-                            separatorBuilder: (context, index) =>
-                                const SizedBox(height: 0),
-                            itemBuilder: (context, index) {
-                              final item = activities[index];
-
-                              return ActivityCard(
-                                icon: item['icon'],
-                                title: item['title'],
-                                time: item['time'],
-                                titleColor: item['titleColor'] ?? Colors.black,
-                                trailing: item['trailing'],
-                                trailingColor:
-                                    item['trailingColor'] ?? Colors.black,
-                              );
-                            },
-                          ),
-                        ),
+                        _sectionHeader('รายการถัดไป'),
                       ],
                     ),
                   ),
-                ),
-              ],
+                  Expanded(
+                    child: ListView.separated(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 10,
+                      ), // เผื่อที่ให้ปุ่ม Floating
+                      itemCount: activities.length,
+                      separatorBuilder: (context, index) =>
+                          const SizedBox(height: 0),
+                      itemBuilder: (context, index) {
+                        final item = activities[index];
+
+                        return ActivityCard(
+                          icon: item['icon'],
+                          title: item['title'],
+                          time: item['time'],
+                          titleColor: item['titleColor'] ?? Colors.black,
+                          trailing: item['trailing'],
+                          trailingColor: item['trailingColor'] ?? Colors.black,
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
       ),
-      floatingActionButton: _floatingButton(),
     );
   }
-}
-
-Widget _BackGroundLayer({required Color color, double vMargin = 0}) {
-  return Container(
-    margin: EdgeInsets.symmetric(vertical: vMargin),
-    decoration: BoxDecoration(
-      color: color,
-      borderRadius: BorderRadius.circular(40),
-    ),
-    width: double.infinity,
-    height: double.infinity,
-  );
 }
 
 Widget _sectionHeader(String text) {
