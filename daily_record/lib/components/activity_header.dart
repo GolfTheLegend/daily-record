@@ -27,8 +27,7 @@ class _ActivityHeaderState extends State<ActivityHeader> {
     final now = DateTime.now();
     setState(() {
       _currentTime =
-          now.hour.toString().padLeft(2, '0') +
-          ':' +
+          now.hour.toString().padLeft(2, '0') + ':' +
           now.minute.toString().padLeft(2, '0');
     });
   }

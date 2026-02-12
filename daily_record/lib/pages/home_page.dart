@@ -74,7 +74,7 @@ class _HomePageState extends State<HomePage> {
                       ), // เผื่อที่ให้ปุ่ม Floating
                       itemCount: activities.length,
                       separatorBuilder: (context, index) =>
-                          const SizedBox(height: 0),
+                      const SizedBox(height: 0),
                       itemBuilder: (context, index) {
                         final item = activities[index];
 

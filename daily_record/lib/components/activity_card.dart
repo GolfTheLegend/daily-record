@@ -118,24 +118,24 @@ class ActivityCardState extends State<ActivityCard> {
                     Container(
                       child: Row(
                         children: [
-                          _ButtonBox(
-                            'ไม่สำเร็จ',
-                            () {
+                          ButtonBox(
+                            title: 'ไม่สำเร็จ',
+                            onPressed: () {
                               print('ไม่สำเร็จ');
                             },
-                            const Color.fromARGB(255, 102, 12, 6),
-                            const Color.fromARGB(255, 252, 95, 83),
-                            const Color.fromARGB(255, 102, 12, 6),
+                            textColor: const Color.fromARGB(255, 102, 12, 6),
+                            color1: const Color.fromARGB(255, 252, 95, 83),
+                            color2: const Color.fromARGB(255, 102, 12, 6),
                           ),
                           const SizedBox(width: 8),
-                          _ButtonBox(
-                            'สำเร็จ',
-                            () {
+                          ButtonBox(
+                            title: 'สำเร็จ',
+                            onPressed: () {
                               print('สำเร็จ');
                             },
-                            const Color.fromARGB(255, 7, 68, 9),
-                            Colors.green,
-                            const Color.fromARGB(255, 7, 68, 9),
+                            textColor: const Color.fromARGB(255, 7, 68, 9),
+                            color1: Colors.green,
+                            color2: const Color.fromARGB(255, 7, 68, 9),
                           ),
                         ],
                       ),
@@ -188,47 +188,59 @@ class _PressScaleState extends State<_PressScale> {
   }
 }
 
-Widget _ButtonBox(
-  String tittle,
-  VoidCallback onPressed,
-  Color textColor,
-  Color color1,
-  Color color2,
-) {
-  return Expanded(
-    flex: 1,
-    child: Container(
-      padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
-      decoration: BoxDecoration(
-        color: color1,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: _PressScale(
-        onTap: onPressed,
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(0, 0, 0, 12),
-          decoration: BoxDecoration(
-            color: color2,
-            borderRadius: BorderRadius.circular(12),
-          ),
+class ButtonBox extends StatelessWidget {
+  final String title;
+  final VoidCallback onPressed;
+  final Color textColor;
+  final Color color1;
+  final Color color2;
+
+  const ButtonBox({
+    super.key,
+    required this.title,
+    required this.onPressed,
+    required this.textColor,
+    required this.color1,
+    required this.color2,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      flex: 1,
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+        decoration: BoxDecoration(
+          color: color1,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: _PressScale(
+          onTap: onPressed,
           child: Container(
-            height: 40,
-            alignment: Alignment.center,
+            padding: const EdgeInsets.fromLTRB(0, 0, 0, 12),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: color2,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Text(
-              tittle,
-              style: TextStyle(
-                color: textColor,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
+            child: Container(
+              height: 40,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                title,
+                style: TextStyle(
+                  color: textColor,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
               ),
             ),
           ),
         ),
       ),
-    ),
-  );
+    );
+  }
 }
