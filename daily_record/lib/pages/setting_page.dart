@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:daily_record/components/background.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -164,7 +166,81 @@ class _SettingPageState extends State<SettingPage> {
                           ),
                         ),
                       ),
+                      const SizedBox(height: 10),
+                      Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: SizedBox(
+                          width: double.infinity, // เต็มความกว้าง
+                          height: 50,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(
+                                0xFFD42929,
+                              ), // สีพื้นหลัง
+                              foregroundColor: Colors.white, // สีตัวอักษร
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                            ),
+                            onPressed: () => {print('ออกจากระบบ')},
+                            child: const Text(
+                              'ออกจากระบบ',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+
+          Expanded(
+            flex: 1,
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(10),
+                child: SizedBox(
+                  width: min(MediaQuery.of(context).size.width * 0.8, 500),
+                  height: 55,
+                  child: Container(
+                    padding: const EdgeInsets.all(5), // ความหนาขอบนอก
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEB00B1), // ชั้นนอกสุด
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Container(
+                      padding: const EdgeInsets.all(5), // ความหนาขอบใน
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFAAEA), // ชั้นใน
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: Colors.black,
+                          side: BorderSide.none,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        onPressed: () {
+                          print('Back');
+                        },
+                        child: const Text(
+                          'กลับ',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -174,19 +250,13 @@ class _SettingPageState extends State<SettingPage> {
       ),
     );
   }
-
 }
-
 
 class ThemeColor extends StatelessWidget {
   final Color color;
   final Widget? child;
 
-  const ThemeColor(
-    this.color, {
-    super.key,
-    this.child,
-  });
+  const ThemeColor(this.color, {super.key, this.child});
 
   @override
   Widget build(BuildContext context) {
