@@ -44,7 +44,7 @@ class _CalendarPageState extends State<CalendarPage> {
           Expanded(
             flex: 3,
             child: Container(
-              decoration: BoxDecoration(color: Colors.purpleAccent),
+              decoration: BoxDecoration(color: Colors.purpleAccent[100]),
             ),
           ),
         ],
@@ -55,7 +55,7 @@ class _CalendarPageState extends State<CalendarPage> {
 
 class _BoxHeader extends StatefulWidget {
   final String text;
-  const _BoxHeader({super.key, required this.text});
+  const _BoxHeader({required this.text});
 
   @override
   State<_BoxHeader> createState() => __BoxHeaderState();
@@ -96,15 +96,43 @@ class __BoxHeaderState extends State<_BoxHeader> {
 }
 
 class _CalendarTable extends StatefulWidget {
-  const _CalendarTable({super.key});
+  const _CalendarTable();
 
   @override
   State<_CalendarTable> createState() => __CalendarTableState();
 }
 
 class __CalendarTableState extends State<_CalendarTable> {
+  DateTime selectedDate = DateTime(2025, 2, 1); // กุมภาพันธ์ 2568
+  List<int> markedDates = [
+    1,
+    3,
+    4,
+    6,
+    8,
+    9,
+    15,
+    16,
+    18,
+    23,
+    28,
+  ]; // วันที่มีเครื่องหมาย
+  List<int> waitingDates = []; // วันที่รอดำเนินการ (สีแดง)
+
+  // ฟังก์ชันสำหรับดึงจำนวนวันในเดือน
+  int getDaysInMonth(DateTime date) {
+    return DateTime(date.year, date.month + 1, 0).day;
+  }
+
+  // ฟังก์ชันสำหรับดึงวันแรกของเดือน (0 = อาทิตย์, 1 = จันทร์, ...)
+  int getFirstDayOfMonth(DateTime date) {
+    return DateTime(date.year, date.month, 1).weekday % 7;
+  }
+
   @override
   Widget build(BuildContext context) {
+    int daysInMonth = getDaysInMonth(selectedDate);
+    int firstDayOfWeek = getFirstDayOfMonth(selectedDate);
     return Column(
       children: [
         Expanded(
@@ -160,7 +188,60 @@ class __CalendarTableState extends State<_CalendarTable> {
           ),
         ),
         _Line(),
-        Expanded(flex: 6, child: Container(color: Colors.blueAccent)),
+        Expanded(
+          flex: 6,
+          child: GridView.builder(
+            padding: const EdgeInsets.all(0),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 7,
+              childAspectRatio: 1,
+              crossAxisSpacing: 4,
+              mainAxisSpacing: 4,
+            ),
+            itemCount: 42, // 6 แถว x 7 วัน
+            itemBuilder: (context, index) {
+              int dayNumber = index - firstDayOfWeek + 1;
+
+              if (dayNumber < 1 || dayNumber > daysInMonth) {
+                return Container(); // ช่องว่าง
+              }
+              bool isWaiting = waitingDates.contains(dayNumber);
+              return Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFFFAAEA), width: 4),
+                ),
+                child: Stack(
+                  children: [
+                    // Center(
+                    //   child: Text(
+                    //     '$dayNumber',
+                    //     style: const TextStyle(
+                    //       fontSize: 18,
+                    //       fontWeight: FontWeight.w500,
+                    //     ),
+                    //   ),
+                    // ),
+                    // if (isWaiting)
+                    //   Positioned(
+                    //     top: 4,
+                    //     right: 4,
+                    //     child: Container(
+                    //       width: 8,
+                    //       height: 8,
+                    //       decoration: BoxDecoration(
+                    //         color: isWaiting ? Colors.red : Colors.green,
+                    //         shape: BoxShape.circle,
+                    //       ),
+                    //     ),
+                    //   ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
         _Line(),
       ],
     );
