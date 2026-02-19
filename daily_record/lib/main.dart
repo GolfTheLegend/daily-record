@@ -1,4 +1,5 @@
 import 'package:daily_record/pages/calendar_page.dart';
+import 'package:daily_record/pages/create_active_page.dart';
 import 'package:daily_record/pages/home_page.dart';
 import 'package:daily_record/pages/setting_page.dart';
 import 'package:daily_record/pages/theme_page.dart';
@@ -25,7 +26,8 @@ class MyApp extends StatelessWidget {
     // ThemePage();
     // HomePage();
     // SettingPage();
-    CalendarPage();
+    // CalendarPage();
+    CreateActivePage();
     
 
     return MaterialApp(
