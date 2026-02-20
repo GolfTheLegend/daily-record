@@ -103,8 +103,23 @@ class _CalendarTable extends StatefulWidget {
 }
 
 class __CalendarTableState extends State<_CalendarTable> {
-  DateTime selectedDate = DateTime(2025, 2, 1); // กุมภาพันธ์ 2568
-  List<int> markedDates = [
+  DateTime selectedDate = DateTime.now(); // เดือนปจุบัน
+  List<String> monthNameTH = [
+    'มกราคม',
+    'กุมภาพันธ์',
+    'มีนาคม',
+    'เมษายน',
+    'พฤษภาคม',
+    'มิถุนายน',
+    'กรกฎาคม',
+    'สิงหาคม',
+    'กันยายน',
+    'ตุลาคม',
+    'พฤศจิกายน',
+    'ธันวาคม',
+  ];
+  List<String> weekNameTH = ['อา.', 'จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.'];
+  List<int> waitingDates = [
     1,
     3,
     4,
@@ -117,7 +132,6 @@ class __CalendarTableState extends State<_CalendarTable> {
     23,
     28,
   ]; // วันที่มีเครื่องหมาย
-  List<int> waitingDates = []; // วันที่รอดำเนินการ (สีแดง)
 
   // ฟังก์ชันสำหรับดึงจำนวนวันในเดือน
   int getDaysInMonth(DateTime date) {
@@ -129,23 +143,40 @@ class __CalendarTableState extends State<_CalendarTable> {
     return DateTime(date.year, date.month, 1).weekday % 7;
   }
 
+  void previousMonth() {
+    setState(() {
+      selectedDate = DateTime(selectedDate.year, selectedDate.month - 1, 1);
+    });
+  }
+
+  void nextMonth() {
+    setState(() {
+      selectedDate = DateTime(selectedDate.year, selectedDate.month + 1, 1);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     int daysInMonth = getDaysInMonth(selectedDate);
     int firstDayOfWeek = getFirstDayOfMonth(selectedDate);
+    int totalItems = firstDayOfWeek + daysInMonth;
+    int rowCount = (totalItems / 7).ceil();
+    int itemCount = rowCount * 7;
+    String monthText = monthNameTH[selectedDate.month - 1]; //แสดงชื่อเดือน
+    int buddhistYear = selectedDate.year + 543; //แสดงเลขปี
+
     return Column(
       children: [
         Expanded(
           flex: 1,
           child: Container(
-            color: Colors.tealAccent,
             padding: const EdgeInsets.symmetric(horizontal: 10),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: previousMonth,
                   style: ElevatedButton.styleFrom(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15),
@@ -155,11 +186,11 @@ class __CalendarTableState extends State<_CalendarTable> {
                   child: const Icon(Icons.arrow_back_ios_new_outlined),
                 ),
                 Text(
-                  'กุมภาพันธ์ 2568',
+                  '$monthText $buddhistYear',
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: nextMonth,
                   style: ElevatedButton.styleFrom(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15),
@@ -176,66 +207,70 @@ class __CalendarTableState extends State<_CalendarTable> {
           flex: 1,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _BoxHeader(text: 'อา.'),
-              _BoxHeader(text: 'จ.'),
-              _BoxHeader(text: 'อ.'),
-              _BoxHeader(text: 'พ.'),
-              _BoxHeader(text: 'พฤ.'),
-              _BoxHeader(text: 'ศ.'),
-              _BoxHeader(text: 'ส.'),
-            ],
+            children: weekNameTH
+                .map((element) => _BoxHeader(text: element))
+                .toList(),
           ),
         ),
         _Line(),
         Expanded(
           flex: 6,
           child: GridView.builder(
-            padding: const EdgeInsets.all(0),
+            // shrinkWrap: true,
+            // physics: const NeverScrollableScrollPhysics(),
+            padding: const EdgeInsets.all(5),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 7,
               childAspectRatio: 1,
-              crossAxisSpacing: 4,
-              mainAxisSpacing: 4,
+              crossAxisSpacing: 8,
+              mainAxisSpacing: 8,
             ),
-            itemCount: 42, // 6 แถว x 7 วัน
+            itemCount: itemCount, // 6 แถว x 7 วัน
             itemBuilder: (context, index) {
               int dayNumber = index - firstDayOfWeek + 1;
-
               if (dayNumber < 1 || dayNumber > daysInMonth) {
-                return Container(); // ช่องว่าง
+                return SizedBox(); // ช่องว่าง
               }
               bool isWaiting = waitingDates.contains(dayNumber);
+
               return Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: const Color(0xFFFFAAEA), width: 4),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.3),
+                      blurRadius: 5,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
                 child: Stack(
                   children: [
-                    // Center(
-                    //   child: Text(
-                    //     '$dayNumber',
-                    //     style: const TextStyle(
-                    //       fontSize: 18,
-                    //       fontWeight: FontWeight.w500,
-                    //     ),
-                    //   ),
-                    // ),
-                    // if (isWaiting)
-                    //   Positioned(
-                    //     top: 4,
-                    //     right: 4,
-                    //     child: Container(
-                    //       width: 8,
-                    //       height: 8,
-                    //       decoration: BoxDecoration(
-                    //         color: isWaiting ? Colors.red : Colors.green,
-                    //         shape: BoxShape.circle,
-                    //       ),
-                    //     ),
-                    //   ),
+                    Center(
+                      child: Text(
+                        '$dayNumber',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    if (isWaiting)
+                      Positioned(
+                        top: 4,
+                        right: 4,
+                        child: Container(
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: isWaiting ? Colors.red : Colors.green,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      ),
                   ],
                 ),
               );
