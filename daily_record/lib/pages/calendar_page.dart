@@ -1,4 +1,7 @@
+import 'dart:math';
+
 import 'package:daily_record/components/background.dart';
+import 'package:daily_record/components/border_button.dart';
 import 'package:flutter/material.dart';
 
 class CalendarPage extends StatefulWidget {
@@ -43,12 +46,145 @@ class _CalendarPageState extends State<CalendarPage> {
           Expanded(flex: 5, child: _CalendarTable()),
           Expanded(
             flex: 3,
-            child: Container(
-              decoration: BoxDecoration(color: Colors.purpleAccent[100]),
+            child: Column(
+              children: [
+                Expanded(
+                  flex: 1,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 5,
+                    ),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        border: Border.all(
+                          color: const Color.fromARGB(255, 201, 201, 201),
+                          width: 1,
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const SizedBox(width: 5),
+                          Row(
+                            children: [
+                              _dot(Color(0xFF84FF8D)),
+                              const SizedBox(width: 5),
+                              const Text(
+                                'มีรายการ',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(width: 10),
+                              _dot(Colors.redAccent),
+                              const SizedBox(width: 5),
+                              const Text(
+                                'วันสำคัญ',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(width: 5),
+                            ],
+                          ),
+                          const SizedBox(width: 10),
+                          Container(
+                            padding: EdgeInsets.symmetric(horizontal: 20),
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: const Color(0xFFFFAAEA),
+                                width: 4,
+                              ),
+                              borderRadius: BorderRadius.circular(10),
+                              color: Colors.white,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.3),
+                                  blurRadius: 6,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: const Text(
+                              'รายละเอียด',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          const SizedBox(width: 5),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  flex: 3,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 5,
+                    ),
+                    width: MediaQuery.of(context).size.width,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        border: Border.all(
+                          color: const Color.fromARGB(255, 201, 201, 201),
+                          width: 1,
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Padding(
+                        padding: EdgeInsetsGeometry.all(10),
+                        child: Text('x'),
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      BorderButton(
+                        width: min(
+                          MediaQuery.of(context).size.width * 0.3,
+                          500,
+                        ),
+                        borderColor1: const Color(0xFFEB00B1),
+                        borderColor2: const Color(0xFFFFAAEA),
+                        backgroundColor: Colors.white,
+                        text: 'กลับ',
+                      ),
+                      BorderButton(
+                        width: min(
+                          MediaQuery.of(context).size.width * 0.3,
+                          500,
+                        ),
+                        borderColor1: Colors.black,
+                        borderColor2: Colors.white,
+                        backgroundColor: Color(0xFF84FF8D),
+                        text: '+ เพิ่ม',
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _dot(Color dotColor) {
+    return Container(
+      decoration: BoxDecoration(
+        color: dotColor,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      width: 20,
+      height: 20,
     );
   }
 }

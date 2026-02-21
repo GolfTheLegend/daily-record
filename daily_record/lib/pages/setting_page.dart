@@ -209,6 +209,7 @@ class _SettingPageState extends State<SettingPage> {
                 borderColor1: const Color(0xFFEB00B1),
                 borderColor2: const Color(0xFFFFAAEA),
                 backgroundColor: Colors.white,
+                text: 'กลับ',
               ),
             ),
           ),

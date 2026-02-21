@@ -5,12 +5,14 @@ class BorderButton extends StatefulWidget {
   final Color borderColor1;
   final Color borderColor2;
   final Color backgroundColor;
+  final String text;
   const BorderButton({
     super.key,
     required this.width,
     required this.borderColor1,
     required this.borderColor2,
     required this.backgroundColor,
+    required this.text,
   });
 
   @override
@@ -47,10 +49,10 @@ class _BorderButtonState extends State<BorderButton> {
                 ),
               ),
               onPressed: () {
-                print('Back');
+                print(widget.text);
               },
-              child: const Text(
-                'กลับ',
+              child: Text(
+                widget.text,
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
               ),
             ),
