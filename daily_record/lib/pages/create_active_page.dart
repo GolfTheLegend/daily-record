@@ -1,4 +1,5 @@
 import 'package:daily_record/components/background.dart';
+import 'package:daily_record/components/timeselection_button.dart';
 import 'package:flutter/material.dart';
 
 class CreateActivePage extends StatefulWidget {
@@ -63,15 +64,24 @@ class _CreateActivePageState extends State<CreateActivePage> {
             child: Container(
               decoration: BoxDecoration(color: Colors.blue[100]),
               child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Row(children: []),
-                SizedBox(width: 5),
-                const Text('ถึง',style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),),
-                SizedBox(width: 5),
-                Row(children: []),
-              ],
-            ),
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TimeSelectionButton(),
+                  SizedBox(width: 5),
+                  const Text(
+                    'ถึง',
+                    style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(width: 5),
+                  Row(
+                    children: [
+                      Container(child: const Text('12')),
+                      const Text(':'),
+                      Container(child: const Text('00')),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
           Expanded(

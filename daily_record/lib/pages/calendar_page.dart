@@ -142,31 +142,34 @@ class _CalendarPageState extends State<CalendarPage> {
                 ),
                 Expanded(
                   flex: 2,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      BorderButton(
-                        width: min(
-                          MediaQuery.of(context).size.width * 0.3,
-                          500,
+                  child: Container(
+                    margin: EdgeInsets.symmetric(horizontal: 15),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        BorderButton(
+                          width: min(
+                            MediaQuery.of(context).size.width * 0.4,
+                            500,
+                          ),
+                          borderColor1: const Color(0xFFEB00B1),
+                          borderColor2: const Color(0xFFFFAAEA),
+                          backgroundColor: Colors.white,
+                          text: 'กลับ',
                         ),
-                        borderColor1: const Color(0xFFEB00B1),
-                        borderColor2: const Color(0xFFFFAAEA),
-                        backgroundColor: Colors.white,
-                        text: 'กลับ',
-                      ),
-                      BorderButton(
-                        width: min(
-                          MediaQuery.of(context).size.width * 0.3,
-                          500,
+                        BorderButton(
+                          width: min(
+                            MediaQuery.of(context).size.width * 0.4,
+                            500,
+                          ),
+                          borderColor1: Colors.black,
+                          borderColor2: Colors.white,
+                          backgroundColor: Color(0xFF84FF8D),
+                          text: '+ เพิ่ม',
                         ),
-                        borderColor1: Colors.black,
-                        borderColor2: Colors.white,
-                        backgroundColor: Color(0xFF84FF8D),
-                        text: '+ เพิ่ม',
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ],
