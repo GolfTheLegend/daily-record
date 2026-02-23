@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:daily_record/components/background.dart';
 import 'package:daily_record/components/border_button.dart';
+import 'package:daily_record/components/input.dart';
 import 'package:daily_record/components/timeselection_button.dart';
 import 'package:flutter/material.dart';
 
@@ -87,27 +88,29 @@ class _CreateActivePageState extends State<CreateActivePage> {
               children: [
                 Expanded(
                   flex: 1,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'รายการ',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Container(
-                        width: MediaQuery.of(context).size.width * 0.7,
-                        child: TextFormField(
-                           maxLength: 50,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(),
-                            hintText: 'Enter a search term',
+                  child: Container(
+                    color: Colors.blue,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const Text(
+                          'หัวข้อ',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                      ),
-                    ],
+                        Container(
+                          width: MediaQuery.of(context).size.width * 0.7,
+                          height: 50,
+                          child: Input(
+                            isMultiline: false,
+                            maxLength: 50,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 Expanded(flex: 3, child: Text('')),
