@@ -1,4 +1,7 @@
+import 'dart:math';
+
 import 'package:daily_record/components/background.dart';
+import 'package:daily_record/components/border_button.dart';
 import 'package:daily_record/components/timeselection_button.dart';
 import 'package:flutter/material.dart';
 
@@ -67,27 +70,80 @@ class _CreateActivePageState extends State<CreateActivePage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   TimeSelectionButton(),
-                  SizedBox(width: 5),
+                  SizedBox(width: 10),
                   const Text(
                     'ถึง',
                     style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(width: 5),
-                  Row(
-                    children: [
-                      Container(child: const Text('12')),
-                      const Text(':'),
-                      Container(child: const Text('00')),
-                    ],
-                  ),
+                  SizedBox(width: 10),
+                  TimeSelectionButton(),
                 ],
               ),
             ),
           ),
           Expanded(
             flex: 4,
-            child: Container(
-              decoration: BoxDecoration(color: Colors.blue[200]),
+            child: Column(
+              children: [
+                Expanded(
+                  flex: 1,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'รายการ',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Container(
+                        width: MediaQuery.of(context).size.width * 0.7,
+                        child: TextFormField(
+                           maxLength: 50,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(),
+                            hintText: 'Enter a search term',
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(flex: 3, child: Text('')),
+                Expanded(
+                  flex: 2,
+                  child: Container(
+                    margin: EdgeInsets.symmetric(horizontal: 15),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        BorderButton(
+                          width: min(
+                            MediaQuery.of(context).size.width * 0.4,
+                            500,
+                          ),
+                          borderColor1: const Color(0xFFEB00B1),
+                          borderColor2: const Color(0xFFFFAAEA),
+                          backgroundColor: Colors.white,
+                          text: 'กลับ',
+                        ),
+                        BorderButton(
+                          width: min(
+                            MediaQuery.of(context).size.width * 0.4,
+                            500,
+                          ),
+                          borderColor1: Colors.black,
+                          borderColor2: Colors.white,
+                          backgroundColor: Color(0xFF84FF8D),
+                          text: '+ เพิ่ม',
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],

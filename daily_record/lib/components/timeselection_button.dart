@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:daily_record/components/border_button.dart';
 import 'package:flutter/material.dart';
 
 class TimeSelectionButton extends StatefulWidget {
@@ -207,7 +210,7 @@ class _TimePickerModalState extends State<_TimePickerModal> {
                   ':',
                   style: TextStyle(
                     fontSize: 32,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.bold,
                     color: Colors.black54,
                   ),
                 ),
@@ -227,54 +230,26 @@ class _TimePickerModalState extends State<_TimePickerModal> {
           Row(
             children: [
               // Back button
-              Expanded(
-                child: GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: Container(
-                    height: 52,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: _highlightColor, width: 2.5),
-                    ),
-                    alignment: Alignment.center,
-                    child: const Text(
-                      '< Back',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFFE91E8C),
-                      ),
-                    ),
-                  ),
-                ),
+              BorderButton(
+                onPressed: () => Navigator.pop(context),
+                width: min(MediaQuery.of(context).size.width * 0.3, 500),
+                borderColor1: const Color(0xFFEB00B1),
+                borderColor2: const Color(0xFFFFAAEA),
+                backgroundColor: Colors.white,
+                text: 'กลับ',
               ),
               const SizedBox(width: 12),
               // Save button
-              Expanded(
-                child: GestureDetector(
-                  onTap: () {
-                    widget.onSave(_selectedHour, _selectedMinute);
-                    Navigator.pop(context);
-                  },
-                  child: Container(
-                    height: 52,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: Colors.green, width: 2.5),
-                    ),
-                    alignment: Alignment.center,
-                    child: const Text(
-                      'Save',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.green,
-                      ),
-                    ),
-                  ),
-                ),
+              BorderButton(
+                onPressed: () => {
+                  widget.onSave(_selectedHour, _selectedMinute),
+                  Navigator.pop(context),
+                },
+                width: min(MediaQuery.of(context).size.width * 0.3, 500),
+                borderColor1: Colors.black,
+                borderColor2: Colors.white,
+                backgroundColor: Color(0xFF84FF8D),
+                text: 'บันทึก',
               ),
             ],
           ),

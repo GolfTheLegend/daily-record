@@ -6,6 +6,7 @@ class BorderButton extends StatefulWidget {
   final Color borderColor2;
   final Color backgroundColor;
   final String text;
+  final Function()? onPressed;
   const BorderButton({
     super.key,
     required this.width,
@@ -13,6 +14,7 @@ class BorderButton extends StatefulWidget {
     required this.borderColor2,
     required this.backgroundColor,
     required this.text,
+    this.onPressed,
   });
 
   @override
@@ -49,7 +51,7 @@ class _BorderButtonState extends State<BorderButton> {
                 ),
               ),
               onPressed: () {
-                print(widget.text);
+                widget.onPressed?.call();
               },
               child: Text(
                 widget.text,
