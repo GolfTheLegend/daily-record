@@ -51,9 +51,9 @@ class _InputState extends State<Input> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
-        color: Colors.grey.shade200,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade400),
+        border: Border.all(color: Colors.grey.shade500),
       ),
       child: widget.isMultiline
           ? _buildMultiline()
@@ -112,7 +112,7 @@ class _InputState extends State<Input> {
       "${_controller.text.length}/${widget.maxLength}",
       style: TextStyle(
         fontSize: 12,
-        color: Colors.grey.shade600,
+        color: Colors.grey.shade700,
       ),
     );
   }

@@ -88,10 +88,10 @@ class _CreateActivePageState extends State<CreateActivePage> {
               children: [
                 Expanded(
                   flex: 1,
-                  child: Container(
-                    color: Colors.blue,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         const Text(
@@ -101,19 +101,17 @@ class _CreateActivePageState extends State<CreateActivePage> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
+                        const SizedBox(width: 20),
                         Container(
                           width: MediaQuery.of(context).size.width * 0.7,
-                          height: 50,
-                          child: Input(
-                            isMultiline: false,
-                            maxLength: 50,
-                          ),
+                          height: 45,
+                          child: Input(isMultiline: false, maxLength: 50),
                         ),
                       ],
                     ),
                   ),
                 ),
-                Expanded(flex: 3, child: Text('')),
+                Expanded(flex: 3, child: Container(color: Colors.lightBlue)),
                 Expanded(
                   flex: 2,
                   child: Container(
