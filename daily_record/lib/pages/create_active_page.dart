@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:daily_record/components/background.dart';
 import 'package:daily_record/components/border_button.dart';
+import 'package:daily_record/components/checkbox_button.dart';
 import 'package:daily_record/components/input.dart';
 import 'package:daily_record/components/timeselection_button.dart';
 import 'package:flutter/material.dart';
@@ -111,7 +112,23 @@ class _CreateActivePageState extends State<CreateActivePage> {
                     ),
                   ),
                 ),
-                Expanded(flex: 3, child: Container(color: Colors.lightBlue)),
+                Expanded(
+                  flex: 3,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    color: Colors.lightBlue,
+                    width: double.infinity,
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                           CheckboxButton()
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
                 Expanded(
                   flex: 2,
                   child: Container(
