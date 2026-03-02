@@ -35,14 +35,14 @@ class _TimeSelectionButtonState extends State<TimeSelectionButton> {
 
   Widget _timeBox(String value) {
     return Container(
-      width: 72,
-      height: 72,
+      width: 65,
+      height: 65,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withOpacity(0.2),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -53,7 +53,7 @@ class _TimeSelectionButtonState extends State<TimeSelectionButton> {
         value,
         style: const TextStyle(
           fontSize: 28,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w900,
           color: Colors.black87,
         ),
       ),
@@ -76,8 +76,8 @@ class _TimeSelectionButtonState extends State<TimeSelectionButton> {
             child: Text(
               ':',
               style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.w600,
+                fontSize: 30,
+                fontWeight: FontWeight.w900,
                 color: Colors.black87,
               ),
             ),
@@ -229,27 +229,27 @@ class _TimePickerModalState extends State<_TimePickerModal> {
           // ── Buttons row ──
           Row(
             children: [
-              // Back button
-              BorderButton(
-                onPressed: () => Navigator.pop(context),
-                width: min(MediaQuery.of(context).size.width * 0.3, 500),
-                borderColor1: const Color(0xFFEB00B1),
-                borderColor2: const Color(0xFFFFAAEA),
-                backgroundColor: Colors.white,
-                text: 'กลับ',
+              Expanded(
+                child: BorderButton(
+                  onPressed: () => Navigator.pop(context),
+                  borderColor1: const Color(0xFFEB00B1),
+                  borderColor2: const Color(0xFFFFAAEA),
+                  backgroundColor: Colors.white,
+                  text: 'กลับ',
+                ),
               ),
               const SizedBox(width: 12),
-              // Save button
-              BorderButton(
-                onPressed: () => {
-                  widget.onSave(_selectedHour, _selectedMinute),
-                  Navigator.pop(context),
-                },
-                width: min(MediaQuery.of(context).size.width * 0.3, 500),
-                borderColor1: Colors.black,
-                borderColor2: Colors.white,
-                backgroundColor: Color(0xFF84FF8D),
-                text: 'บันทึก',
+              Expanded(
+                child: BorderButton(
+                  onPressed: () {
+                    widget.onSave(_selectedHour, _selectedMinute);
+                    Navigator.pop(context);
+                  },
+                  borderColor1: Colors.black,
+                  borderColor2: Colors.white,
+                  backgroundColor: const Color(0xFF84FF8D),
+                  text: 'บันทึก',
+                ),
               ),
             ],
           ),

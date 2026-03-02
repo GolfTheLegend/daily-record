@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class BorderButton extends StatefulWidget {
-  final double width;
+  final double? width;
   final Color borderColor1;
   final Color borderColor2;
   final Color backgroundColor;
@@ -9,7 +9,7 @@ class BorderButton extends StatefulWidget {
   final Function()? onPressed;
   const BorderButton({
     super.key,
-    required this.width,
+    this.width,
     required this.borderColor1,
     required this.borderColor2,
     required this.backgroundColor,
@@ -27,7 +27,7 @@ class _BorderButtonState extends State<BorderButton> {
     return Padding(
       padding: const EdgeInsets.all(10),
       child: SizedBox(
-        width: widget.width,
+        width: widget.width ?? null,
         height: 55,
         child: Container(
           padding: const EdgeInsets.all(5), // ความหนาขอบนอก

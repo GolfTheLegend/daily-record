@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
 class Input extends StatefulWidget {
-  final int maxLength;
-  final String? hintText;
+  final int maxLength; //จำนวนข้อความสูงสุดที่กรอกได้
+  final String? hintText; //ตัวอักษรเมื่อไม่ได้กรอก
   final TextEditingController? controller;
-  final bool isMultiline;
+  final bool isMultiline; //เปลี่ยนเป็นแบบหลายบรรทัดได้
+  final double? height;
 
   const Input({
     super.key,
@@ -12,6 +13,7 @@ class Input extends StatefulWidget {
     this.hintText,
     this.controller,
     this.isMultiline = false,
+    this.height
   });
 
   @override
@@ -50,6 +52,7 @@ class _InputState extends State<Input> {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12),
+      height: widget.height?? null,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),

@@ -67,17 +67,16 @@ class _CreateActivePageState extends State<CreateActivePage> {
           Expanded(
             flex: 1,
             child: Container(
-              decoration: BoxDecoration(color: Colors.blue[100]),
+              padding: const EdgeInsets.symmetric(horizontal: 15),
+              width: double.infinity,
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   TimeSelectionButton(),
-                  SizedBox(width: 10),
                   const Text(
                     'ถึง',
                     style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(width: 10),
                   TimeSelectionButton(),
                 ],
               ),
@@ -90,9 +89,9 @@ class _CreateActivePageState extends State<CreateActivePage> {
                 Expanded(
                   flex: 1,
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         const Text(
@@ -104,7 +103,7 @@ class _CreateActivePageState extends State<CreateActivePage> {
                         ),
                         const SizedBox(width: 20),
                         Container(
-                          width: MediaQuery.of(context).size.width * 0.7,
+                          width: MediaQuery.of(context).size.width * 0.75,
                           height: 45,
                           child: Input(isMultiline: false, maxLength: 50),
                         ),
@@ -115,15 +114,58 @@ class _CreateActivePageState extends State<CreateActivePage> {
                 Expanded(
                   flex: 3,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    color: Colors.lightBlue,
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
                     width: double.infinity,
                     child: Column(
                       children: [
                         Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                           CheckboxButton()
+                            CheckboxButton(),
+                            const Text(
+                              'สำคัญ',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.red,
+                                fontSize: 20,
+                              ),
+                            ),
+                            const SizedBox(width: 20),
+                            CheckboxButton(),
+                            const Text(
+                              'ทุกวัน',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.green,
+                                fontSize: 20,
+                              ),
+                            ),
                           ],
+                        ),
+
+                        Container(
+                          width: double.infinity,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'รายละเอียด',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              Container(
+                                width: double.infinity,
+                                child: Input(
+                                  isMultiline: true,
+                                  height: 130,
+                                  maxLength: 150,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),

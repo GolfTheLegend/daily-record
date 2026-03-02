@@ -21,18 +21,26 @@ class _CheckboxButtonState extends State<CheckboxButton> {
       if (states.any(interactiveStates.contains)) {
         return Colors.blue;
       }
-      return Colors.red;
+      return Colors.white; //background
     }
 
-    return Checkbox(
-      checkColor: Colors.white,
-      fillColor: WidgetStateProperty.resolveWith(getColor),
-      value: isChecked,
-      onChanged: (bool? value) {
-        setState(() {
-          isChecked = value!;
-        });
-      },
+    return Transform.scale(
+      scale: 1.4,
+      child: Checkbox(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+        side: WidgetStateBorderSide.resolveWith((states) {
+          // จะ checked หรือไม่ checked ก็ให้มีเส้นเสมอ
+          return const BorderSide(width: 2, color: Colors.black);
+        }),
+        fillColor: WidgetStateProperty.resolveWith(getColor),
+        checkColor: Colors.black,
+        value: isChecked,
+        onChanged: (value) {
+          setState(() {
+            isChecked = value!;
+          });
+        },
+      ),
     );
   }
 }
