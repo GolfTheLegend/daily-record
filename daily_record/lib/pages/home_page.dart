@@ -35,7 +35,7 @@ class _HomePageState extends State<HomePage> {
     ];
 
     return Background(
-      floatingActionButton: _floatingButton(),
+      floatingActionButton: _floatingButton(context),
       child: Column(
         children: [
           Expanded(
@@ -74,7 +74,7 @@ class _HomePageState extends State<HomePage> {
                       ), // เผื่อที่ให้ปุ่ม Floating
                       itemCount: activities.length,
                       separatorBuilder: (context, index) =>
-                      const SizedBox(height: 0),
+                          const SizedBox(height: 0),
                       itemBuilder: (context, index) {
                         final item = activities[index];
 
@@ -115,7 +115,7 @@ Widget _sectionHeader(String text) {
   );
 }
 
-Widget _floatingButton() {
+Widget _floatingButton(BuildContext context) {
   final double mainButtonSize = 75;
   final double childrenButtonSize = 65;
   return SpeedDial(
@@ -130,47 +130,51 @@ Widget _floatingButton() {
     childrenButtonSize: Size(childrenButtonSize, childrenButtonSize),
 
     children: [
-      _customDial(Icons.settings, childrenButtonSize),
-      _customDial(Icons.calendar_month, childrenButtonSize),
+      _customDial(context,Icons.settings, childrenButtonSize,() => Navigator.pushNamed(context, '/setting')),
+      _customDial(context,Icons.calendar_month, childrenButtonSize,() => Navigator.pushNamed(context, '/calendar')),
     ],
 
-    child: _circleButton(Icons.add, mainButtonSize),
+    child: _circleButton(context,Icons.add, mainButtonSize,null),
   );
 }
 
-SpeedDialChild _customDial(IconData icon, double size) {
+SpeedDialChild _customDial(BuildContext context, IconData icon, double size,Function()? onTap) {
   return SpeedDialChild(
     backgroundColor: Colors.transparent,
     elevation: 0,
-    child: _circleButton(icon, size),
+    onTap: onTap,
+    child: _circleButton(context,icon, size,null),
   );
 }
 
-Widget _circleButton(IconData icon, double size) {
+Widget _circleButton(BuildContext context, IconData icon, double size,Function()? onTap) {
   const double outerBorder = 4;
   const double innerBorder = 4;
 
-  return SizedBox(
-    width: size + outerBorder * 2,
-    height: size + outerBorder * 2,
-    child: DecoratedBox(
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(color: Colors.pink, width: outerBorder),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(outerBorder),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Colors.white,
-            border: Border.all(
-              color: const Color(0xFFFFAAEA),
-              width: innerBorder,
+  return GestureDetector(
+    onTap: onTap,
+    child: SizedBox(
+      width: size + outerBorder * 2,
+      height: size + outerBorder * 2,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.pink, width: outerBorder),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(outerBorder),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white,
+              border: Border.all(
+                color: const Color(0xFFFFAAEA),
+                width: innerBorder,
+              ),
             ),
-          ),
-          child: Center(
-            child: Icon(icon, color: Colors.black, size: size * 0.45),
+            child: Center(
+              child: Icon(icon, color: Colors.black, size: size * 0.45),
+            ),
           ),
         ),
       ),

@@ -157,6 +157,7 @@ class _CalendarPageState extends State<CalendarPage> {
                           borderColor2: const Color(0xFFFFAAEA),
                           backgroundColor: Colors.white,
                           text: 'กลับ',
+                          onPressed:() => Navigator.pop(context),
                         ),
                         BorderButton(
                           width: min(
@@ -167,6 +168,7 @@ class _CalendarPageState extends State<CalendarPage> {
                           borderColor2: Colors.white,
                           backgroundColor: Color(0xFF84FF8D),
                           text: '+ เพิ่ม',
+                          onPressed: () => Navigator.pushNamed(context, '/create')
                         ),
                       ],
                     ),

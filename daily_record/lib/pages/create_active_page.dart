@@ -209,6 +209,7 @@ class _CreateActivePageState extends State<CreateActivePage> {
                           borderColor2: const Color(0xFFFFAAEA),
                           backgroundColor: Colors.white,
                           text: 'กลับ',
+                          onPressed:() => Navigator.pop(context)
                         ),
                         BorderButton(
                           width: min(

@@ -210,6 +210,7 @@ class _SettingPageState extends State<SettingPage> {
                 borderColor2: const Color(0xFFFFAAEA),
                 backgroundColor: Colors.white,
                 text: 'กลับ',
+                onPressed:() => Navigator.pop(context),
               ),
             ),
           ),

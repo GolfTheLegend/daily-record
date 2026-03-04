@@ -22,18 +22,18 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Widget page = 
-    // ThemePage();
-    // HomePage();
-    // SettingPage();
-    // CalendarPage();
-    CreateActivePage();
-    
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: page,
       theme: Provider.of<ThemeProvider>(context).themeData,
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const HomePage(),
+        '/create': (context) => const CreateActivePage(),
+        '/calendar': (context) => const CalendarPage(),
+        '/setting': (context) => const SettingPage(),
+        '/theme': (context) => const ThemePage(),
+      },
     );
   }
 }
