@@ -3,9 +3,12 @@ import 'dart:math';
 import 'package:daily_record/components/background.dart';
 import 'package:daily_record/components/border_button.dart';
 import 'package:daily_record/components/checkbox_button.dart';
+import 'package:daily_record/components/iconselection.dart';
 import 'package:daily_record/components/input.dart';
 import 'package:daily_record/components/timeselection_button.dart';
+import 'package:daily_record/constants/icons.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class CreateActivePage extends StatefulWidget {
   const CreateActivePage({super.key});
@@ -15,8 +18,28 @@ class CreateActivePage extends StatefulWidget {
 }
 
 class _CreateActivePageState extends State<CreateActivePage> {
+  int? iconSelect;
+
+  void _iconPicker() {
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+        child: IconSelection(
+          onSelect: (value) {
+            setState(() {
+              iconSelect = value;
+            });
+          },
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
     return Background(
       child: Column(
         children: [
@@ -34,7 +57,7 @@ class _CreateActivePageState extends State<CreateActivePage> {
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 GestureDetector(
-                  onTap: () => print("Tapped"),
+                  onTap: _iconPicker,
                   child: Container(
                     padding: const EdgeInsets.all(5),
                     decoration: BoxDecoration(
@@ -55,9 +78,7 @@ class _CreateActivePageState extends State<CreateActivePage> {
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(50),
                       ),
-                      child: const Center(
-                        child: Icon(Icons.add, size: 60, color: Colors.black),
-                      ),
+                      child: Center(child: _buildSelectedIcon()),
                     ),
                   ),
                 ),
@@ -103,7 +124,7 @@ class _CreateActivePageState extends State<CreateActivePage> {
                         ),
                         const SizedBox(width: 20),
                         Container(
-                          width: MediaQuery.of(context).size.width * 0.75,
+                          width: screenWidth * 0.75,
                           height: 45,
                           child: Input(isMultiline: false, maxLength: 50),
                         ),
@@ -181,7 +202,7 @@ class _CreateActivePageState extends State<CreateActivePage> {
                       children: [
                         BorderButton(
                           width: min(
-                            MediaQuery.of(context).size.width * 0.4,
+                            screenWidth * 0.4,
                             500,
                           ),
                           borderColor1: const Color(0xFFEB00B1),
@@ -191,13 +212,13 @@ class _CreateActivePageState extends State<CreateActivePage> {
                         ),
                         BorderButton(
                           width: min(
-                            MediaQuery.of(context).size.width * 0.4,
+                            screenWidth * 0.4,
                             500,
                           ),
                           borderColor1: Colors.black,
                           borderColor2: Colors.white,
                           backgroundColor: Color(0xFF84FF8D),
-                          text: '+ เพิ่ม',
+                          text: 'บันทึก',
                         ),
                       ],
                     ),
@@ -209,5 +230,22 @@ class _CreateActivePageState extends State<CreateActivePage> {
         ],
       ),
     );
+  }
+
+  Widget _buildSelectedIcon() {
+    if (iconSelect == null) {
+      return const Icon(Icons.add, size: 60);
+    }
+
+    final selected = iconsData.firstWhere(
+      (i) => i.keyId == iconSelect,
+      orElse: () => iconsData.first,
+    );
+
+    if (selected.icon != null) {
+      return Icon(selected.icon, size: 60);
+    }
+
+    return SvgPicture.asset(selected.iconPath!, width: 60);
   }
 }

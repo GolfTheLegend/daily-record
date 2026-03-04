@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:daily_record/components/border_button.dart';
 import 'package:flutter/material.dart';
 
@@ -185,7 +183,7 @@ class _TimePickerModalState extends State<_TimePickerModal> {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
+      padding: const EdgeInsets.fromLTRB(20, 24, 20, 10),
       decoration: BoxDecoration(
         color: const Color(0xFFF2F2F7),
         borderRadius: BorderRadius.circular(28),
