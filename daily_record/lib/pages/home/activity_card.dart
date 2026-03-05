@@ -1,3 +1,4 @@
+import 'package:daily_record/components/press_scale.dart';
 import 'package:flutter/material.dart';
 
 class ActivityCard extends StatefulWidget {
@@ -152,41 +153,6 @@ class ActivityCardState extends State<ActivityCard> {
   }
 }
 
-class _PressScale extends StatefulWidget {
-  final Widget child;
-  final VoidCallback onTap;
-
-  const _PressScale({required this.child, required this.onTap});
-
-  @override
-  State<_PressScale> createState() => _PressScaleState();
-}
-
-class _PressScaleState extends State<_PressScale> {
-  bool _pressed = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: (_) => setState(() => _pressed = true),
-      onTapUp: (_) {
-        setState(() => _pressed = false);
-        widget.onTap();
-      },
-      onTapCancel: () => setState(() => _pressed = false),
-      child: AnimatedScale(
-        scale: _pressed ? 0.9 : 1.0, // ยุบลง
-        duration: const Duration(milliseconds: 100),
-        curve: Curves.easeOut,
-        child: AnimatedOpacity(
-          opacity: _pressed ? 0.85 : 1,
-          duration: const Duration(milliseconds: 100),
-          child: widget.child,
-        ),
-      ),
-    );
-  }
-}
 
 class ButtonBox extends StatelessWidget {
   final String title;
@@ -214,7 +180,7 @@ class ButtonBox extends StatelessWidget {
           color: color1,
           borderRadius: BorderRadius.circular(12),
         ),
-        child: _PressScale(
+        child: PressScale(
           onTap: onPressed,
           child: Container(
             padding: const EdgeInsets.fromLTRB(0, 0, 0, 12),

@@ -1,4 +1,4 @@
-import 'package:daily_record/themes/theme.dart';
+import 'package:daily_record/core/themes/theme.dart';
 import 'package:flutter/material.dart';
 
 class ThemeProvider extends ChangeNotifier {

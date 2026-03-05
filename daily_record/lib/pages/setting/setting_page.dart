@@ -2,6 +2,8 @@ import 'dart:math';
 
 import 'package:daily_record/components/background.dart';
 import 'package:daily_record/components/border_button.dart';
+import 'package:daily_record/pages/setting/themeselection.dart';
+import 'package:daily_record/core/configs/configs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -13,6 +15,25 @@ class SettingPage extends StatefulWidget {
 }
 
 class _SettingPageState extends State<SettingPage> {
+  int? themeSelectKey;
+
+  void _selectTheme() {
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Themeselection(
+          onSelect: (value) {
+            setState(() {
+              themeSelectKey = value;
+            });
+          },
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Background(
@@ -51,7 +72,7 @@ class _SettingPageState extends State<SettingPage> {
                   child: Column(
                     children: [
                       GestureDetector(
-                        onTap: () => (print('tap')),
+                        onTap: _selectTheme,
                         child: Padding(
                           padding: const EdgeInsets.all(10),
                           child: Container(
@@ -167,6 +188,45 @@ class _SettingPageState extends State<SettingPage> {
                           ),
                         ),
                       ),
+                      Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(15),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.3),
+                                blurRadius: 6,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          padding: const EdgeInsets.all(10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              SizedBox(
+                                child: const Text(
+                                  'Version',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ),
+                              Text(
+                                appVersion,
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                       const SizedBox(height: 10),
                       Padding(
                         padding: const EdgeInsets.all(10),
@@ -210,33 +270,12 @@ class _SettingPageState extends State<SettingPage> {
                 borderColor2: const Color(0xFFFFAAEA),
                 backgroundColor: Colors.white,
                 text: 'กลับ',
-                onPressed:() => Navigator.pop(context),
+                onPressed: () => Navigator.pop(context),
               ),
             ),
           ),
         ],
       ),
-    );
-  }
-}
-
-class ThemeColor extends StatelessWidget {
-  final Color color;
-  final Widget? child;
-
-  const ThemeColor(this.color, {super.key, this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 30,
-      height: 30,
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: Colors.grey),
-      ),
-      child: child,
     );
   }
 }

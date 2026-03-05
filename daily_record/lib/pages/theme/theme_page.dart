@@ -1,6 +1,6 @@
 import 'package:daily_record/components/box.dart';
 import 'package:daily_record/components/button.dart';
-import 'package:daily_record/themes/theme_provider.dart';
+import 'package:daily_record/core/themes/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

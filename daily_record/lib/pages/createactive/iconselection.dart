@@ -1,5 +1,5 @@
 import 'package:daily_record/components/border_button.dart';
-import 'package:daily_record/constants/icons.dart';
+import 'package:daily_record/core/constants/icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 

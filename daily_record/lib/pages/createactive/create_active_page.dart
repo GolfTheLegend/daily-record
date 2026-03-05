@@ -3,10 +3,10 @@ import 'dart:math';
 import 'package:daily_record/components/background.dart';
 import 'package:daily_record/components/border_button.dart';
 import 'package:daily_record/components/checkbox_button.dart';
-import 'package:daily_record/components/iconselection.dart';
+import 'package:daily_record/pages/createactive/iconselection.dart';
 import 'package:daily_record/components/input.dart';
-import 'package:daily_record/components/timeselection_button.dart';
-import 'package:daily_record/constants/icons.dart';
+import 'package:daily_record/pages/createactive/timeselection_button.dart';
+import 'package:daily_record/core/constants/icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 

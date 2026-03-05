@@ -1,10 +1,10 @@
-import 'package:daily_record/pages/calendar_page.dart';
-import 'package:daily_record/pages/create_active_page.dart';
-import 'package:daily_record/pages/home_page.dart';
-import 'package:daily_record/pages/setting_page.dart';
-import 'package:daily_record/pages/theme_page.dart';
-import 'package:daily_record/themes/theme.dart';
-import 'package:daily_record/themes/theme_provider.dart';
+import 'package:daily_record/pages/calendar/calendar_page.dart';
+import 'package:daily_record/pages/createactive/create_active_page.dart';
+import 'package:daily_record/pages/home/home_page.dart';
+import 'package:daily_record/pages/setting/setting_page.dart';
+import 'package:daily_record/pages/theme/theme_page.dart';
+import 'package:daily_record/core/themes/theme.dart';
+import 'package:daily_record/core/themes/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
