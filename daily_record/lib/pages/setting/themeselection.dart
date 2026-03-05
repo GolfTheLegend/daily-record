@@ -1,6 +1,6 @@
 import 'package:daily_record/components/border_button.dart';
 import 'package:daily_record/components/press_scale.dart';
-import 'package:daily_record/core/constants/theme.dart';
+import 'package:daily_record/core/themes/theme.dart';
 import 'package:flutter/material.dart';
 
 class Themeselection extends StatelessWidget {

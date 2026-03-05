@@ -1,8 +1,10 @@
+import 'package:daily_record/core/themes/theme_provider.dart';
 import 'package:daily_record/pages/home/activity_card.dart';
 import 'package:daily_record/pages/home/activity_header.dart';
 import 'package:daily_record/components/background.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -14,22 +16,19 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
+    
     final List<Map<String, dynamic>> activities = [
       {
         'icon': Icons.description,
         'title': 'ทำงาน',
         'time': '09:00',
-        'titleColor': Colors.red,
-        'trailing': 'สำคัญ',
-        'trailingColor': Colors.red,
+        'trailing': 2,
       },
       {
         'icon': Icons.restaurant,
         'title': 'ทานอาหาร',
         'time': '09:00',
-        'titleColor': Colors.green,
-        'trailing': 'ทุกวัน',
-        'trailingColor': Colors.green,
+        'trailing': 1,
       },
       {'icon': Icons.local_cafe, 'title': 'พักผ่อน', 'time': '09:00'},
     ];
@@ -56,13 +55,13 @@ class _HomePageState extends State<HomePage> {
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     child: Column(
                       children: [
-                        _sectionHeader('ขณะนี้'),
+                        _sectionHeader(context,'ขณะนี้'),
                         ActivityCard(
                           icon: Icons.directions_run,
                           title: 'ออกกำลังกาย',
                           time: '06:00',
                         ),
-                        _sectionHeader('รายการถัดไป'),
+                        _sectionHeader(context,'รายการถัดไป'),
                       ],
                     ),
                   ),
@@ -82,9 +81,7 @@ class _HomePageState extends State<HomePage> {
                           icon: item['icon'],
                           title: item['title'],
                           time: item['time'],
-                          titleColor: item['titleColor'] ?? Colors.black,
                           trailing: item['trailing'],
-                          trailingColor: item['trailingColor'] ?? Colors.black,
                         );
                       },
                     ),
@@ -99,35 +96,42 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-Widget _sectionHeader(String text) {
+Widget _sectionHeader(BuildContext context, String text) {
+  final themeItem = Provider.of<ThemeProvider>(context).currentThemeItem;
+
   return Padding(
     padding: const EdgeInsets.symmetric(vertical: 10),
     child: Row(
       children: [
         Text(
           text,
-          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold,color: themeItem!.textPrimary),
         ),
         const SizedBox(width: 8),
-        const Expanded(child: Divider(thickness: 1.5)),
+        Expanded(child: Divider(thickness: 1.5,color: themeItem.textPrimary,)),
       ],
     ),
   );
 }
 
 Widget _floatingButton(BuildContext context) {
+  final themeItem = Provider.of<ThemeProvider>(context).currentThemeItem;
+
   final double mainButtonSize = 75;
   final double childrenButtonSize = 65;
   return SpeedDial(
     icon: Icons.add,
     activeIcon: Icons.close,
     spaceBetweenChildren: 10, // <<< ระยะห่างจริง
-    backgroundColor: Colors.black,
+    backgroundColor: themeItem!.background1,
     overlayColor: Colors.black,
     elevation: 0,
     childPadding: const EdgeInsets.all(0),
     buttonSize: Size(mainButtonSize, mainButtonSize),
     childrenButtonSize: Size(childrenButtonSize, childrenButtonSize),
+    iconTheme: IconThemeData(
+      color: themeItem.primary,
+    ),
 
     children: [
       _customDial(context,Icons.settings, childrenButtonSize,() => Navigator.pushNamed(context, '/setting')),
@@ -148,6 +152,8 @@ SpeedDialChild _customDial(BuildContext context, IconData icon, double size,Func
 }
 
 Widget _circleButton(BuildContext context, IconData icon, double size,Function()? onTap) {
+  final themeItem = Provider.of<ThemeProvider>(context).currentThemeItem;
+
   const double outerBorder = 4;
   const double innerBorder = 4;
 
@@ -159,21 +165,21 @@ Widget _circleButton(BuildContext context, IconData icon, double size,Function()
       child: DecoratedBox(
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          border: Border.all(color: Colors.pink, width: outerBorder),
+          border: Border.all(color: themeItem!.secondary, width: outerBorder),
         ),
         child: Padding(
           padding: const EdgeInsets.all(outerBorder),
           child: DecoratedBox(
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Colors.white,
+              color: themeItem.background2,
               border: Border.all(
-                color: const Color(0xFFFFAAEA),
+                color: themeItem.primary,
                 width: innerBorder,
               ),
             ),
             child: Center(
-              child: Icon(icon, color: Colors.black, size: size * 0.45),
+              child: Icon(icon, color: themeItem.text1, size: size * 0.45),
             ),
           ),
         ),

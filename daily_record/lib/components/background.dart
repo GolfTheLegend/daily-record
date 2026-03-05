@@ -1,4 +1,6 @@
+import 'package:daily_record/core/themes/theme_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class Background extends StatelessWidget {
   final Widget child;
@@ -17,8 +19,10 @@ class Background extends StatelessWidget {
   });
   @override
   Widget build(BuildContext context) {
+    final themeItem = Provider.of<ThemeProvider>(context).currentThemeItem;
+
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: themeItem!.background1,
 
       appBar: appBar,
       floatingActionButton: floatingActionButton,
@@ -27,9 +31,9 @@ class Background extends StatelessWidget {
 
       body: Stack(
         children: [
-          _BackGroundLayer(color: const Color(0xFFEB00B1), vMargin: 5),
-          _BackGroundLayer(color: const Color(0xFFFFAAEA), vMargin: 15),
-          _BackGroundLayer(color: Colors.white, vMargin: 25),
+          _BackGroundLayer(color: themeItem.secondary, vMargin: 5),
+          _BackGroundLayer(color: themeItem.primary, vMargin: 15),
+          _BackGroundLayer(color: themeItem.background2, vMargin: 25),
 
           SafeArea(child: child),
         ],

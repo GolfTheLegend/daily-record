@@ -1,22 +1,21 @@
 import 'package:daily_record/components/press_scale.dart';
+import 'package:daily_record/core/constants/constants.dart';
+import 'package:daily_record/core/themes/theme_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class ActivityCard extends StatefulWidget {
   final IconData icon;
   final String title;
   final String time;
-  final Color titleColor;
-  final String? trailing;
-  final Color trailingColor;
+  final int? trailing;
 
   const ActivityCard({
     super.key,
     required this.icon,
     required this.title,
     required this.time,
-    this.titleColor = Colors.black,
     this.trailing,
-    this.trailingColor = Colors.black,
   });
 
   @override
@@ -28,6 +27,25 @@ class ActivityCardState extends State<ActivityCard> {
 
   @override
   Widget build(BuildContext context) {
+    String? trailingTitle;
+    final themeItem = Provider.of<ThemeProvider>(context).currentThemeItem;
+
+    final Color textColor = themeItem == null
+        ? Colors.black
+        : widget.trailing == 1
+        ? themeItem.status1
+        : widget.trailing == 2
+        ? themeItem.status2
+        : themeItem.textPrimary;
+
+    if (widget.trailing != null) {
+      final result = statusList.where((items) => items.key == widget.trailing);
+
+      if (result.isNotEmpty) {
+        trailingTitle = result.first.trailing;
+      }
+    }
+
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -40,19 +58,19 @@ class ActivityCardState extends State<ActivityCard> {
             padding: const EdgeInsets.fromLTRB(5, 5, 5, 0),
             margin: const EdgeInsets.only(bottom: 12),
             decoration: BoxDecoration(
-              color: const Color(0xFFFFAAEA),
+              color: themeItem!.primary,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Container(
               padding: const EdgeInsets.fromLTRB(0, 0, 0, 12),
               decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 224, 97, 193),
+                color: themeItem.shadowPrimary,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: themeItem.background2,
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
@@ -69,7 +87,7 @@ class ActivityCardState extends State<ActivityCard> {
                       height: 60,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        border: Border.all(color: Colors.pink, width: 4),
+                        border: Border.all(color: themeItem.secondary, width: 4),
                       ),
                       child: Icon(widget.icon, size: 40),
                     ),
@@ -83,22 +101,22 @@ class ActivityCardState extends State<ActivityCard> {
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
-                              color: widget.titleColor,
+                              color: textColor,
                             ),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             'เวลา : ${widget.time}',
-                            style: const TextStyle(fontSize: 15),
+                            style: TextStyle(fontSize: 15,color: themeItem.text1 ),
                           ),
                         ],
                       ),
                     ),
-                    if (widget.trailing != null)
+                    if (trailingTitle != null)
                       Text(
-                        widget.trailing!,
+                        trailingTitle,
                         style: TextStyle(
-                          color: widget.trailingColor,
+                          color: textColor,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -152,7 +170,6 @@ class ActivityCardState extends State<ActivityCard> {
     );
   }
 }
-
 
 class ButtonBox extends StatelessWidget {
   final String title;

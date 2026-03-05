@@ -2,10 +2,13 @@ import 'dart:math';
 
 import 'package:daily_record/components/background.dart';
 import 'package:daily_record/components/border_button.dart';
+import 'package:daily_record/core/themes/theme.dart';
+import 'package:daily_record/core/themes/theme_provider.dart';
 import 'package:daily_record/pages/setting/themeselection.dart';
 import 'package:daily_record/core/configs/configs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
 
 class SettingPage extends StatefulWidget {
   const SettingPage({super.key});
@@ -17,6 +20,16 @@ class SettingPage extends StatefulWidget {
 class _SettingPageState extends State<SettingPage> {
   int? themeSelectKey;
 
+  @override
+  void initState() {
+    super.initState();
+    // ดึง key ที่ใช้อยู่ตอนเข้าหน้า
+    themeSelectKey = Provider.of<ThemeProvider>(
+      context,
+      listen: false,
+    ).currentKey;
+  }
+
   void _selectTheme() {
     showDialog(
       context: context,
@@ -27,6 +40,10 @@ class _SettingPageState extends State<SettingPage> {
           onSelect: (value) {
             setState(() {
               themeSelectKey = value;
+              Provider.of<ThemeProvider>(
+                context,
+                listen: false,
+              ).setThemeByKey(value);
             });
           },
         ),
@@ -36,6 +53,11 @@ class _SettingPageState extends State<SettingPage> {
 
   @override
   Widget build(BuildContext context) {
+    final themes = themeDataList.firstWhere(
+      (item) => item.key == themeSelectKey,
+      orElse: () => themeDataList.first,
+    );
+
     return Background(
       child: Column(
         children: [
@@ -114,11 +136,11 @@ class _SettingPageState extends State<SettingPage> {
                                 SizedBox(
                                   child: Row(
                                     children: [
-                                      ThemeColor(Colors.white),
+                                      ThemeColor(themes.background2),
                                       const SizedBox(width: 10),
-                                      ThemeColor(const Color(0xFFFFAAEA)),
+                                      ThemeColor(themes.primary),
                                       const SizedBox(width: 10),
-                                      ThemeColor(const Color(0xFFEB00B1)),
+                                      ThemeColor(themes.secondary),
                                       const SizedBox(width: 10),
                                       ThemeColor(Colors.black),
                                     ],

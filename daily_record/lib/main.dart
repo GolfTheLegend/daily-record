@@ -2,16 +2,19 @@ import 'package:daily_record/pages/calendar/calendar_page.dart';
 import 'package:daily_record/pages/createactive/create_active_page.dart';
 import 'package:daily_record/pages/home/home_page.dart';
 import 'package:daily_record/pages/setting/setting_page.dart';
-import 'package:daily_record/pages/theme/theme_page.dart';
-import 'package:daily_record/core/themes/theme.dart';
 import 'package:daily_record/core/themes/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized(); // ต้องมีก่อน SharedPreferences
+
+  final themeProvider = ThemeProvider();
+  await themeProvider.loadSavedTheme(); // โหลด key ที่บันทึกไว้
+
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => ThemeProvider(),
+    ChangeNotifierProvider.value(
+      value: themeProvider,
       child: const MyApp(),
     ),
   );
@@ -32,7 +35,6 @@ class MyApp extends StatelessWidget {
         '/create': (context) => const CreateActivePage(),
         '/calendar': (context) => const CalendarPage(),
         '/setting': (context) => const SettingPage(),
-        '/theme': (context) => const ThemePage(),
       },
     );
   }

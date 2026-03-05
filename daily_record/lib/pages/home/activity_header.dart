@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'package:daily_record/core/themes/theme_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class ActivityHeader extends StatefulWidget {
   const ActivityHeader({super.key});
@@ -27,7 +29,8 @@ class _ActivityHeaderState extends State<ActivityHeader> {
     final now = DateTime.now();
     setState(() {
       _currentTime =
-          now.hour.toString().padLeft(2, '0') + ':' +
+          now.hour.toString().padLeft(2, '0') +
+          ':' +
           now.minute.toString().padLeft(2, '0');
     });
   }
@@ -40,34 +43,36 @@ class _ActivityHeaderState extends State<ActivityHeader> {
 
   @override
   Widget build(BuildContext context) {
+    final themeItem = Provider.of<ThemeProvider>(context).currentThemeItem;
+
     return Column(
       children: [
         const SizedBox(height: 20),
-        const Text(
+        Text(
           'รายการวันนี้',
           style: TextStyle(
             fontSize: 40,
             fontWeight: FontWeight.w800,
-            color: Colors.black,
+            color: themeItem!.textPrimary,
           ),
         ),
         const SizedBox(height: 10),
         Text(
           _currentTime, // ← ใช้ตัวแปรนี้แทน string คงที่
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 64,
             fontWeight: FontWeight.bold,
-            color: Colors.black,
+            color: themeItem.textPrimary,
           ),
         ),
         const SizedBox(height: 10),
         Text(
           // ถ้าต้องการแสดงวันที่แบบไทยด้วย (ตัวอย่างง่าย ๆ)
           '${DateTime.now().day} ${['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'][DateTime.now().month - 1]} ${DateTime.now().year + 543}',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w800,
-            color: Colors.black,
+            color: themeItem.textPrimary,
           ),
         ),
         const SizedBox(height: 20),
@@ -79,15 +84,31 @@ class _ActivityHeaderState extends State<ActivityHeader> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const SizedBox(width: 10),
-                _DateBox('วันนี้'),
+                _DateBox(context, 'วันนี้', isToday: true),
                 const SizedBox(width: 10),
-                ...List.generate(
-                  30,
-                  (index) => Padding(
+                ...List.generate(30, (index) {
+                  final date = DateTime.now().add(Duration(days: index + 1));
+                  final shortMonths = [
+                    'ม.ค.',
+                    'ก.พ.',
+                    'มี.ค.',
+                    'เม.ย.',
+                    'พ.ค.',
+                    'มิ.ย.',
+                    'ก.ค.',
+                    'ส.ค.',
+                    'ก.ย.',
+                    'ต.ค.',
+                    'พ.ย.',
+                    'ธ.ค.',
+                  ];
+                  final dayText = '${date.day}';
+                  final monthText = shortMonths[date.month - 1];
+                  return Padding(
                     padding: const EdgeInsets.only(right: 10),
-                    child: _DateBox('${index + 1}'),
-                  ),
-                ),
+                    child: _DateBox(context, dayText, subtitle: monthText),
+                  );
+                }),
               ],
             ),
           ),
@@ -96,35 +117,67 @@ class _ActivityHeaderState extends State<ActivityHeader> {
     );
   }
 
-  Widget _DateBox(String text) {
+  Widget _DateBox(
+    BuildContext context,
+    String text, {
+    String? subtitle,
+    bool isToday = false,
+  }) {
+    final themeItem = Provider.of<ThemeProvider>(context).currentThemeItem;
+
     return Container(
-      width: 80,
+      width: 90,
       height: 50,
       padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFAAEA),
+        color: themeItem!.primary,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Container(
         padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
         decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 224, 97, 193),
+          color: themeItem.shadowPrimary,
           borderRadius: BorderRadius.circular(8),
         ),
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: themeItem.background2,
             borderRadius: BorderRadius.circular(8),
           ),
           child: Center(
-            child: Text(
-              text,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-            ),
+            child: isToday
+                ? Text(
+                    text,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: themeItem.textPrimary,
+                    ),
+                  )
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        text,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: themeItem.textPrimary,
+                        ),
+                      ),
+                      if (subtitle != null) SizedBox(width: 5),
+                      if (subtitle != null)
+                        Text(
+                          subtitle,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: themeItem.textPrimary,
+                          ),
+                        ),
+                    ],
+                  ),
           ),
         ),
       ),
