@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:daily_record/components/background.dart';
 import 'package:daily_record/components/border_button.dart';
-import 'package:daily_record/core/themes/theme.dart';
 import 'package:daily_record/core/themes/theme_provider.dart';
 import 'package:daily_record/pages/setting/themeselection.dart';
 import 'package:daily_record/core/configs/configs.dart';
@@ -18,16 +17,10 @@ class SettingPage extends StatefulWidget {
 }
 
 class _SettingPageState extends State<SettingPage> {
-  int? themeSelectKey;
 
   @override
   void initState() {
     super.initState();
-    // ดึง key ที่ใช้อยู่ตอนเข้าหน้า
-    themeSelectKey = Provider.of<ThemeProvider>(
-      context,
-      listen: false,
-    ).currentKey;
   }
 
   void _selectTheme() {
@@ -39,7 +32,6 @@ class _SettingPageState extends State<SettingPage> {
         child: Themeselection(
           onSelect: (value) {
             setState(() {
-              themeSelectKey = value;
               Provider.of<ThemeProvider>(
                 context,
                 listen: false,
@@ -53,10 +45,7 @@ class _SettingPageState extends State<SettingPage> {
 
   @override
   Widget build(BuildContext context) {
-    final themes = themeDataList.firstWhere(
-      (item) => item.key == themeSelectKey,
-      orElse: () => themeDataList.first,
-    );
+    final themeItem = Provider.of<ThemeProvider>(context).currentThemeItem;
 
     return Background(
       child: Column(
@@ -65,18 +54,18 @@ class _SettingPageState extends State<SettingPage> {
             flex: 1,
             child: Container(
               width: double.infinity,
-              child: const Row(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Icon(Icons.settings, size: 40, color: Colors.black),
+                  Icon(Icons.settings, size: 40, color: themeItem!.textPrimary),
                   SizedBox(width: 10),
                   Text(
                     'ตั้งค่า',
                     style: TextStyle(
                       fontSize: 30,
                       fontWeight: FontWeight.w800,
-                      color: Colors.black,
+                      color: themeItem.textPrimary,
                     ),
                   ),
                 ],
@@ -99,7 +88,7 @@ class _SettingPageState extends State<SettingPage> {
                           padding: const EdgeInsets.all(10),
                           child: Container(
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: themeItem.background2,
                               borderRadius: BorderRadius.circular(15),
                               boxShadow: [
                                 BoxShadow(
@@ -113,13 +102,13 @@ class _SettingPageState extends State<SettingPage> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                const SizedBox(
+                                 SizedBox(
                                   child: Row(
                                     children: [
                                       Icon(
                                         Icons.color_lens,
                                         size: 30,
-                                        color: Colors.black,
+                                        color: themeItem.textPrimary,
                                       ),
                                       SizedBox(width: 10),
                                       Text(
@@ -127,7 +116,7 @@ class _SettingPageState extends State<SettingPage> {
                                         style: TextStyle(
                                           fontSize: 20,
                                           fontWeight: FontWeight.bold,
-                                          color: Colors.black,
+                                          color: themeItem.textPrimary,
                                         ),
                                       ),
                                     ],
@@ -136,13 +125,13 @@ class _SettingPageState extends State<SettingPage> {
                                 SizedBox(
                                   child: Row(
                                     children: [
-                                      ThemeColor(themes.background2),
+                                      ThemeColor(themeItem.background2),
                                       const SizedBox(width: 10),
-                                      ThemeColor(themes.primary),
+                                      ThemeColor(themeItem.primary),
                                       const SizedBox(width: 10),
-                                      ThemeColor(themes.secondary),
+                                      ThemeColor(themeItem.secondary),
                                       const SizedBox(width: 10),
-                                      ThemeColor(Colors.black),
+                                      ThemeColor(themeItem.background1),
                                     ],
                                   ),
                                 ),
@@ -157,7 +146,7 @@ class _SettingPageState extends State<SettingPage> {
                           padding: const EdgeInsets.all(10),
                           child: Container(
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: themeItem.background2,
                               borderRadius: BorderRadius.circular(15),
                               boxShadow: [
                                 BoxShadow(
@@ -180,28 +169,28 @@ class _SettingPageState extends State<SettingPage> {
                                         'assets/icons/language.svg',
                                         width: 20,
                                         height: 20,
-                                        colorFilter: const ColorFilter.mode(
-                                          Colors.black,
+                                        colorFilter:  ColorFilter.mode(
+                                          themeItem.textPrimary,
                                           BlendMode.srcIn,
                                         ),
                                       ),
                                       const SizedBox(width: 10),
-                                      const Text(
+                                       Text(
                                         'ภาษา',
                                         style: TextStyle(
                                           fontSize: 20,
                                           fontWeight: FontWeight.bold,
-                                          color: Colors.black,
+                                          color: themeItem.textPrimary,
                                         ),
                                       ),
                                     ],
                                   ),
                                 ),
                                 ThemeColor(
-                                  Colors.black,
-                                  child: const Icon(
+                                  themeItem.background2,
+                                  child:  Icon(
                                     Icons.language,
-                                    color: Colors.white,
+                                    color: themeItem.textPrimary,
                                     size: 20,
                                   ),
                                 ),
@@ -214,7 +203,7 @@ class _SettingPageState extends State<SettingPage> {
                         padding: const EdgeInsets.all(10),
                         child: Container(
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: themeItem.background2,
                             borderRadius: BorderRadius.circular(15),
                             boxShadow: [
                               BoxShadow(
@@ -229,12 +218,12 @@ class _SettingPageState extends State<SettingPage> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               SizedBox(
-                                child: const Text(
+                                child:  Text(
                                   'Version',
                                   style: TextStyle(
                                     fontSize: 20,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.black,
+                                    color: themeItem.textPrimary,
                                   ),
                                 ),
                               ),
@@ -242,7 +231,7 @@ class _SettingPageState extends State<SettingPage> {
                                 appVersion,
                                 style: TextStyle(
                                   fontSize: 20,
-                                  color: Colors.black,
+                                  color: themeItem.textPrimary,
                                 ),
                               ),
                             ],
@@ -257,10 +246,8 @@ class _SettingPageState extends State<SettingPage> {
                           height: 50,
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(
-                                0xFFD42929,
-                              ), // สีพื้นหลัง
-                              foregroundColor: Colors.white, // สีตัวอักษร
+                              backgroundColor: themeItem.status2, // สีพื้นหลัง
+                              foregroundColor: themeItem.background2, // สีตัวอักษร
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(15),
                               ),
@@ -288,9 +275,9 @@ class _SettingPageState extends State<SettingPage> {
             child: Center(
               child: BorderButton(
                 width: min(MediaQuery.of(context).size.width * 0.8, 500),
-                borderColor1: const Color(0xFFEB00B1),
-                borderColor2: const Color(0xFFFFAAEA),
-                backgroundColor: Colors.white,
+                borderColor1: themeItem.secondary,
+                borderColor2: themeItem.primary,
+                backgroundColor:themeItem.background2,
                 text: 'กลับ',
                 onPressed: () => Navigator.pop(context),
               ),

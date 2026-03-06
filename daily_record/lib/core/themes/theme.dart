@@ -12,8 +12,8 @@ class ThemeItem {
   final Color text2; // สีตัวอักษรรอง
   final Color status1; //สถานะ ทุกวัน
   final Color status2; //สถานะ สำคัญ
-  final Color addButton;
-  final Color backButton;
+  final Color addButton; //สีปุ่มเพิ่ม
+  final Color backButton; //สีปุ่มยกเลิก-ย้อนกลับ
 
   const ThemeItem({
     required this.key,
@@ -33,36 +33,52 @@ class ThemeItem {
 }
 
 const List<ThemeItem> themeDataList = [
-   //Default
+  //Default
   ThemeItem(
     key: 1,
-    primary: Color(0xFFFFAAEA),
-    secondary: Color(0xFFEB00B1),
-    shadowPrimary: Color.fromARGB(255, 224, 97, 193),
-    background1: Colors.black,
-    background2: Colors.white,
-    textPrimary: Colors.black,
-    text1: Colors.black,
-    text2: Colors.black,
-    status1: Colors.green,
-    status2: Colors.red,
-    addButton: Color(0xFF84FF8D),
-    backButton: Colors.white,
+    primary: const Color(0xFFFF6FD8),
+    secondary: const Color(0xFFFFB3EC),
+    shadowPrimary: const Color(0x33FF4FC3),
+    background1: const Color(0xFFFFE6F6),
+    background2: const Color(0xFFFFF5FB),
+    textPrimary: const Color(0xFF2A2A2A),
+    text1: const Color(0xFF3A3A3A),
+    text2: const Color(0xFF8A8A8A),
+    status1: const Color(0xFF43A047),
+    status2: const Color(0xFFE53935),
+    addButton: const Color(0xFFFF6FD8),
+    backButton: const Color(0xFFFFFFFF),
   ),
-  //Luxury 
+  //blue
   ThemeItem(
     key: 2,
-    primary: const Color(0xFFBFA046),
-    secondary: const Color(0xFFD9D9D9),
-    shadowPrimary: const Color(0x336B5E2E),
-    background1: const Color(0x336B5E2E),
-    background2: const Color(0xFFFFFFFF),
-    textPrimary: const Color(0xFF1C1C1C),
-    text1: const Color(0xFF2A2A2A),
-    text2: const Color(0xFF8A8A8A),
-    status1: const Color(0xFFBFA046),
-    status2: const Color(0xFF9DA3A6),
-    addButton: const Color(0xFFBFA046),
+    primary: const Color(0xFF6EC6FF),
+    secondary: const Color(0xFFB3E5FC),
+    shadowPrimary: const Color(0x334A90E2),
+    background1: const Color(0xFFEAF6FF),
+    background2: const Color(0xFFF7FBFF),
+    textPrimary: const Color(0xFF1A2A33),
+    text1: const Color(0xFF2C3E50),
+    text2: const Color(0xFF6B7C93),
+    status1: const Color(0xFF4CAF50),
+    status2: const Color(0xFFE53935),
+    addButton: const Color(0xFF6EC6FF),
     backButton: const Color(0xFFFFFFFF),
+  ),
+  //dark theme
+  ThemeItem(
+    key: 3,
+    primary: const Color(0xFFD4AF37),
+    secondary: const Color(0xFF8E8E8E),
+    shadowPrimary: const Color(0x66000000),
+    background1: const Color(0xFF0F0F10),
+    background2: const Color(0xFF1A1A1C),
+    textPrimary: const Color(0xFFFFFFFF),
+    text1: const Color(0xFFEAEAEA),
+    text2: const Color(0xFFB5B5B5),
+    status1: const Color(0xFFD4AF37),
+    status2: const Color(0xFFFF6B6B),
+    addButton: const Color(0xFFD4AF37),
+    backButton: const Color(0xFF2A2A2A),
   ),
 ];

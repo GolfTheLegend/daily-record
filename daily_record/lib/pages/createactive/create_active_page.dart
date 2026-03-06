@@ -3,12 +3,14 @@ import 'dart:math';
 import 'package:daily_record/components/background.dart';
 import 'package:daily_record/components/border_button.dart';
 import 'package:daily_record/components/checkbox_button.dart';
+import 'package:daily_record/core/themes/theme_provider.dart';
 import 'package:daily_record/pages/createactive/iconselection.dart';
 import 'package:daily_record/components/input.dart';
 import 'package:daily_record/pages/createactive/timeselection_button.dart';
 import 'package:daily_record/core/constants/icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
 
 class CreateActivePage extends StatefulWidget {
   const CreateActivePage({super.key});
@@ -39,6 +41,8 @@ class _CreateActivePageState extends State<CreateActivePage> {
 
   @override
   Widget build(BuildContext context) {
+    final themeItem = Provider.of<ThemeProvider>(context).currentThemeItem;
+    
     final screenWidth = MediaQuery.of(context).size.width;
     return Background(
       child: Column(
@@ -48,20 +52,20 @@ class _CreateActivePageState extends State<CreateActivePage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                const Text(
+               Text(
                   "19",
-                  style: TextStyle(fontSize: 60, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 60, fontWeight: FontWeight.bold,color: themeItem!.textPrimary),
                 ),
-                const Text(
+                Text(
                   "กุมภาพันธ์ 2568",
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,color: themeItem.textPrimary),
                 ),
                 GestureDetector(
                   onTap: _iconPicker,
                   child: Container(
                     padding: const EdgeInsets.all(5),
                     decoration: BoxDecoration(
-                      color: Colors.black,
+                      color: themeItem.primary,
                       borderRadius: BorderRadius.circular(60),
                       boxShadow: [
                         BoxShadow(
@@ -75,10 +79,10 @@ class _CreateActivePageState extends State<CreateActivePage> {
                       width: 80,
                       height: 80,
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: themeItem.background2,
                         borderRadius: BorderRadius.circular(50),
                       ),
-                      child: Center(child: _buildSelectedIcon()),
+                      child: Center(child: _buildSelectedIcon(themeItem.textPrimary)),
                     ),
                   ),
                 ),
@@ -94,9 +98,9 @@ class _CreateActivePageState extends State<CreateActivePage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   TimeSelectionButton(),
-                  const Text(
+                  Text(
                     'ถึง',
-                    style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold,color: themeItem.textPrimary),
                   ),
                   TimeSelectionButton(),
                 ],
@@ -115,11 +119,11 @@ class _CreateActivePageState extends State<CreateActivePage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        const Text(
+                        Text(
                           'หัวข้อ',
                           style: TextStyle(
                             fontSize: 20,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.bold,color: themeItem.textPrimary
                           ),
                         ),
                         const SizedBox(width: 20),
@@ -143,21 +147,21 @@ class _CreateActivePageState extends State<CreateActivePage> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             CheckboxButton(),
-                            const Text(
+                            Text(
                               'สำคัญ',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: Colors.red,
+                                color: themeItem.status2,
                                 fontSize: 20,
                               ),
                             ),
                             const SizedBox(width: 20),
                             CheckboxButton(),
-                            const Text(
+                            Text(
                               'ทุกวัน',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: Colors.green,
+                                color: themeItem.status1,
                                 fontSize: 20,
                               ),
                             ),
@@ -169,11 +173,12 @@ class _CreateActivePageState extends State<CreateActivePage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
+                              Text(
                                 'รายละเอียด',
                                 style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
+                                  color: themeItem.textPrimary
                                 ),
                               ),
                               const SizedBox(height: 10),
@@ -205,9 +210,9 @@ class _CreateActivePageState extends State<CreateActivePage> {
                             screenWidth * 0.4,
                             500,
                           ),
-                          borderColor1: const Color(0xFFEB00B1),
-                          borderColor2: const Color(0xFFFFAAEA),
-                          backgroundColor: Colors.white,
+                          borderColor1: themeItem.secondary,
+                          borderColor2: themeItem.primary,
+                          backgroundColor: themeItem.background2,
                           text: 'กลับ',
                           onPressed:() => Navigator.pop(context)
                         ),
@@ -216,9 +221,9 @@ class _CreateActivePageState extends State<CreateActivePage> {
                             screenWidth * 0.4,
                             500,
                           ),
-                          borderColor1: Colors.black,
-                          borderColor2: Colors.white,
-                          backgroundColor: Color(0xFF84FF8D),
+                          borderColor1: themeItem.background1,
+                          borderColor2: themeItem.background2,
+                          backgroundColor:themeItem.addButton,
                           text: 'บันทึก',
                         ),
                       ],
@@ -233,9 +238,9 @@ class _CreateActivePageState extends State<CreateActivePage> {
     );
   }
 
-  Widget _buildSelectedIcon() {
+  Widget _buildSelectedIcon(Color color) {
     if (iconSelect == null) {
-      return const Icon(Icons.add, size: 60);
+      return Icon(Icons.add, size: 60,color:color);
     }
 
     final selected = iconsData.firstWhere(
@@ -244,7 +249,7 @@ class _CreateActivePageState extends State<CreateActivePage> {
     );
 
     if (selected.icon != null) {
-      return Icon(selected.icon, size: 60);
+      return Icon(selected.icon, size: 60,color:color);
     }
 
     return SvgPicture.asset(selected.iconPath!, width: 60);

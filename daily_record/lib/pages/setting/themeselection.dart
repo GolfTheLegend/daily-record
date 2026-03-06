@@ -1,7 +1,9 @@
 import 'package:daily_record/components/border_button.dart';
 import 'package:daily_record/components/press_scale.dart';
 import 'package:daily_record/core/themes/theme.dart';
+import 'package:daily_record/core/themes/theme_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class Themeselection extends StatelessWidget {
   final ValueChanged<int> onSelect;
@@ -16,11 +18,13 @@ class Themeselection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeItem = Provider.of<ThemeProvider>(context).currentThemeItem;
+
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.fromLTRB(20, 24, 20, 10),
       decoration: BoxDecoration(
-        color: const Color(0xFFF2F2F7),
+        color: themeItem!.background2,
         borderRadius: BorderRadius.circular(28),
       ),
       child: Column(
@@ -37,7 +41,7 @@ class Themeselection extends StatelessWidget {
                     child: Container(
                       margin: const EdgeInsets.only(bottom: 12),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: themeItem.background2,
                         borderRadius: BorderRadius.circular(15),
                         boxShadow: [
                           BoxShadow(
@@ -57,7 +61,7 @@ class Themeselection extends StatelessWidget {
                           const SizedBox(width: 10),
                           ThemeColor(item.secondary),
                           const SizedBox(width: 10),
-                          ThemeColor(Colors.black),
+                          ThemeColor(item.background1),
                         ],
                       ),
                     ),
@@ -72,9 +76,9 @@ class Themeselection extends StatelessWidget {
               Expanded(
                 child: BorderButton(
                   onPressed: () => Navigator.pop(context),
-                  borderColor1: const Color(0xFFEB00B1),
-                  borderColor2: const Color(0xFFFFAAEA),
-                  backgroundColor: Colors.white,
+                  borderColor1: themeItem.secondary,
+                  borderColor2: themeItem.primary,
+                  backgroundColor: themeItem.background2,
                   text: 'กลับ',
                 ),
               ),

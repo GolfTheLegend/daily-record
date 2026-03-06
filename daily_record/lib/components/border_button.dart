@@ -1,4 +1,6 @@
+import 'package:daily_record/core/themes/theme_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class BorderButton extends StatefulWidget {
   final double? width;
@@ -24,6 +26,8 @@ class BorderButton extends StatefulWidget {
 class _BorderButtonState extends State<BorderButton> {
   @override
   Widget build(BuildContext context) {
+    final themeItem = Provider.of<ThemeProvider>(context).currentThemeItem;
+    
     return Padding(
       padding: const EdgeInsets.all(10),
       child: SizedBox(
@@ -44,7 +48,6 @@ class _BorderButtonState extends State<BorderButton> {
             child: OutlinedButton(
               style: OutlinedButton.styleFrom(
                 backgroundColor: widget.backgroundColor,
-                foregroundColor: Colors.black,
                 side: BorderSide.none,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
@@ -55,7 +58,7 @@ class _BorderButtonState extends State<BorderButton> {
               },
               child: Text(
                 widget.text,
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600,color: themeItem!.textPrimary),
               ),
             ),
           ),

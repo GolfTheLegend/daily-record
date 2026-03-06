@@ -2,7 +2,9 @@ import 'dart:math';
 
 import 'package:daily_record/components/background.dart';
 import 'package:daily_record/components/border_button.dart';
+import 'package:daily_record/core/themes/theme_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class CalendarPage extends StatefulWidget {
   const CalendarPage({super.key});
@@ -14,6 +16,8 @@ class CalendarPage extends StatefulWidget {
 class _CalendarPageState extends State<CalendarPage> {
   @override
   Widget build(BuildContext context) {
+    final themeItem = Provider.of<ThemeProvider>(context).currentThemeItem;
+
     return Background(
       child: Column(
         children: [
@@ -21,14 +25,14 @@ class _CalendarPageState extends State<CalendarPage> {
             flex: 1,
             child: Container(
               width: double.infinity,
-              child: const Row(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Icon(
                     Icons.calendar_month_outlined,
                     size: 40,
-                    color: Colors.black,
+                    color: themeItem!.textPrimary,
                   ),
                   SizedBox(width: 10),
                   Text(
@@ -36,7 +40,7 @@ class _CalendarPageState extends State<CalendarPage> {
                     style: TextStyle(
                       fontSize: 30,
                       fontWeight: FontWeight.w800,
-                      color: Colors.black,
+                      color: themeItem.textPrimary,
                     ),
                   ),
                 ],
@@ -57,7 +61,7 @@ class _CalendarPageState extends State<CalendarPage> {
                     ),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: themeItem.background2,
                         border: Border.all(
                           color: const Color.fromARGB(255, 201, 201, 201),
                           width: 1,
@@ -71,14 +75,14 @@ class _CalendarPageState extends State<CalendarPage> {
                           const SizedBox(width: 5),
                           Row(
                             children: [
-                              _dot(Color(0xFF84FF8D)),
+                              _dot(themeItem.status1),
                               const SizedBox(width: 5),
                               const Text(
                                 'มีรายการ',
                                 style: TextStyle(fontWeight: FontWeight.bold),
                               ),
                               const SizedBox(width: 10),
-                              _dot(Colors.redAccent),
+                              _dot(themeItem.status2),
                               const SizedBox(width: 5),
                               const Text(
                                 'วันสำคัญ',
@@ -92,11 +96,11 @@ class _CalendarPageState extends State<CalendarPage> {
                             padding: EdgeInsets.symmetric(horizontal: 20),
                             decoration: BoxDecoration(
                               border: Border.all(
-                                color: const Color(0xFFFFAAEA),
+                                color: themeItem.primary,
                                 width: 4,
                               ),
                               borderRadius: BorderRadius.circular(10),
-                              color: Colors.white,
+                              color: themeItem.background2,
                               boxShadow: [
                                 BoxShadow(
                                   color: Colors.black.withOpacity(0.3),
@@ -126,7 +130,7 @@ class _CalendarPageState extends State<CalendarPage> {
                     width: MediaQuery.of(context).size.width,
                     child: Container(
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: themeItem.background2,
                         border: Border.all(
                           color: const Color.fromARGB(255, 201, 201, 201),
                           width: 1,
@@ -153,22 +157,23 @@ class _CalendarPageState extends State<CalendarPage> {
                             MediaQuery.of(context).size.width * 0.4,
                             500,
                           ),
-                          borderColor1: const Color(0xFFEB00B1),
-                          borderColor2: const Color(0xFFFFAAEA),
-                          backgroundColor: Colors.white,
+                          borderColor1: themeItem.secondary,
+                          borderColor2: themeItem.primary,
+                          backgroundColor: themeItem.background2,
                           text: 'กลับ',
-                          onPressed:() => Navigator.pop(context),
+                          onPressed: () => Navigator.pop(context),
                         ),
                         BorderButton(
                           width: min(
                             MediaQuery.of(context).size.width * 0.4,
                             500,
                           ),
-                          borderColor1: Colors.black,
-                          borderColor2: Colors.white,
-                          backgroundColor: Color(0xFF84FF8D),
+                          borderColor1: themeItem.background1,
+                          borderColor2: themeItem.background2,
+                          backgroundColor: themeItem.addButton,
                           text: '+ เพิ่ม',
-                          onPressed: () => Navigator.pushNamed(context, '/create')
+                          onPressed: () =>
+                              Navigator.pushNamed(context, '/create'),
                         ),
                       ],
                     ),
@@ -205,13 +210,15 @@ class _BoxHeader extends StatefulWidget {
 class __BoxHeaderState extends State<_BoxHeader> {
   @override
   Widget build(BuildContext context) {
+    final themeItem = Provider.of<ThemeProvider>(context).currentThemeItem;
+
     return Container(
       width: MediaQuery.of(context).size.width / 9,
       height: 40,
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: themeItem!.primary,
           borderRadius: BorderRadius.circular(8),
           boxShadow: [
             BoxShadow(
@@ -224,10 +231,10 @@ class __BoxHeaderState extends State<_BoxHeader> {
         child: Center(
           child: Text(
             widget.text,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.bold,
-              color: Colors.black,
+              color: themeItem.background2,
             ),
           ),
         ),
@@ -298,6 +305,7 @@ class __CalendarTableState extends State<_CalendarTable> {
 
   @override
   Widget build(BuildContext context) {
+    final themeItem = Provider.of<ThemeProvider>(context).currentThemeItem;
     int daysInMonth = getDaysInMonth(selectedDate);
     int firstDayOfWeek = getFirstDayOfMonth(selectedDate);
     int totalItems = firstDayOfWeek + daysInMonth;
@@ -322,9 +330,9 @@ class __CalendarTableState extends State<_CalendarTable> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15),
                     ),
-                    backgroundColor: Colors.black,
+                    backgroundColor: themeItem!.secondary,
                   ),
-                  child: const Icon(Icons.arrow_back_ios_new_outlined),
+                  child: Icon(Icons.arrow_back_ios_new_outlined,color: themeItem.background2,),
                 ),
                 Text(
                   '$monthText $buddhistYear',
@@ -336,9 +344,9 @@ class __CalendarTableState extends State<_CalendarTable> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15),
                     ),
-                    backgroundColor: Colors.black,
+                    backgroundColor: themeItem.secondary,
                   ),
-                  child: const Icon(Icons.arrow_forward_ios_outlined),
+                  child: Icon(Icons.arrow_forward_ios_outlined,color: themeItem.background2,),
                 ),
               ],
             ),
@@ -353,7 +361,7 @@ class __CalendarTableState extends State<_CalendarTable> {
                 .toList(),
           ),
         ),
-        _Line(),
+        _Line(themeItem.textPrimary),
         Expanded(
           flex: 6,
           child: GridView.builder(
@@ -376,9 +384,9 @@ class __CalendarTableState extends State<_CalendarTable> {
 
               return Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: themeItem.background2,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFFFAAEA), width: 4),
+                  border: Border.all(color: themeItem.primary, width: 4),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withOpacity(0.3),
@@ -392,9 +400,9 @@ class __CalendarTableState extends State<_CalendarTable> {
                     Center(
                       child: Text(
                         '$dayNumber',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
-                          color: Colors.black,
+                          color: themeItem.textPrimary,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -407,7 +415,7 @@ class __CalendarTableState extends State<_CalendarTable> {
                           width: 8,
                           height: 8,
                           decoration: BoxDecoration(
-                            color: isWaiting ? Colors.red : Colors.green,
+                            color: isWaiting ? themeItem.status2 : themeItem.status1,
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -418,19 +426,19 @@ class __CalendarTableState extends State<_CalendarTable> {
             },
           ),
         ),
-        _Line(),
+        _Line(themeItem.textPrimary),
       ],
     );
   }
 }
 
-Widget _Line() {
+Widget _Line(Color color) {
   return Container(
     height: 5,
     margin: const EdgeInsets.all(8),
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(15),
-      color: Colors.black,
+      color: color,
     ),
   );
 }

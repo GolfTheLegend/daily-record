@@ -1,5 +1,8 @@
 import 'package:daily_record/components/border_button.dart';
+import 'package:daily_record/core/themes/theme.dart';
+import 'package:daily_record/core/themes/theme_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class TimeSelectionButton extends StatefulWidget {
   const TimeSelectionButton({super.key});
@@ -31,12 +34,12 @@ class _TimeSelectionButtonState extends State<TimeSelectionButton> {
     );
   }
 
-  Widget _timeBox(String value) {
+  Widget _timeBox(ThemeItem themeItem,String value) {
     return Container(
       width: 65,
       height: 65,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: themeItem.background2,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -45,14 +48,18 @@ class _TimeSelectionButtonState extends State<TimeSelectionButton> {
             offset: const Offset(0, 2),
           ),
         ],
+        border: Border.all(
+        color: themeItem.primary,
+        width: 2,
+      ),
       ),
       alignment: Alignment.center,
       child: Text(
         value,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 28,
           fontWeight: FontWeight.w900,
-          color: Colors.black87,
+          color: themeItem.textPrimary,
         ),
       ),
     );
@@ -60,6 +67,7 @@ class _TimeSelectionButtonState extends State<TimeSelectionButton> {
 
   @override
   Widget build(BuildContext context) {
+    final themeItem = Provider.of<ThemeProvider>(context).currentThemeItem;
     final String hh = _hours.toString().padLeft(2, '0');
     final String mm = _minutes.toString().padLeft(2, '0');
 
@@ -68,19 +76,19 @@ class _TimeSelectionButtonState extends State<TimeSelectionButton> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _timeBox(hh),
-          const Padding(
+          _timeBox(themeItem!,hh),
+           Padding(
             padding: EdgeInsets.symmetric(horizontal: 8),
             child: Text(
               ':',
               style: TextStyle(
                 fontSize: 30,
                 fontWeight: FontWeight.w900,
-                color: Colors.black87,
+                color: themeItem.textPrimary,
               ),
             ),
           ),
-          _timeBox(mm),
+          _timeBox(themeItem,mm),
         ],
       ),
     );
@@ -114,7 +122,6 @@ class _TimePickerModalState extends State<_TimePickerModal> {
   late FixedExtentScrollController _minuteController;
 
   static const double _itemHeight = 64;
-  static const Color _highlightColor = Color(0xFFE91E8C); // pink
 
   @override
   void initState() {
@@ -135,11 +142,14 @@ class _TimePickerModalState extends State<_TimePickerModal> {
   }
 
   Widget _buildPicker({
+    required BuildContext context,
     required FixedExtentScrollController controller,
     required int itemCount,
     required int selectedValue,
     required void Function(int) onChanged,
   }) {
+    final themeItem = Provider.of<ThemeProvider>(context).currentThemeItem;
+
     return SizedBox(
       width: 90,
       height: _itemHeight * 3,
@@ -157,10 +167,10 @@ class _TimePickerModalState extends State<_TimePickerModal> {
               duration: const Duration(milliseconds: 200),
               margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: themeItem!.background2,
                 borderRadius: BorderRadius.circular(14),
                 border: isSelected
-                    ? Border.all(color: _highlightColor, width: 2.5)
+                    ? Border.all(color: themeItem.secondary, width: 2.5)
                     : Border.all(color: Colors.transparent, width: 2.5),
               ),
               alignment: Alignment.center,
@@ -169,7 +179,7 @@ class _TimePickerModalState extends State<_TimePickerModal> {
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.w700,
-                  color: isSelected ? Colors.black87 : Colors.grey.shade400,
+                  color: isSelected ? themeItem.textPrimary : themeItem.textPrimary.withOpacity(0.3),
                 ),
               ),
             );
@@ -181,11 +191,13 @@ class _TimePickerModalState extends State<_TimePickerModal> {
 
   @override
   Widget build(BuildContext context) {
+    final themeItem = Provider.of<ThemeProvider>(context).currentThemeItem;
+
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.fromLTRB(20, 24, 20, 10),
       decoration: BoxDecoration(
-        color: const Color(0xFFF2F2F7),
+        color: themeItem!.background2,
         borderRadius: BorderRadius.circular(28),
       ),
       child: Column(
@@ -197,23 +209,25 @@ class _TimePickerModalState extends State<_TimePickerModal> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               _buildPicker(
+                context: context,
                 controller: _hourController,
                 itemCount: 24,
                 selectedValue: _selectedHour,
                 onChanged: (v) => setState(() => _selectedHour = v),
               ),
-              const Padding(
+               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 4),
                 child: Text(
                   ':',
                   style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black54,
+                    color: themeItem.textPrimary,
                   ),
                 ),
               ),
               _buildPicker(
+                context: context,
                 controller: _minuteController,
                 itemCount: 60,
                 selectedValue: _selectedMinute,
@@ -230,9 +244,9 @@ class _TimePickerModalState extends State<_TimePickerModal> {
               Expanded(
                 child: BorderButton(
                   onPressed: () => Navigator.pop(context),
-                  borderColor1: const Color(0xFFEB00B1),
-                  borderColor2: const Color(0xFFFFAAEA),
-                  backgroundColor: Colors.white,
+                  borderColor1: themeItem.secondary,
+                  borderColor2: themeItem.primary,
+                  backgroundColor: themeItem.background2,
                   text: 'กลับ',
                 ),
               ),
@@ -243,9 +257,9 @@ class _TimePickerModalState extends State<_TimePickerModal> {
                     widget.onSave(_selectedHour, _selectedMinute);
                     Navigator.pop(context);
                   },
-                  borderColor1: Colors.black,
-                  borderColor2: Colors.white,
-                  backgroundColor: const Color(0xFF84FF8D),
+                  borderColor1: themeItem.background1,
+                  borderColor2: themeItem.background2,
+                  backgroundColor: themeItem.addButton,
                   text: 'บันทึก',
                 ),
               ),

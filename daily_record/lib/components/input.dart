@@ -1,4 +1,7 @@
+import 'package:daily_record/core/themes/theme.dart';
+import 'package:daily_record/core/themes/theme_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class Input extends StatefulWidget {
   final int maxLength; //จำนวนข้อความสูงสุดที่กรอกได้
@@ -13,7 +16,7 @@ class Input extends StatefulWidget {
     this.hintText,
     this.controller,
     this.isMultiline = false,
-    this.height
+    this.height,
   });
 
   @override
@@ -50,21 +53,23 @@ class _InputState extends State<Input> {
 
   @override
   Widget build(BuildContext context) {
+    final themeItem = Provider.of<ThemeProvider>(context).currentThemeItem;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12),
-      height: widget.height?? null,
+      height: widget.height ?? null,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: themeItem!.background2,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade500),
+        border: Border.all(color: themeItem.secondary),
       ),
       child: widget.isMultiline
-          ? _buildMultiline()
-          : _buildSingleLine(),
+          ? _buildMultiline(themeItem.text1,themeItem)
+          : _buildSingleLine(themeItem.text1,themeItem),
     );
   }
 
-  Widget _buildSingleLine() {
+  Widget _buildSingleLine(Color textColor,ThemeItem themeItem) {
     return Row(
       children: [
         Expanded(
@@ -78,15 +83,16 @@ class _InputState extends State<Input> {
               counterText: '',
               isDense: true,
             ),
+            style: TextStyle(color: textColor),
           ),
         ),
         const SizedBox(width: 8),
-        _buildCounter(),
+        _buildCounter(themeItem),
       ],
     );
   }
 
-  Widget _buildMultiline() {
+  Widget _buildMultiline(Color textColor,ThemeItem themeItem) {
     return Stack(
       children: [
         TextField(
@@ -100,23 +106,17 @@ class _InputState extends State<Input> {
             counterText: '',
             isDense: true,
           ),
+          style: TextStyle(color: textColor),
         ),
-        Positioned(
-          right: 0,
-          bottom: 0,
-          child: _buildCounter(),
-        ),
+        Positioned(right: 0, bottom: 0, child: _buildCounter(themeItem)),
       ],
     );
   }
 
-  Widget _buildCounter() {
+  Widget _buildCounter(ThemeItem themeItem) {
     return Text(
       "${_controller.text.length}/${widget.maxLength}",
-      style: TextStyle(
-        fontSize: 12,
-        color: Colors.grey.shade700,
-      ),
+      style: TextStyle(fontSize: 12, color: themeItem.primary.withOpacity(0.8)),
     );
   }
 }

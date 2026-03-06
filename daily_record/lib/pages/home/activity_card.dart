@@ -87,9 +87,10 @@ class ActivityCardState extends State<ActivityCard> {
                       height: 60,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
+                        color: themeItem.background1,
                         border: Border.all(color: themeItem.secondary, width: 4),
                       ),
-                      child: Icon(widget.icon, size: 40),
+                      child: Icon(widget.icon, size: 40,color: themeItem.primary,),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
