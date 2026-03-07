@@ -1,3 +1,4 @@
+import 'package:daily_record/pages/auth/auth_page.dart';
 import 'package:daily_record/pages/calendar/calendar_page.dart';
 import 'package:daily_record/pages/createactive/create_active_page.dart';
 import 'package:daily_record/pages/home/home_page.dart';
@@ -31,10 +32,11 @@ class MyApp extends StatelessWidget {
       theme: Provider.of<ThemeProvider>(context).themeData,
       initialRoute: '/',
       routes: {
-        '/': (context) => const HomePage(),
-        '/create': (context) => const CreateActivePage(),
-        '/calendar': (context) => const CalendarPage(),
-        '/setting': (context) => const SettingPage(),
+        // '/': (context) => const HomePage(),
+        // '/create': (context) => const CreateActivePage(),
+        // '/calendar': (context) => const CalendarPage(),
+        // '/setting': (context) => const SettingPage(),
+        '/': (context) => const AuthPage(),
       },
     );
   }

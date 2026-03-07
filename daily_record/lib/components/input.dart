@@ -9,6 +9,7 @@ class Input extends StatefulWidget {
   final TextEditingController? controller;
   final bool isMultiline; //เปลี่ยนเป็นแบบหลายบรรทัดได้
   final double? height;
+  final bool? hideMaxWord;
 
   const Input({
     super.key,
@@ -17,6 +18,7 @@ class Input extends StatefulWidget {
     this.controller,
     this.isMultiline = false,
     this.height,
+    this.hideMaxWord = false,
   });
 
   @override
@@ -61,15 +63,15 @@ class _InputState extends State<Input> {
       decoration: BoxDecoration(
         color: themeItem!.background2,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: themeItem.secondary),
+        border: Border.all(color: themeItem.primary, width: 4),
       ),
       child: widget.isMultiline
-          ? _buildMultiline(themeItem.text1,themeItem)
-          : _buildSingleLine(themeItem.text1,themeItem),
+          ? _buildMultiline(themeItem.text1, themeItem)
+          : _buildSingleLine(themeItem.text1, themeItem),
     );
   }
 
-  Widget _buildSingleLine(Color textColor,ThemeItem themeItem) {
+  Widget _buildSingleLine(Color textColor, ThemeItem themeItem) {
     return Row(
       children: [
         Expanded(
@@ -86,13 +88,15 @@ class _InputState extends State<Input> {
             style: TextStyle(color: textColor),
           ),
         ),
-        const SizedBox(width: 8),
-        _buildCounter(themeItem),
+        if (widget.hideMaxWord == false) ...[
+          const SizedBox(width: 8),
+          _buildCounter(themeItem),
+        ],
       ],
     );
   }
 
-  Widget _buildMultiline(Color textColor,ThemeItem themeItem) {
+  Widget _buildMultiline(Color textColor, ThemeItem themeItem) {
     return Stack(
       children: [
         TextField(
@@ -108,7 +112,9 @@ class _InputState extends State<Input> {
           ),
           style: TextStyle(color: textColor),
         ),
-        Positioned(right: 0, bottom: 0, child: _buildCounter(themeItem)),
+        if (widget.hideMaxWord == false) ...[
+          Positioned(right: 0, bottom: 0, child: _buildCounter(themeItem)),
+        ],
       ],
     );
   }

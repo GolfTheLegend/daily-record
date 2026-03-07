@@ -57,6 +57,14 @@ dev_dependencies:
 flutter:
   assets:
     - assets/icons/
+    - assets/fonts/
+  fonts:
+  - family: Inter
+    fonts:
+      - asset: assets/fonts/Inter_28pt-Regular.ttf
+      - asset: assets/fonts/Inter_28pt-Bold.ttf
+        weight: 700
+
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
@@ -89,6 +97,6 @@ flutter:
   #       - asset: fonts/TrajanPro.ttf
   #       - asset: fonts/TrajanPro_Bold.ttf
   #         weight: 700
-  #
+
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
