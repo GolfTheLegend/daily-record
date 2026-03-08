@@ -18,7 +18,7 @@ class _TimeSelectionButtonState extends State<TimeSelectionButton> {
   void _showTimePicker() {
     showDialog(
       context: context,
-      barrierColor: Colors.black.withOpacity(0.4),
+      barrierColor: Colors.black.withValues(alpha:0.4),
       builder: (_) => Dialog(
         backgroundColor: Colors.transparent,
         insetPadding: const EdgeInsets.symmetric(horizontal: 24),
@@ -43,7 +43,7 @@ class _TimeSelectionButtonState extends State<TimeSelectionButton> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withValues(alpha:0.2),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -179,7 +179,7 @@ class _TimePickerModalState extends State<_TimePickerModal> {
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.w700,
-                  color: isSelected ? themeItem.textPrimary : themeItem.textPrimary.withOpacity(0.3),
+                  color: isSelected ? themeItem.textPrimary : themeItem.textPrimary.withValues(alpha:0.3),
                 ),
               ),
             );

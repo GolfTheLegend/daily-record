@@ -122,7 +122,7 @@ class _InputState extends State<Input> {
   Widget _buildCounter(ThemeItem themeItem) {
     return Text(
       "${_controller.text.length}/${widget.maxLength}",
-      style: TextStyle(fontSize: 12, color: themeItem.primary.withOpacity(0.8)),
+      style: TextStyle(fontSize: 12, color: themeItem.primary.withValues(alpha: 0.8)),
     );
   }
 }

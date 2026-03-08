@@ -103,7 +103,7 @@ class _CalendarPageState extends State<CalendarPage> {
                               color: themeItem.background2,
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.3),
+                                  color: Colors.black.withValues(alpha:0.3),
                                   blurRadius: 6,
                                   offset: const Offset(0, 2),
                                 ),
@@ -222,7 +222,7 @@ class __BoxHeaderState extends State<_BoxHeader> {
           borderRadius: BorderRadius.circular(8),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.3),
+              color: Colors.black.withValues(alpha:0.3),
               blurRadius: 6,
               offset: const Offset(0, 2),
             ),
@@ -389,7 +389,7 @@ class __CalendarTableState extends State<_CalendarTable> {
                   border: Border.all(color: themeItem.primary, width: 4),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.3),
+                      color: Colors.black.withValues(alpha:0.3),
                       blurRadius: 5,
                       offset: const Offset(0, 2),
                     ),
