@@ -5,11 +5,13 @@ import 'package:provider/provider.dart';
 class SwitchButton extends StatefulWidget {
   final Widget box1;
   final Widget box2;
+  final ValueChanged<bool> onSelect;
 
   const SwitchButton({
     super.key,
     required this.box1,
     required this.box2,
+    required this.onSelect,
   });
 
   @override
@@ -20,12 +22,14 @@ class _SwitchButtonState extends State<SwitchButton> {
   bool onSwitch = true;
 
   void selectLeft() {
+    widget.onSelect(true);
     setState(() {
       onSwitch = true;
     });
   }
 
   void selectRight() {
+    widget.onSelect(false);
     setState(() {
       onSwitch = false;
     });
@@ -80,7 +84,7 @@ class _SwitchButtonState extends State<SwitchButton> {
                                 ? themeItem.background2
                                 : themeItem.primary,
                             fontWeight: FontWeight.bold,
-                            fontSize: 20
+                            fontSize: 20,
                           ),
                           child: widget.box1,
                         ),
@@ -97,7 +101,7 @@ class _SwitchButtonState extends State<SwitchButton> {
                                 ? themeItem.background2
                                 : themeItem.primary,
                             fontWeight: FontWeight.bold,
-                            fontSize: 20
+                            fontSize: 20,
                           ),
                           child: widget.box2,
                         ),

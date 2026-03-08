@@ -22,7 +22,7 @@ class _LoginState extends State<Login> {
     return Column(
       children: [
         Expanded(
-          flex: 3,
+          flex: 1,
           child: Padding(
             padding: EdgeInsets.only(top: 40),
             child: Column(
@@ -75,108 +75,112 @@ class _LoginState extends State<Login> {
                     borderColor2: themeItem.primary,
                     backgroundColor: themeItem.background2,
                     text: 'Login',
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: (){},
                   ),
                 ),
-              ],
-            ),
-          ),
-        ),
-
-        Expanded(
-          flex: 2,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Divider with "or continue with"
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.1),
-                child: Row(
+                const SizedBox(height: 20),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Expanded(
-                      child: Container(
-                        height: 1,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              Colors.transparent,
-                              themeItem.secondary.withValues(alpha: 0.4),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      child: Text(
-                        'or continue with',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontFamily: 'Inter',
-                          color: themeItem.secondary.withValues(alpha: 0.6),
-                          letterSpacing: 0.5,
-                        ),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: screenWidth * 0.1,
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Container(
+                              height: 1,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Colors.transparent,
+                                    themeItem.secondary.withValues(alpha: 0.4),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            child: Text(
+                              'or continue with',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontFamily: 'Inter',
+                                color: themeItem.secondary.withValues(
+                                  alpha: 0.6,
+                                ),
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Container(
+                              height: 1,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    themeItem.secondary.withValues(alpha: 0.4),
+                                    Colors.transparent,
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    Expanded(
-                      child: Container(
-                        height: 1,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              themeItem.secondary.withValues(alpha: 0.4),
-                              Colors.transparent,
-                            ],
+
+                    const SizedBox(height: 24),
+
+                    // Social Login Buttons Row
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // LINE Button
+                        _SocialLoginButton(
+                          onPressed: () {
+                            // TODO: LINE login
+                          },
+                          backgroundColor: themeItem.background2,
+                          borderColor: themeItem.secondary.withValues(
+                            alpha: 0.3,
                           ),
+                          icon: SvgPicture.asset(
+                            'assets/icons/line-color-icon.svg',
+                            width: 20,
+                            height: 20,
+                          ),
+                          label: 'Line',
+                          textColor: themeItem.secondary,
                         ),
-                      ),
+
+                        const SizedBox(width: 16),
+
+                        // Google Button
+                        _SocialLoginButton(
+                          onPressed: () {
+                            // TODO: Google login
+                          },
+                          backgroundColor: themeItem.background2,
+                          borderColor: themeItem.secondary.withValues(
+                            alpha: 0.3,
+                          ),
+                          icon: SvgPicture.asset(
+                            'assets/icons/google-color-icon.svg',
+                            width: 20,
+                            height: 20,
+                          ),
+                          label: 'Google',
+                          textColor: themeItem.secondary,
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ),
-
-              const SizedBox(height: 24),
-
-              // Social Login Buttons Row
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // LINE Button
-                  _SocialLoginButton(
-                    onPressed: () {
-                      // TODO: LINE login
-                    },
-                    backgroundColor: themeItem.background2,
-                    borderColor: themeItem.secondary.withValues(alpha: 0.3),
-                    icon: SvgPicture.asset(
-                      'assets/icons/line-color-icon.svg',
-                          width: 20,
-                      height: 20,
-                    ),
-                    label: 'Line',
-                    textColor: themeItem.secondary,
-                  ),
-
-                  const SizedBox(width: 16),
-
-                  // Google Button
-                  _SocialLoginButton(
-                    onPressed: () {
-                      // TODO: Google login
-                    },
-                    backgroundColor: themeItem.background2,
-                    borderColor: themeItem.secondary.withValues(alpha: 0.3),
-                    icon: SvgPicture.asset(
-                      'assets/icons/google-color-icon.svg',
-                      width: 20,
-                      height: 20,
-                    ),
-                    label: 'Google',
-                    textColor: themeItem.secondary,
-                  ),
-                ],
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ],
