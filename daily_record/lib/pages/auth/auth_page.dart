@@ -23,14 +23,7 @@ class _AuthPageState extends State<AuthPage> {
   @override
   Widget build(BuildContext context) {
     return ActionBackground(
-      header: Text(
-        isLogin ? 'Login' : 'Register',
-        style: TextStyle(
-          fontSize: 70,
-          fontWeight: FontWeight.bold,
-          fontFamily: 'Inter',
-        ),
-      ),
+      header: _TextHeader(isLogin),
       child: Container(
         decoration: BoxDecoration(),
         width: double.infinity,
@@ -49,11 +42,79 @@ class _AuthPageState extends State<AuthPage> {
                 ),
               ),
             ),
-            if (isLogin) ...[Expanded(flex: 5, child: Login())],
-            if (!isLogin) ...[Expanded(flex: 5, child: Register())],
+            Expanded(
+              flex: 5,
+              child: Stack(
+                children: [
+                  AnimatedPositioned(
+                    duration: const Duration(milliseconds: 600),
+                    curve: Curves.easeOutCubic,
+                    top: 0,
+                    left: isLogin ? 0 : -500,
+                    right: isLogin ? 0 : 500,
+                    bottom: 0,
+                    child: Login(),
+                  ),
+
+                  AnimatedPositioned(
+                    duration: const Duration(milliseconds: 600),
+                    curve: Curves.easeOutCubic,
+                    top: 0,
+                    left: isLogin ? 500 : 0,
+                    right: isLogin ? -500 : 0,
+                    bottom: 0,
+                    child: Register(),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _TextHeader(bool isLogin) {
+    return Stack(
+      children: [
+        AnimatedPositioned(
+          duration: const Duration(milliseconds: 600),
+          curve: Curves.easeOutCubic,
+          top: 0,
+          left: isLogin ? 0 : -500,
+          right: isLogin ? 0 : 500,
+          bottom: 0,
+          child: Center(
+            child: Text(
+              'Login',
+              style: TextStyle(
+                fontSize: 70,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Inter',
+              ),
+            ),
+          ),
+        ),
+
+        AnimatedPositioned(
+          duration: const Duration(milliseconds: 600),
+          curve: Curves.easeOutCubic,
+          top: 0,
+          left: isLogin ? 500 : 0,
+          right: isLogin ? -500 : 0,
+          bottom: 0,
+          child: Center(
+            child: Text(
+              'Register',
+              style: TextStyle(
+                fontSize: 70,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Inter',
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
