@@ -45,7 +45,7 @@ class _SettingPageState extends State<SettingPage> {
 
   @override
   Widget build(BuildContext context) {
-    final themeItem = Provider.of<ThemeProvider>(context).currentThemeItem;
+    final themeItem = context.watch<ThemeProvider>().currentThemeItem!;
 
     return Background(
       child: Column(
@@ -58,7 +58,7 @@ class _SettingPageState extends State<SettingPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Icon(Icons.settings, size: 40, color: themeItem!.textPrimary),
+                  Icon(Icons.settings, size: 40, color: themeItem.textPrimary),
                   SizedBox(width: 10),
                   Text(
                     'ตั้งค่า',

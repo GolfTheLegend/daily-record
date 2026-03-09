@@ -17,173 +17,160 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
-    final themeItem = Provider.of<ThemeProvider>(context).currentThemeItem;
+    final themeItem = context.watch<ThemeProvider>().currentThemeItem!;
     final screenWidth = MediaQuery.of(context).size.width;
-    return Column(
-      children: [
-        Expanded(
-          flex: 1,
-          child: Padding(
-            padding: EdgeInsets.only(top: 40),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
+    return SingleChildScrollView(
+      child: Padding(
+        padding: EdgeInsets.only(top: 40),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'User',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'Inter',
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    SizedBox(
-                      width: screenWidth * 0.8,
-                      height: 45,
-                      child: Input(isMultiline: false, hideMaxWord: true),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Password',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'Inter',
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    SizedBox(
-                      width: screenWidth * 0.8,
-                      height: 45,
-                      child: Input(isMultiline: false, hideMaxWord: true),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 30),
-                Center(
-                  child: BorderButton(
-                    width: min(MediaQuery.of(context).size.width * 0.8, 500),
-                    borderColor1: themeItem!.secondary,
-                    borderColor2: themeItem.primary,
-                    backgroundColor: themeItem.background2,
-                    text: 'Login',
-                    onPressed: (){},
+                Text(
+                  'User',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Inter',
                   ),
                 ),
-                const SizedBox(height: 20),
-                Column(
+                const SizedBox(height: 10),
+                SizedBox(
+                  width: screenWidth * 0.8,
+                  height: 45,
+                  child: Input(isMultiline: false, hideMaxWord: true),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Password',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Inter',
+                  ),
+                ),
+                const SizedBox(height: 10),
+                SizedBox(
+                  width: screenWidth * 0.8,
+                  height: 45,
+                  child: Input(isMultiline: false, hideMaxWord: true),
+                ),
+              ],
+            ),
+            const SizedBox(height: 30),
+            Center(
+              child: BorderButton(
+                width: min(MediaQuery.of(context).size.width * 0.8, 500),
+                borderColor1: themeItem.secondary,
+                borderColor2: themeItem.primary,
+                backgroundColor: themeItem.background2,
+                text: 'Login',
+                onPressed: () {},
+              ),
+            ),
+            const SizedBox(height: 20),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.1),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          height: 1,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                Colors.transparent,
+                                themeItem.secondary.withValues(alpha: 0.4),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: Text(
+                          'or continue with',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontFamily: 'Inter',
+                            color: themeItem.secondary,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: Container(
+                          height: 1,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                themeItem.secondary.withValues(alpha: 0.4),
+                                Colors.transparent,
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                // Social Login Buttons Row
+                Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: screenWidth * 0.1,
+                    // LINE Button
+                    _SocialLoginButton(
+                      onPressed: () {
+                        // TODO: LINE login
+                      },
+                      backgroundColor: themeItem.background2,
+                      borderColor: themeItem.secondary,
+                      icon: SvgPicture.asset(
+                        'assets/icons/line-color-icon.svg',
+                        width: 20,
+                        height: 20,
                       ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Container(
-                              height: 1,
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [
-                                    Colors.transparent,
-                                    themeItem.secondary.withValues(alpha: 0.4),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 12),
-                            child: Text(
-                              'or continue with',
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontFamily: 'Inter',
-                                color: themeItem.secondary.withValues(
-                                  alpha: 0.6,
-                                ),
-                                letterSpacing: 0.5,
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: Container(
-                              height: 1,
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [
-                                    themeItem.secondary.withValues(alpha: 0.4),
-                                    Colors.transparent,
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                      label: 'Line',
+                      textColor: themeItem.secondary,
                     ),
 
-                    const SizedBox(height: 24),
+                    const SizedBox(width: 16),
 
-                    // Social Login Buttons Row
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        // LINE Button
-                        _SocialLoginButton(
-                          onPressed: () {
-                            // TODO: LINE login
-                          },
-                          backgroundColor: themeItem.background2,
-                          borderColor: themeItem.secondary.withValues(
-                            alpha: 0.3,
-                          ),
-                          icon: SvgPicture.asset(
-                            'assets/icons/line-color-icon.svg',
-                            width: 20,
-                            height: 20,
-                          ),
-                          label: 'Line',
-                          textColor: themeItem.secondary,
-                        ),
-
-                        const SizedBox(width: 16),
-
-                        // Google Button
-                        _SocialLoginButton(
-                          onPressed: () {
-                            // TODO: Google login
-                          },
-                          backgroundColor: themeItem.background2,
-                          borderColor: themeItem.secondary.withValues(
-                            alpha: 0.3,
-                          ),
-                          icon: SvgPicture.asset(
-                            'assets/icons/google-color-icon.svg',
-                            width: 20,
-                            height: 20,
-                          ),
-                          label: 'Google',
-                          textColor: themeItem.secondary,
-                        ),
-                      ],
+                    // Google Button
+                    _SocialLoginButton(
+                      onPressed: () {
+                        // TODO: Google login
+                      },
+                      backgroundColor: themeItem.background2,
+                      borderColor: themeItem.secondary,
+                      icon: SvgPicture.asset(
+                        'assets/icons/google-color-icon.svg',
+                        width: 20,
+                        height: 20,
+                      ),
+                      label: 'Google',
+                      textColor: themeItem.secondary,
                     ),
                   ],
                 ),
               ],
             ),
-          ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }

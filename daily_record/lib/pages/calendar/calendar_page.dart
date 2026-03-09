@@ -16,7 +16,7 @@ class CalendarPage extends StatefulWidget {
 class _CalendarPageState extends State<CalendarPage> {
   @override
   Widget build(BuildContext context) {
-    final themeItem = Provider.of<ThemeProvider>(context).currentThemeItem;
+    final themeItem = context.watch<ThemeProvider>().currentThemeItem!;
 
     return Background(
       child: Column(
@@ -32,7 +32,7 @@ class _CalendarPageState extends State<CalendarPage> {
                   Icon(
                     Icons.calendar_month_outlined,
                     size: 40,
-                    color: themeItem!.textPrimary,
+                    color: themeItem.textPrimary,
                   ),
                   SizedBox(width: 10),
                   Text(
@@ -210,7 +210,7 @@ class _BoxHeader extends StatefulWidget {
 class __BoxHeaderState extends State<_BoxHeader> {
   @override
   Widget build(BuildContext context) {
-    final themeItem = Provider.of<ThemeProvider>(context).currentThemeItem;
+    final themeItem = context.watch<ThemeProvider>().currentThemeItem!;
 
     return Container(
       width: MediaQuery.of(context).size.width / 9,
@@ -218,7 +218,7 @@ class __BoxHeaderState extends State<_BoxHeader> {
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
       child: Container(
         decoration: BoxDecoration(
-          color: themeItem!.primary,
+          color: themeItem.primary,
           borderRadius: BorderRadius.circular(8),
           boxShadow: [
             BoxShadow(
@@ -305,7 +305,7 @@ class __CalendarTableState extends State<_CalendarTable> {
 
   @override
   Widget build(BuildContext context) {
-    final themeItem = Provider.of<ThemeProvider>(context).currentThemeItem;
+    final themeItem = context.watch<ThemeProvider>().currentThemeItem!;
     int daysInMonth = getDaysInMonth(selectedDate);
     int firstDayOfWeek = getFirstDayOfMonth(selectedDate);
     int totalItems = firstDayOfWeek + daysInMonth;
@@ -330,7 +330,7 @@ class __CalendarTableState extends State<_CalendarTable> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15),
                     ),
-                    backgroundColor: themeItem!.secondary,
+                    backgroundColor: themeItem.secondary,
                   ),
                   child: Icon(Icons.arrow_back_ios_new_outlined,color: themeItem.background2,),
                 ),

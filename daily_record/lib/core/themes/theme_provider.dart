@@ -31,9 +31,9 @@ class ThemeProvider extends ChangeNotifier {
   Future<void> loadSavedTheme() async {
     final prefs = await SharedPreferences.getInstance();
     final savedKey = prefs.getInt('theme_key');
-    if (savedKey != null) {
-      setThemeByKey(savedKey);
-    }
+
+    // ถ้าไม่มี savedKey ให้ใช้ theme แรกเป็น default
+    setThemeByKey(savedKey ?? themeDataList.first.key);
   }
 
   // เลือก + บันทึก key

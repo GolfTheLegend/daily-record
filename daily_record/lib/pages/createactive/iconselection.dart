@@ -17,13 +17,13 @@ class IconSelection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final themeItem = Provider.of<ThemeProvider>(context).currentThemeItem;
+    final themeItem = context.watch<ThemeProvider>().currentThemeItem!;
 
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.fromLTRB(20, 24, 20, 10),
       decoration: BoxDecoration(
-        color: themeItem!.background2,
+        color: themeItem.background2,
         borderRadius: BorderRadius.circular(28),
       ),
       child: Column(

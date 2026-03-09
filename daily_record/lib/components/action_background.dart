@@ -2,7 +2,7 @@ import 'package:daily_record/core/themes/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class ActionBackground extends StatelessWidget {
+class ActionBackground extends StatefulWidget {
   final Widget child;
   final Widget header;
   final PreferredSizeWidget? appBar;
@@ -19,41 +19,85 @@ class ActionBackground extends StatelessWidget {
     this.drawer,
     this.bottomNavigationBar,
   });
+
+  @override
+  State<ActionBackground> createState() => _ActionBackgroundState();
+}
+
+class _ActionBackgroundState extends State<ActionBackground> {
+  bool layer1 = false;
+  bool layer2 = false;
+  bool layer3 = false;
+  bool layer4 = false;
+
+  @override
+  void initState() { 
+    super.initState();
+
+    Future.delayed(const Duration(milliseconds: 1000), () {
+      if (mounted) setState(() => layer1 = true);
+    });
+
+    Future.delayed(const Duration(milliseconds: 2000), () {
+      if (mounted) setState(() => layer2 = true);
+    });
+
+    Future.delayed(const Duration(milliseconds: 3000), () {
+      if (mounted) setState(() => layer3 = true);
+    });
+
+    Future.delayed(const Duration(milliseconds: 3500), () {
+      if (mounted) setState(() => layer4 = true);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    final themeItem = Provider.of<ThemeProvider>(context).currentThemeItem;
+    final themeItem = context.watch<ThemeProvider>().currentThemeItem!;
 
     return Scaffold(
-      backgroundColor: themeItem!.background1,
-
-      appBar: appBar,
-      floatingActionButton: floatingActionButton,
-      drawer: drawer,
-      bottomNavigationBar: bottomNavigationBar,
+      backgroundColor: themeItem.background1,
+      appBar: widget.appBar,
+      floatingActionButton: widget.floatingActionButton,
+      drawer: widget.drawer,
+      bottomNavigationBar: widget.bottomNavigationBar,
 
       body: SafeArea(
         child: Column(
           children: [
             Expanded(
               flex: 1,
-              child: Container(
-                child: Center(child: header),
+              child: SizedBox(
                 width: double.infinity,
+                child: Center(child: widget.header),
               ),
             ),
             Expanded(
               flex: 4,
-              child: Container(
-                decoration: BoxDecoration(),
-                child: Stack(
-                  children: [
-                    _BackGroundLayer(color: themeItem.secondary, vMargin: 5),
-                    _BackGroundLayer(color: themeItem.primary, vMargin: 20),
-                    _BackGroundLayer(color: themeItem.background2, vMargin: 30),
-
-                    SafeArea(child: child),
-                  ],
-                ),
+              child: Stack(
+                children: [
+                  _BackGroundLayer(
+                    color: themeItem.secondary,
+                    vMargin: layer1 ? 5 : 700,
+                  ),
+                  _BackGroundLayer(
+                    color: themeItem.primary,
+                    vMargin: layer2 ? 20 : 700,
+                  ),
+                  _BackGroundLayer(
+                    color: themeItem.background2,
+                    vMargin: layer3 ? 30 : 700,
+                  ),
+                  AnimatedPositioned(
+                    duration: const Duration(milliseconds: 500),
+                    curve: Curves.easeOutCubic,
+                    top: layer4 ? 5 : 700,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    child: SafeArea(child: widget.child),
+                  ),
+                ],
               ),
             ),
           ],
@@ -63,17 +107,22 @@ class ActionBackground extends StatelessWidget {
   }
 
   Widget _BackGroundLayer({required Color color, double vMargin = 0}) {
-    return Container(
-      margin: EdgeInsets.fromLTRB(0, vMargin, 0, 0),
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(70),
-          topRight: Radius.circular(70),
+    return AnimatedPositioned(
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeOutCubic,
+      top: vMargin,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      child: Container(
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(70),
+            topRight: Radius.circular(70),
+          ),
         ),
       ),
-      width: double.infinity,
-      height: double.infinity,
     );
   }
 }

@@ -41,7 +41,7 @@ class _CreateActivePageState extends State<CreateActivePage> {
 
   @override
   Widget build(BuildContext context) {
-    final themeItem = Provider.of<ThemeProvider>(context).currentThemeItem;
+    final themeItem = context.watch<ThemeProvider>().currentThemeItem!;
     
     final screenWidth = MediaQuery.of(context).size.width;
     return Background(
@@ -54,7 +54,7 @@ class _CreateActivePageState extends State<CreateActivePage> {
               children: [
                Text(
                   "19",
-                  style: TextStyle(fontSize: 60, fontWeight: FontWeight.bold,color: themeItem!.textPrimary),
+                  style: TextStyle(fontSize: 60, fontWeight: FontWeight.bold,color: themeItem.textPrimary),
                 ),
                 Text(
                   "กุมภาพันธ์ 2568",

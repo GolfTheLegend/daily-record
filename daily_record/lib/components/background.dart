@@ -19,10 +19,10 @@ class Background extends StatelessWidget {
   });
   @override
   Widget build(BuildContext context) {
-    final themeItem = Provider.of<ThemeProvider>(context).currentThemeItem;
+    final themeItem = context.watch<ThemeProvider>().currentThemeItem!;
 
     return Scaffold(
-      backgroundColor: themeItem!.background1,
+      backgroundColor: themeItem.background1,
 
       appBar: appBar,
       floatingActionButton: floatingActionButton,

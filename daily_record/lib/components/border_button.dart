@@ -26,7 +26,7 @@ class BorderButton extends StatefulWidget {
 class _BorderButtonState extends State<BorderButton> {
   @override
   Widget build(BuildContext context) {
-    final themeItem = Provider.of<ThemeProvider>(context).currentThemeItem;
+    final themeItem = context.watch<ThemeProvider>().currentThemeItem!;
     
     return Padding(
       padding: const EdgeInsets.all(10),
@@ -58,7 +58,7 @@ class _BorderButtonState extends State<BorderButton> {
               },
               child: Text(
                 widget.text,
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600,color: themeItem!.textPrimary),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600,color: themeItem.textPrimary),
               ),
             ),
           ),

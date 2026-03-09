@@ -67,7 +67,7 @@ class _TimeSelectionButtonState extends State<TimeSelectionButton> {
 
   @override
   Widget build(BuildContext context) {
-    final themeItem = Provider.of<ThemeProvider>(context).currentThemeItem;
+    final themeItem = context.watch<ThemeProvider>().currentThemeItem!;
     final String hh = _hours.toString().padLeft(2, '0');
     final String mm = _minutes.toString().padLeft(2, '0');
 
@@ -76,7 +76,7 @@ class _TimeSelectionButtonState extends State<TimeSelectionButton> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _timeBox(themeItem!,hh),
+          _timeBox(themeItem,hh),
            Padding(
             padding: EdgeInsets.symmetric(horizontal: 8),
             child: Text(
@@ -148,7 +148,7 @@ class _TimePickerModalState extends State<_TimePickerModal> {
     required int selectedValue,
     required void Function(int) onChanged,
   }) {
-    final themeItem = Provider.of<ThemeProvider>(context).currentThemeItem;
+    final themeItem = context.watch<ThemeProvider>().currentThemeItem!;
 
     return SizedBox(
       width: 90,
@@ -167,7 +167,7 @@ class _TimePickerModalState extends State<_TimePickerModal> {
               duration: const Duration(milliseconds: 200),
               margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
               decoration: BoxDecoration(
-                color: themeItem!.background2,
+                color: themeItem.background2,
                 borderRadius: BorderRadius.circular(14),
                 border: isSelected
                     ? Border.all(color: themeItem.secondary, width: 2.5)
@@ -191,13 +191,13 @@ class _TimePickerModalState extends State<_TimePickerModal> {
 
   @override
   Widget build(BuildContext context) {
-    final themeItem = Provider.of<ThemeProvider>(context).currentThemeItem;
+    final themeItem = context.watch<ThemeProvider>().currentThemeItem!;
 
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.fromLTRB(20, 24, 20, 10),
       decoration: BoxDecoration(
-        color: themeItem!.background2,
+        color: themeItem.background2,
         borderRadius: BorderRadius.circular(28),
       ),
       child: Column(

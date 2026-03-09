@@ -55,13 +55,13 @@ class _InputState extends State<Input> {
 
   @override
   Widget build(BuildContext context) {
-    final themeItem = Provider.of<ThemeProvider>(context).currentThemeItem;
+    final themeItem = context.watch<ThemeProvider>().currentThemeItem!;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12),
       height: widget.height ?? null,
       decoration: BoxDecoration(
-        color: themeItem!.background2,
+        color: themeItem.background2,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: themeItem.primary, width: 4),
       ),

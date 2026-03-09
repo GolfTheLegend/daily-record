@@ -28,11 +28,9 @@ class ActivityCardState extends State<ActivityCard> {
   @override
   Widget build(BuildContext context) {
     String? trailingTitle;
-    final themeItem = Provider.of<ThemeProvider>(context).currentThemeItem;
+    final themeItem = context.watch<ThemeProvider>().currentThemeItem!;
 
-    final Color textColor = themeItem == null
-        ? Colors.black
-        : widget.trailing == 1
+    final Color textColor = widget.trailing == 1
         ? themeItem.status1
         : widget.trailing == 2
         ? themeItem.status2
@@ -58,7 +56,7 @@ class ActivityCardState extends State<ActivityCard> {
             padding: const EdgeInsets.fromLTRB(5, 5, 5, 0),
             margin: const EdgeInsets.only(bottom: 12),
             decoration: BoxDecoration(
-              color: themeItem!.primary,
+              color: themeItem.primary,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Container(
@@ -74,7 +72,7 @@ class ActivityCardState extends State<ActivityCard> {
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha:0.3),
+                      color: Colors.black.withValues(alpha: 0.3),
                       blurRadius: 6,
                       offset: const Offset(0, 2),
                     ),
@@ -88,9 +86,16 @@ class ActivityCardState extends State<ActivityCard> {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: themeItem.background1,
-                        border: Border.all(color: themeItem.secondary, width: 4),
+                        border: Border.all(
+                          color: themeItem.secondary,
+                          width: 4,
+                        ),
                       ),
-                      child: Icon(widget.icon, size: 40,color: themeItem.primary,),
+                      child: Icon(
+                        widget.icon,
+                        size: 40,
+                        color: themeItem.primary,
+                      ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -108,7 +113,10 @@ class ActivityCardState extends State<ActivityCard> {
                           const SizedBox(height: 4),
                           Text(
                             'เวลา : ${widget.time}',
-                            style: TextStyle(fontSize: 15,color: themeItem.text1 ),
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: themeItem.text1,
+                            ),
                           ),
                         ],
                       ),

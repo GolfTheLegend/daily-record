@@ -97,7 +97,7 @@ class _HomePageState extends State<HomePage> {
 }
 
 Widget _sectionHeader(BuildContext context, String text) {
-  final themeItem = Provider.of<ThemeProvider>(context).currentThemeItem;
+  final themeItem = context.watch<ThemeProvider>().currentThemeItem!;
 
   return Padding(
     padding: const EdgeInsets.symmetric(vertical: 10),
@@ -105,7 +105,7 @@ Widget _sectionHeader(BuildContext context, String text) {
       children: [
         Text(
           text,
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold,color: themeItem!.textPrimary),
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold,color: themeItem.textPrimary),
         ),
         const SizedBox(width: 8),
         Expanded(child: Divider(thickness: 1.5,color: themeItem.textPrimary,)),
@@ -115,7 +115,7 @@ Widget _sectionHeader(BuildContext context, String text) {
 }
 
 Widget _floatingButton(BuildContext context) {
-  final themeItem = Provider.of<ThemeProvider>(context).currentThemeItem;
+  final themeItem = context.watch<ThemeProvider>().currentThemeItem!;
 
   final double mainButtonSize = 75;
   final double childrenButtonSize = 65;
@@ -123,7 +123,7 @@ Widget _floatingButton(BuildContext context) {
     icon: Icons.add,
     activeIcon: Icons.close,
     spaceBetweenChildren: 10, // <<< ระยะห่างจริง
-    backgroundColor: themeItem!.background1,
+    backgroundColor: themeItem.background1,
     overlayColor: Colors.black,
     elevation: 0,
     childPadding: const EdgeInsets.all(0),
@@ -152,7 +152,7 @@ SpeedDialChild _customDial(BuildContext context, IconData icon, double size,Func
 }
 
 Widget _circleButton(BuildContext context, IconData icon, double size,Function()? onTap) {
-  final themeItem = Provider.of<ThemeProvider>(context).currentThemeItem;
+  final themeItem = context.watch<ThemeProvider>().currentThemeItem!;
 
   const double outerBorder = 4;
   const double innerBorder = 4;
@@ -165,7 +165,7 @@ Widget _circleButton(BuildContext context, IconData icon, double size,Function()
       child: DecoratedBox(
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          border: Border.all(color: themeItem!.secondary, width: outerBorder),
+          border: Border.all(color: themeItem.secondary, width: outerBorder),
         ),
         child: Padding(
           padding: const EdgeInsets.all(outerBorder),

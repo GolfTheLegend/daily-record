@@ -43,7 +43,7 @@ class _ActivityHeaderState extends State<ActivityHeader> {
 
   @override
   Widget build(BuildContext context) {
-    final themeItem = Provider.of<ThemeProvider>(context).currentThemeItem;
+    final themeItem = context.watch<ThemeProvider>().currentThemeItem!;
 
     return Column(
       children: [
@@ -53,7 +53,7 @@ class _ActivityHeaderState extends State<ActivityHeader> {
           style: TextStyle(
             fontSize: 40,
             fontWeight: FontWeight.w800,
-            color: themeItem!.textPrimary,
+            color: themeItem.textPrimary,
           ),
         ),
         const SizedBox(height: 10),
@@ -123,14 +123,14 @@ class _ActivityHeaderState extends State<ActivityHeader> {
     String? subtitle,
     bool isToday = false,
   }) {
-    final themeItem = Provider.of<ThemeProvider>(context).currentThemeItem;
+    final themeItem = context.watch<ThemeProvider>().currentThemeItem!;
 
     return Container(
       width: 90,
       height: 50,
       padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
       decoration: BoxDecoration(
-        color: themeItem!.primary,
+        color: themeItem.primary,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Container(
