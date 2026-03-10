@@ -1,54 +1,56 @@
 package middleware
 
 import (
-    "strings"
+	"strings"
 
-    "daily-record/config"
+	"daily-record/config"
+	"daily-record/handlers"
+	"daily-record/utils"
 
-    "github.com/gofiber/fiber/v3"
-    "github.com/golang-jwt/jwt/v5"
+	"github.com/gofiber/fiber/v3"
 )
 
-func Protected() fiber.Handler {
-    return func(c fiber.Ctx) error {
-        authHeader := c.Get("Authorization")
-        if authHeader == "" {
-            return c.Status(401).JSON(fiber.Map{"error": "Missing Authorization header"})
-        }
+// Protected ตรวจสอบ JWT Access Token ใน Authorization header
+func Protected(cfg *config.Config) fiber.Handler {
+	return func(c fiber.Ctx) error {
+		authHeader := c.Get("Authorization")
+		if authHeader == "" {
+			return c.Status(fiber.StatusUnauthorized).JSON(
+				utils.ErrorResponse("Missing Authorization header"),
+			)
+		}
 
-        parts := strings.SplitN(authHeader, " ", 2)
-        if len(parts) != 2 || parts[0] != "Bearer" {
-            return c.Status(401).JSON(fiber.Map{"error": "Invalid token format"})
-        }
+		parts := strings.SplitN(authHeader, " ", 2)
+		if len(parts) != 2 || parts[0] != "Bearer" {
+			return c.Status(fiber.StatusUnauthorized).JSON(
+				utils.ErrorResponse("Format: Authorization: Bearer <token>"),
+			)
+		}
 
-        tokenStr := parts[1]
-        token, err := jwt.Parse(tokenStr, func(t *jwt.Token) (interface{}, error) {
-            // ตรวจว่าใช้ HMAC
-            if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
-                return nil, fiber.ErrUnauthorized
-            }
-            return []byte(config.GetJWTSecret()), nil
-        })
+		claims, err := handlers.ParseAccessToken(parts[1], cfg)
+		if err != nil {
+			return c.Status(fiber.StatusUnauthorized).JSON(
+				utils.ErrorResponse("Invalid or expired access token"),
+			)
+		}
 
-        if err != nil || !token.Valid {
-            return c.Status(401).JSON(fiber.Map{"error": "Invalid or expired token"})
-        }
-
-        c.Locals("user", token)
-        return c.Next()
-    }
+		// เก็บ claims ไว้ให้ handler ถัดไปใช้
+		c.Locals("claims", claims)
+		return c.Next()
+	}
 }
 
-// Middleware ตรวจ Role
-func RequireRole(role string) fiber.Handler {
-    return func(c fiber.Ctx) error {
-        user := c.Locals("user").(*jwt.Token)
-        claims := user.Claims.(jwt.MapClaims)
-
-        if claims["role"] != role {
-            return c.Status(403).JSON(fiber.Map{"error": "Forbidden: insufficient permissions"})
-        }
-
-        return c.Next()
-    }
+// RequireRole ตรวจสอบ role — ใช้หลัง Protected เสมอ
+func RequireRole(roles ...string) fiber.Handler {
+	return func(c fiber.Ctx) error {
+		claims := c.Locals("claims").(*handlers.AccessClaims)
+		for _, role := range roles {
+			if claims.Role == role {
+				return c.Next()
+			}
+		}
+		return c.Status(fiber.StatusForbidden).JSON(
+			utils.ErrorResponse("Forbidden: insufficient permissions"),
+		)
+	}
 }
