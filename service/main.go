@@ -14,11 +14,22 @@ import (
 	"github.com/gofiber/fiber/v3/middleware/cors"
 	"github.com/gofiber/fiber/v3/middleware/logger"
 	"github.com/gofiber/fiber/v3/middleware/recover"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	//โหลด .env ก่อน เพื่อให้ config สามารถอ่านค่าได้
+	if err := godotenv.Load(); err != nil {
+		log.Fatal("ไม่พบไฟล์ .env")
+	}
+
 	// 1. Load config
 	cfg := config.Load()
+
+	// 2. ดึงฐานข้อมูล Supabase (ถ้ามี)
+	db := config.NewSupabaseClient()
+	fmt.Println("✅ เชื่อมต่อ Supabase สำเร็จ!")
+	fmt.Println("URL:", db.URL)
 
 	// 2. Init store
 	store := models.NewStore()
