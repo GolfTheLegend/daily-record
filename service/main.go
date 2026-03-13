@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"daily-record/config"
+	"daily-record/database"
 	"daily-record/models"
 	"daily-record/routes"
 	"daily-record/utils"
@@ -28,8 +29,10 @@ func main() {
 
 	// 2. ดึงฐานข้อมูล Supabase (ถ้ามี)
 	db := config.NewSupabaseClient()
-	fmt.Println("✅ เชื่อมต่อ Supabase สำเร็จ!")
-	fmt.Println("URL:", db.URL)
+	//สร้าง Table แบบAuto จากโฟลเดอร์ migrations
+	database.RunMigrations()
+
+	fmt.Printf("Supabase URL: %s\n", db.URL)
 
 	// 2. Init store
 	store := models.NewStore()
