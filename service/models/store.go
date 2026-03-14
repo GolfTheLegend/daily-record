@@ -1,30 +1,19 @@
 package models
 
 import (
-	"sync"
-	"time"
+	"database/sql"
+	"log"
 )
 
-// Store คือ in-memory database thread-safe
+// Store ใช้ Supabase/PostgreSQL database
 type Store struct {
-	mu sync.RWMutex
-
-	users         map[uint]*User
-	usersByName   map[string]uint // index: username → id
-	usersByEmail  map[string]uint // index: email    → id
-	refreshTokens map[string]*RefreshToken
-
-	nextID uint
+	db *sql.DB
 }
 
-// NewStore สร้าง store ใหม่
-func NewStore() *Store {
+// NewStore สร้าง store ที่เชื่อมต่อกับ database
+func NewStore(db *sql.DB) *Store {
 	return &Store{
-		users:         make(map[uint]*User),
-		usersByName:   make(map[string]uint),
-		usersByEmail:  make(map[string]uint),
-		refreshTokens: make(map[string]*RefreshToken),
-		nextID:        1,
+		db: db,
 	}
 }
 
@@ -33,60 +22,103 @@ func NewStore() *Store {
 // ─────────────────────────────────────────────────────────────────────────────
 
 func (s *Store) CreateUser(u *User) *User {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	u.ID = s.nextID
-	u.CreatedAt = time.Now()
-	u.UpdatedAt = time.Now()
-
-	s.users[u.ID] = u
-	s.usersByName[u.Username] = u.ID
-	s.usersByEmail[u.Email] = u.ID
-	s.nextID++
-
+	query := `
+		INSERT INTO users (username, email, password, role, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, NOW(), NOW())
+		RETURNING id, created_at, updated_at
+	`
+	err := s.db.QueryRow(query, u.Username, u.Email, u.Password, u.Role).
+		Scan(&u.ID, &u.CreatedAt, &u.UpdatedAt)
+	if err != nil {
+		log.Printf("Error creating user: %v", err)
+		return nil
+	}
 	return u
 }
 
 func (s *Store) FindUserByID(id uint) (*User, bool) {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-	u, ok := s.users[id]
-	return u, ok
+	query := `
+		SELECT id, username, email, password, role, created_at, updated_at
+		FROM users
+		WHERE id = $1
+	`
+	user := &User{}
+	err := s.db.QueryRow(query, id).Scan(
+		&user.ID, &user.Username, &user.Email, &user.Password, &user.Role,
+		&user.CreatedAt, &user.UpdatedAt,
+	)
+	if err == sql.ErrNoRows {
+		return nil, false
+	}
+	if err != nil {
+		log.Printf("Error finding user by ID: %v", err)
+		return nil, false
+	}
+	return user, true
 }
 
 func (s *Store) FindUserByUsername(username string) (*User, bool) {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-	id, ok := s.usersByName[username]
-	if !ok {
+	query := `
+		SELECT id, username, email, password, role, created_at, updated_at
+		FROM users
+		WHERE username = $1
+	`
+	user := &User{}
+	err := s.db.QueryRow(query, username).Scan(
+		&user.ID, &user.Username, &user.Email, &user.Password, &user.Role,
+		&user.CreatedAt, &user.UpdatedAt,
+	)
+	if err == sql.ErrNoRows {
 		return nil, false
 	}
-	return s.users[id], true
+	if err != nil {
+		log.Printf("Error finding user by username: %v", err)
+		return nil, false
+	}
+	return user, true
 }
 
 func (s *Store) FindUserByEmail(email string) (*User, bool) {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-	id, ok := s.usersByEmail[email]
-	if !ok {
+	query := `
+		SELECT id, username, email, password, role, created_at, updated_at
+		FROM users
+		WHERE email = $1
+	`
+	user := &User{}
+	err := s.db.QueryRow(query, email).Scan(
+		&user.ID, &user.Username, &user.Email, &user.Password, &user.Role,
+		&user.CreatedAt, &user.UpdatedAt,
+	)
+	if err == sql.ErrNoRows {
 		return nil, false
 	}
-	return s.users[id], true
+	if err != nil {
+		log.Printf("Error finding user by email: %v", err)
+		return nil, false
+	}
+	return user, true
 }
 
 func (s *Store) ExistsUsername(username string) bool {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-	_, ok := s.usersByName[username]
-	return ok
+	query := `SELECT EXISTS(SELECT 1 FROM users WHERE username = $1)`
+	var exists bool
+	err := s.db.QueryRow(query, username).Scan(&exists)
+	if err != nil {
+		log.Printf("Error checking username exists: %v", err)
+		return false
+	}
+	return exists
 }
 
 func (s *Store) ExistsEmail(email string) bool {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-	_, ok := s.usersByEmail[email]
-	return ok
+	query := `SELECT EXISTS(SELECT 1 FROM users WHERE email = $1)`
+	var exists bool
+	err := s.db.QueryRow(query, email).Scan(&exists)
+	if err != nil {
+		log.Printf("Error checking email exists: %v", err)
+		return false
+	}
+	return exists
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -94,44 +126,77 @@ func (s *Store) ExistsEmail(email string) bool {
 // ─────────────────────────────────────────────────────────────────────────────
 
 func (s *Store) SaveRefreshToken(rt *RefreshToken) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	s.refreshTokens[rt.Token] = rt
+	query := `
+		INSERT INTO refresh_tokens (token, user_id, expires_at, created_at, revoked)
+		VALUES ($1, $2, $3, $4, $5)
+	`
+	_, err := s.db.Exec(query, rt.Token, rt.UserID, rt.ExpiresAt, rt.CreatedAt, rt.Revoked)
+	if err != nil {
+		log.Printf("Error saving refresh token: %v", err)
+	}
 }
 
 func (s *Store) FindRefreshToken(token string) (*RefreshToken, bool) {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-	rt, ok := s.refreshTokens[token]
-	return rt, ok
+	query := `
+		SELECT token, user_id, expires_at, created_at, revoked
+		FROM refresh_tokens
+		WHERE token = $1
+	`
+	rt := &RefreshToken{}
+	err := s.db.QueryRow(query, token).Scan(
+		&rt.Token, &rt.UserID, &rt.ExpiresAt, &rt.CreatedAt, &rt.Revoked,
+	)
+	if err == sql.ErrNoRows {
+		return nil, false
+	}
+	if err != nil {
+		log.Printf("Error finding refresh token: %v", err)
+		return nil, false
+	}
+	return rt, true
 }
 
 func (s *Store) RevokeRefreshToken(token string) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	if rt, ok := s.refreshTokens[token]; ok {
-		rt.Revoked = true
+	query := `
+		UPDATE refresh_tokens
+		SET revoked = true
+		WHERE token = $1
+	`
+	_, err := s.db.Exec(query, token)
+	if err != nil {
+		log.Printf("Error revoking refresh token: %v", err)
 	}
 }
 
 // RevokeAllUserTokens revoke ทุก session ของ user — ใช้เมื่อ logout-all หรือเปลี่ยน password
 func (s *Store) RevokeAllUserTokens(userID uint) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	for _, rt := range s.refreshTokens {
-		if rt.UserID == userID {
-			rt.Revoked = true
-		}
+	query := `
+		UPDATE refresh_tokens
+		SET revoked = true
+		WHERE user_id = $1
+	`
+	_, err := s.db.Exec(query, userID)
+	if err != nil {
+		log.Printf("Error revoking all user tokens: %v", err)
 	}
 }
 
 // CleanExpiredTokens ลบ token ที่หมดอายุแล้ว — เรียกจาก background goroutine
 func (s *Store) CleanExpiredTokens() {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	for key, rt := range s.refreshTokens {
-		if rt.IsExpired() {
-			delete(s.refreshTokens, key)
-		}
+	query := `
+		DELETE FROM refresh_tokens
+		WHERE expires_at < NOW() OR revoked = true
+	`
+	result, err := s.db.Exec(query)
+	if err != nil {
+		log.Printf("Error cleaning expired tokens: %v", err)
+		return
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		log.Printf("Error getting rows affected: %v", err)
+	}
+	if rowsAffected > 0 {
+		log.Printf("[Cleanup] %d expired tokens removed", rowsAffected)
 	}
 }

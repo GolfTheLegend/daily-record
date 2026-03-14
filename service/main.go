@@ -27,15 +27,13 @@ func main() {
 	// 1. Load config
 	cfg := config.Load()
 
-	// 2. ดึงฐานข้อมูล Supabase (ถ้ามี)
-	db := config.NewSupabaseClient()
+	// 2. ดึงฐานข้อมูล Supabase
+	supabaseClient := config.NewSupabaseClient()
+	defer supabaseClient.DB.Close()
+
 	//สร้าง Table แบบAuto จากโฟลเดอร์ migrations
 	database.RunMigrations()
-
-	fmt.Printf("Supabase URL: %s\n", db.URL)
-
-	// 2. Init store
-	store := models.NewStore()
+	store := models.NewStore(supabaseClient.DB)
 
 	// 3. Background cleanup
 	go func() {
