@@ -2,6 +2,7 @@ package routes
 
 import (
 	"daily-record/config"
+	_ "daily-record/docs"
 	"daily-record/handlers"
 	"daily-record/middleware"
 	"daily-record/models"
@@ -14,6 +15,12 @@ import (
 func Setup(app *fiber.App, store *models.Store, cfg *config.Config) {
 	authHandler := handlers.NewAuthHandler(store, cfg)
 	loginLimiter := middleware.NewLoginRateLimiter(cfg.RateLimitMax, cfg.RateLimitWindow)
+
+	// Serve Swagger docs
+	app.Get("/swagger/:file", func(c fiber.Ctx) error {
+		file := c.Params("file")
+		return c.SendFile("./docs/" + file)
+	})
 
 	api := app.Group("/api/v1")
 

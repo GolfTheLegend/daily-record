@@ -21,7 +21,7 @@ func NewAuthHandler(store *models.Store, cfg *config.Config) *AuthHandler {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// POST /api/v1/auth/register
+// POST /auth/register
 // ─────────────────────────────────────────────────────────────────────────────
 
 type RegisterRequest struct {
@@ -30,6 +30,15 @@ type RegisterRequest struct {
 	Password string `json:"password"`
 }
 
+// @Summary ลงทะเบียนผู้ใช้ใหม่
+// @Description สร้างบัญชีผู้ใช้ใหม่ด้วยชื่อผู้ใช้ อีเมล และรหัสผ่าน
+// @Tags Authentication
+// @Accept json
+// @Produce json
+// @Param request body models.User true "ข้อมูลการลงทะเบียน"
+// @Success 200 {object} map[string]interface{} "ลงทะเบียนสำเร็จ"
+// @Failure 400 {object} map[string]interface{} "ข้อมูลไม่ถูกต้อง"
+// @Router /auth/register [post]
 func (h *AuthHandler) Register(c fiber.Ctx) error {
 	var req RegisterRequest
 	if err := c.Bind().Body(&req); err != nil {
@@ -95,7 +104,7 @@ func (h *AuthHandler) Register(c fiber.Ctx) error {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// POST /api/v1/auth/login
+// POST /auth/login
 // ─────────────────────────────────────────────────────────────────────────────
 
 type LoginRequest struct {
@@ -103,6 +112,15 @@ type LoginRequest struct {
 	Password string `json:"password"`
 }
 
+// @Summary Login user
+// @Description Login ด้วย username และ password
+// @Tags Authentication
+// @Accept json
+// @Produce json
+// @Param request body LoginRequest true "Login credentials"
+// @Success 200 {object} map[string]interface{}
+// @Failure 401 {object} map[string]interface{}
+// @Router /auth/login [post]
 func (h *AuthHandler) Login(c fiber.Ctx) error {
 	var req LoginRequest
 	if err := c.Bind().Body(&req); err != nil {
@@ -152,13 +170,22 @@ func (h *AuthHandler) Login(c fiber.Ctx) error {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// POST /api/v1/auth/refresh
+// POST /auth/refresh
 // ─────────────────────────────────────────────────────────────────────────────
 
 type RefreshRequest struct {
 	RefreshToken string `json:"refresh_token"`
 }
 
+// @Summary Refresh access token
+// @Description ใช้ refresh token เพื่อออก access token ใหม่
+// @Tags Authentication
+// @Accept json
+// @Produce json
+// @Param request body RefreshRequest true "Refresh token"
+// @Success 200 {object} map[string]interface{}
+// @Failure 401 {object} map[string]interface{}
+// @Router /auth/refresh [post]
 func (h *AuthHandler) Refresh(c fiber.Ctx) error {
 	var req RefreshRequest
 	if err := c.Bind().Body(&req); err != nil || req.RefreshToken == "" {
@@ -198,13 +225,21 @@ func (h *AuthHandler) Refresh(c fiber.Ctx) error {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// POST /api/v1/auth/logout
+// POST /auth/logout
 // ─────────────────────────────────────────────────────────────────────────────
 
 type LogoutRequest struct {
 	RefreshToken string `json:"refresh_token"`
 }
 
+// @Summary Logout user
+// @Description Logout โดย revoke refresh token
+// @Tags Authentication
+// @Accept json
+// @Produce json
+// @Param request body LogoutRequest true "Refresh token"
+// @Success 200 {object} map[string]interface{}
+// @Router /auth/logout [post]
 func (h *AuthHandler) Logout(c fiber.Ctx) error {
 	var req LogoutRequest
 	if err := c.Bind().Body(&req); err != nil || req.RefreshToken == "" {
@@ -219,10 +254,16 @@ func (h *AuthHandler) Logout(c fiber.Ctx) error {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// POST /api/v1/auth/logout-all   [Protected]
+// POST /auth/logout-all   [Protected]
 // kick ออกทุกอุปกรณ์พร้อมกัน
 // ─────────────────────────────────────────────────────────────────────────────
 
+// @Summary Logout all sessions
+// @Description Logout จากทุกอุปกรณ์
+// @Tags Authentication
+// @Security BearerAuth
+// @Success 200 {object} map[string]interface{}
+// @Router /auth/logout-all [post]
 func (h *AuthHandler) LogoutAll(c fiber.Ctx) error {
 	claims := c.Locals("claims").(*AccessClaims)
 	h.store.RevokeAllUserTokens(claims.UserID)
@@ -230,9 +271,16 @@ func (h *AuthHandler) LogoutAll(c fiber.Ctx) error {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// GET /api/v1/auth/me   [Protected]
+// GET /auth/me   [Protected]
 // ─────────────────────────────────────────────────────────────────────────────
 
+// @Summary Get current user
+// @Description ดูข้อมูล user ปัจจุบัน
+// @Tags Authentication
+// @Security BearerAuth
+// @Produce json
+// @Success 200 {object} map[string]interface{}
+// @Router /auth/me [get]
 func (h *AuthHandler) Me(c fiber.Ctx) error {
 	claims := c.Locals("claims").(*AccessClaims)
 

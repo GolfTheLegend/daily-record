@@ -18,6 +18,23 @@ import (
 	"github.com/joho/godotenv"
 )
 
+// @title Daily Record API
+// @version 1.0
+// @description Daily Record API for tracking daily activities
+// @termsOfService http://example.com/terms/
+
+// @contact.name API Support
+// @contact.email support@dailyrecord.com
+
+// @license.name MIT
+// @license.url https://opensource.org/licenses/MIT
+
+// @host localhost:8080
+// @BasePath /api/v1
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
 func main() {
 	//โหลด .env ก่อน เพื่อให้ config สามารถอ่านค่าได้
 	if err := godotenv.Load(); err != nil {
@@ -46,10 +63,8 @@ func main() {
 	}()
 
 	// 4. Init Fiber v3
-	// ข้อแตกต่างจาก v2: fiber.Config{} บางฟิลด์เปลี่ยนชื่อ
 	app := fiber.New(fiber.Config{
 		AppName: "daily-record",
-		// Fiber v3: ErrorHandler signature เปลี่ยนเป็น func(fiber.Ctx, error) error
 		ErrorHandler: func(c fiber.Ctx, err error) error {
 			code := fiber.StatusInternalServerError
 			if e, ok := err.(*fiber.Error); ok {
