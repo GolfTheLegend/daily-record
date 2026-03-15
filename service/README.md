@@ -58,3 +58,10 @@ daily-record/
 | `GET`  | `/api/v1/auth/me` | ✅ Bearer | ดูข้อมูลตัวเอง |
 | `POST` | `/api/v1/auth/logout-all` | ✅ Bearer | kick ทุกอุปกรณ์ |
 | `GET`  | `/api/v1/admin/dashboard` | ✅ Admin | Admin เท่านั้น |
+
+
+
+คำสั่งสร้าง Swagger
+```bash
+swag init 
+```
