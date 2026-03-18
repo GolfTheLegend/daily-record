@@ -14,6 +14,7 @@ import (
 // Setup ลงทะเบียน routes ทั้งหมด
 func Setup(app *fiber.App, store *models.Store, cfg *config.Config) {
 	authHandler := handlers.NewAuthHandler(store, cfg)
+	dailyHandler := handlers.NewDailyRecordHandler(store, cfg)
 	loginLimiter := middleware.NewLoginRateLimiter(cfg.RateLimitMax, cfg.RateLimitWindow)
 
 	// Serve Swagger docs
@@ -35,6 +36,7 @@ func Setup(app *fiber.App, store *models.Store, cfg *config.Config) {
 	protected := api.Group("/", middleware.Protected(cfg))
 	protected.Get("/auth/me", authHandler.Me)
 	protected.Post("/auth/logout-all", authHandler.LogoutAll)
+	protected.Post("/daily-records", dailyHandler.CreateDailyRecord)
 
 	// ── Admin Routes ──────────────────────────────────────────────────────────
 	admin := api.Group("/admin",

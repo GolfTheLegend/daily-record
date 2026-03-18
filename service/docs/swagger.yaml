@@ -1,5 +1,27 @@
 basePath: /api/v1
 definitions:
+  handlers.CreateDailyRecordRequest:
+    properties:
+      activity_detail:
+        type: string
+      activity_header:
+        type: string
+      dates:
+        description: ใช้ตอน repeat_type = 1
+        items:
+          type: string
+        type: array
+      end_time:
+        type: string
+      icon_id:
+        type: integer
+      important:
+        type: boolean
+      repeat_type:
+        type: integer
+      start_time:
+        type: string
+    type: object
   handlers.LoginRequest:
     properties:
       password:
@@ -182,6 +204,36 @@ paths:
       summary: ลงทะเบียนผู้ใช้ใหม่
       tags:
       - Authentication
+  /daily-records:
+    post:
+      consumes:
+      - application/json
+      description: Create a new daily record
+      parameters:
+      - description: Daily record details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.CreateDailyRecordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create Daily-Record
+      tags:
+      - Daily Records
 securityDefinitions:
   BearerAuth:
     in: header

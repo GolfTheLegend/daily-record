@@ -232,9 +232,89 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/daily-records": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create a new daily record",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Daily Records"
+                ],
+                "summary": "Create Daily-Record",
+                "parameters": [
+                    {
+                        "description": "Daily record details",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.CreateDailyRecordRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "handlers.CreateDailyRecordRequest": {
+            "type": "object",
+            "properties": {
+                "activity_detail": {
+                    "type": "string"
+                },
+                "activity_header": {
+                    "type": "string"
+                },
+                "dates": {
+                    "description": "ใช้ตอน repeat_type = 1",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "end_time": {
+                    "type": "string"
+                },
+                "icon_id": {
+                    "type": "integer"
+                },
+                "important": {
+                    "type": "boolean"
+                },
+                "repeat_type": {
+                    "type": "integer"
+                },
+                "start_time": {
+                    "type": "string"
+                }
+            }
+        },
         "handlers.LoginRequest": {
             "type": "object",
             "properties": {
