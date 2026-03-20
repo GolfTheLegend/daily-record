@@ -39,6 +39,29 @@ definitions:
       refresh_token:
         type: string
     type: object
+  models.DailyRecordResponse:
+    properties:
+      activity_detail:
+        type: string
+      activity_header:
+        type: string
+      dates:
+        items:
+          type: string
+        type: array
+      end_time:
+        type: string
+      icon_id:
+        type: integer
+      id:
+        type: integer
+      important:
+        type: boolean
+      repeat_type:
+        type: integer
+      start_time:
+        type: string
+    type: object
   models.User:
     properties:
       created_at:
@@ -208,23 +231,71 @@ paths:
     get:
       consumes:
       - application/json
-      description: Get all daily records for a user
+      description: Get all daily records for a user with optional filters
+      parameters:
+      - description: Filter from date (YYYY-MM-DD)
+        in: query
+        name: date_from
+        type: string
+      - description: Filter to date (YYYY-MM-DD)
+        in: query
+        name: date_to
+        type: string
+      - description: Filter by repeat type
+        in: query
+        name: repeat_type
+        type: integer
+      - description: Filter by important flag
+        in: query
+        name: important
+        type: boolean
+      - description: Search by activity header (partial match)
+        in: query
+        name: activity_header
+        type: string
+      - description: 'Number of records per page (default: 20, max: 100)'
+        in: query
+        name: limit
+        type: integer
+      - description: 'Number of records to skip (default: 0)'
+        in: query
+        name: offset
+        type: integer
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            additionalProperties: true
+            properties:
+              data:
+                items:
+                  $ref: '#/definitions/models.DailyRecordResponse'
+                type: array
+              success:
+                type: boolean
             type: object
         "400":
           description: Bad Request
           schema:
-            additionalProperties: true
+            properties:
+              error:
+                type: string
+              success:
+                type: boolean
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            properties:
+              error:
+                type: string
+              success:
+                type: boolean
             type: object
       security:
       - BearerAuth: []
-      summary: Get Daily-Records
+      summary: Get Daily Records
       tags:
       - Daily Records
     post:
@@ -244,12 +315,22 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
+            properties:
+              data:
+                items:
+                  $ref: '#/definitions/models.DailyRecordResponse'
+                type: array
+              success:
+                type: boolean
             type: object
         "400":
           description: Bad Request
           schema:
-            additionalProperties: true
+            properties:
+              error:
+                type: string
+              success:
+                type: boolean
             type: object
       security:
       - BearerAuth: []

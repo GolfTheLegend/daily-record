@@ -3,6 +3,7 @@ package handlers
 import (
 	"daily-record/config"
 	"daily-record/models"
+	"strconv"
 	"time"
 
 	"github.com/gofiber/fiber/v3"
@@ -34,8 +35,8 @@ func NewDailyRecordHandler(store *models.Store, cfg *config.Config) *DailyRecord
 // @Accept json
 // @Produce json
 // @Param request body CreateDailyRecordRequest true "Daily record details"
-// @Success 200 {object} map[string]interface{}
-// @Failure 400 {object} map[string]interface{}
+// @Success 200 {object} object{success=bool,data=[]models.DailyRecordResponse}
+// @Failure 400 {object} object{success=bool,error=string}
 // @Router /daily-records [post]
 func (h *DailyRecordHandler) CreateDailyRecord(c fiber.Ctx) error {
 	var req CreateDailyRecordRequest
@@ -97,31 +98,88 @@ func (h *DailyRecordHandler) CreateDailyRecord(c fiber.Ctx) error {
 	})
 }
 
-// @Summary Get Daily-Records
-// @Description Get all daily records for a user
+// @Summary Get Daily Records
+// @Description Get all daily records for a user with optional filters
 // @Tags Daily Records
 // @Security BearerAuth
 // @Accept json
 // @Produce json
-// @Success 200 {object} map[string]interface{}
-// @Failure 400 {object} map[string]interface{}
+// @Param date_from       query string  false "Filter from date (YYYY-MM-DD)"
+// @Param date_to         query string  false "Filter to date (YYYY-MM-DD)"
+// @Param repeat_type     query integer false "Filter by repeat type"
+// @Param important       query boolean false "Filter by important flag"
+// @Param activity_header query string  false "Search by activity header (partial match)"
+// @Param limit           query integer false "Number of records per page (default: 20, max: 100)"
+// @Param offset          query integer false "Number of records to skip (default: 0)"
+// @Success 200 {object} object{success=bool,data=[]models.DailyRecordResponse}
+// @Failure 400 {object} object{success=bool,error=string}
+// @Failure 500 {object} object{success=bool,error=string}
 // @Router /daily-records [get]
 func (h *DailyRecordHandler) GetDailyRecords(c fiber.Ctx) error {
-	// 🔥 ดึง user จาก JWT
+	const (
+		defaultLimit = 20
+		maxLimit     = 100
+	)
 	claims := c.Locals("claims").(*AccessClaims)
 
-	// 🔥 เรียก store
-	records, err := h.store.GetDailyRecordsByUserID(claims.UserID)
-	if err != nil {
-		return c.Status(500).JSON(fiber.Map{
-			"success": false,
-			"error":   err.Error(),
-		})
+	filter := models.DailyRecordFilter{
+		Limit: defaultLimit,
 	}
 
-	// 🔥 response
-	return c.JSON(fiber.Map{
-		"success": true,
-		"data":    records,
-	})
+	if v := c.Query("date_from"); v != "" {
+		t, err := time.Parse("2006-01-02", v)
+		if err != nil {
+			return c.Status(400).JSON(fiber.Map{"success": false, "error": "invalid date_from, expected YYYY-MM-DD"})
+		}
+		filter.DateFrom = &t
+	}
+	if v := c.Query("date_to"); v != "" {
+		t, err := time.Parse("2006-01-02", v)
+		if err != nil {
+			return c.Status(400).JSON(fiber.Map{"success": false, "error": "invalid date_to, expected YYYY-MM-DD"})
+		}
+		filter.DateTo = &t
+	}
+	if v := c.Query("repeat_type"); v != "" {
+		parsed, err := strconv.ParseUint(v, 10, 64)
+		if err != nil {
+			return c.Status(400).JSON(fiber.Map{"success": false, "error": "invalid repeat_type"})
+		}
+		u := uint(parsed)
+		filter.RepeatType = &u
+	}
+	if v := c.Query("important"); v != "" {
+		parsed, err := strconv.ParseBool(v)
+		if err != nil {
+			return c.Status(400).JSON(fiber.Map{"success": false, "error": "invalid important"})
+		}
+		filter.Important = &parsed
+	}
+	if v := c.Query("activity_header"); v != "" {
+		filter.ActivityHeader = &v
+	}
+	if v := c.Query("limit"); v != "" {
+		parsed, err := strconv.Atoi(v)
+		if err != nil || parsed < 1 {
+			return c.Status(400).JSON(fiber.Map{"success": false, "error": "invalid limit"})
+		}
+		if parsed > maxLimit {
+			parsed = maxLimit
+		}
+		filter.Limit = parsed
+	}
+	if v := c.Query("offset"); v != "" {
+		parsed, err := strconv.Atoi(v)
+		if err != nil || parsed < 0 {
+			return c.Status(400).JSON(fiber.Map{"success": false, "error": "invalid offset"})
+		}
+		filter.Offset = parsed
+	}
+
+	records, err := h.store.GetDailyRecordsByUserID(claims.UserID, filter)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"success": false, "error": err.Error()})
+	}
+
+	return c.JSON(fiber.Map{"success": true, "data": records})
 }

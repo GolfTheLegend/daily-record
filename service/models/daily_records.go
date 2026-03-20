@@ -22,3 +22,35 @@ type DailyRecordDay struct {
 	RecordDate time.Time `json:"record_date"` // วันที่ที่กิจกรรมนี้ต้องทำ เช่น 2026-03-15
 	CreatedAt  time.Time `json:"created_at"`  // วันที่สร้างข้อมูล
 }
+
+type DailyRecordFilter struct {
+	DateFrom       *time.Time
+	DateTo         *time.Time
+	RepeatType     *uint
+	Important      *bool
+	ActivityHeader *string
+	Limit          int
+	Offset         int
+}
+
+type DailyRecordResponse struct {
+	ID             uint     `json:"id"`
+	IconID         uint     `json:"icon_id"`
+	StartTime      string   `json:"start_time"`
+	EndTime        string   `json:"end_time"`
+	RepeatType     uint     `json:"repeat_type"`
+	Important      bool     `json:"important"`
+	ActivityHeader string   `json:"activity_header"`
+	ActivityDetail string   `json:"activity_detail"`
+	Dates          []string `json:"dates"`
+}
+
+type DailyRecordListResponse struct {
+	Success bool                   `json:"success"`
+	Data    []*DailyRecordResponse `json:"data"`
+}
+
+type ErrorResponse struct {
+	Success bool   `json:"success"`
+	Error   string `json:"error"`
+}
