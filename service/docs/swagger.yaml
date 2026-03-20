@@ -205,6 +205,28 @@ paths:
       tags:
       - Authentication
   /daily-records:
+    get:
+      consumes:
+      - application/json
+      description: Get all daily records for a user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get Daily-Records
+      tags:
+      - Daily Records
     post:
       consumes:
       - application/json

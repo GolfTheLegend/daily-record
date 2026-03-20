@@ -3,6 +3,7 @@ package models
 import (
 	"database/sql"
 	"log"
+	"time"
 )
 
 // DailyRecordStore แบ่ง responsibility สำหรับ daily record operations
@@ -17,53 +18,7 @@ func NewDailyRecordStore(db *sql.DB) *DailyRecordStore {
 	}
 }
 
-func (s *DailyRecordStore) CreateDailyRecord(r *DailyRecord) (uint, error) {
-	query := `
-		INSERT INTO daily_records 
-		(user_id, icon_id, start_time, end_time, repeat_type, important, activity_header, activity_detail, created_at)
-		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
-		RETURNING id
-	`
-
-	var id uint
-	err := s.db.QueryRow(
-		query,
-		r.UserID,
-		r.IconID,
-		r.StartTime,
-		r.EndTime,
-		r.RepeatType,
-		r.Important,
-		r.ActivityHeader,
-		r.ActivityDetail,
-		r.CreatedAt,
-	).Scan(&id)
-
-	if err != nil {
-		log.Printf("Error creating daily record: %v", err)
-		return 0, err
-	}
-	return id, nil
-}
-
-func (s *DailyRecordStore) CreateDailyRecordDay(d *DailyRecordDay) error {
-	query := `
-		INSERT INTO daily_record_days 
-		(record_id, record_date, created_at)
-		VALUES ($1,$2,$3)
-	`
-
-	_, err := s.db.Exec(query, d.RecordID, d.RecordDate, d.CreatedAt)
-	if err != nil {
-		log.Printf("Error creating daily record day: %v", err)
-		return err
-	}
-	return nil
-}
-
-// CreateWithDays creates a daily record with its days in a single transaction
-// ✅ ensures data consistency: if day insertion fails, entire operation rolls back
-func (s *DailyRecordStore) CreateWithDays(r *DailyRecord, days []*DailyRecordDay) (uint, error) {
+func (s *DailyRecordStore) CreateDailyRecord(r *DailyRecord, days []*DailyRecordDay) (uint, error) {
 	tx, err := s.db.Begin()
 	if err != nil {
 		log.Printf("Error beginning transaction: %v", err)
@@ -111,6 +66,7 @@ func (s *DailyRecordStore) CreateWithDays(r *DailyRecord, days []*DailyRecordDay
 	return recordID, nil
 }
 
+// ดูรายละเอียดทีละอัน
 func (s *DailyRecordStore) GetDailyRecordByID(id uint) (*DailyRecord, bool) {
 	query := `
 		SELECT id, user_id, icon_id, start_time, end_time, repeat_type, important, activity_header, activity_detail, created_at, updated_at
@@ -135,47 +91,110 @@ func (s *DailyRecordStore) GetDailyRecordByID(id uint) (*DailyRecord, bool) {
 	return record, true
 }
 
-func (s *DailyRecordStore) GetDailyRecordsByUserID(userID uint) ([]*DailyRecord, error) {
+type DailyRecordResponse struct {
+	ID             uint     `json:"id"`
+	IconID         uint     `json:"icon_id"`
+	StartTime      string   `json:"start_time"`
+	EndTime        string   `json:"end_time"`
+	RepeatType     uint     `json:"repeat_type"`
+	Important      bool     `json:"important"`
+	ActivityHeader string   `json:"activity_header"`
+	ActivityDetail string   `json:"activity_detail"`
+	Dates          []string `json:"dates"`
+}
+
+// ดูรายการทั้งหมด
+func (s *DailyRecordStore) GetDailyRecordsByUserID(userID uint) ([]*DailyRecordResponse, error) {
 	query := `
-		SELECT id, user_id, icon_id, start_time, end_time, repeat_type, important, activity_header, activity_detail, created_at, updated_at
-		FROM daily_records
-		WHERE user_id = $1
-		ORDER BY created_at DESC
+		SELECT 
+			r.id,
+			r.icon_id,
+			r.start_time,
+			r.end_time,
+			r.repeat_type,
+			r.important,
+			r.activity_header,
+			r.activity_detail,
+			d.record_date
+		FROM daily_records r
+		LEFT JOIN daily_record_days d ON r.id = d.record_id
+		WHERE r.user_id = $1
+		ORDER BY r.id , d.record_date ASC
 	`
 
 	rows, err := s.db.Query(query, userID)
 	if err != nil {
-		log.Printf("Error fetching daily records: %v", err)
+		log.Printf("Error fetching records with join: %v", err)
 		return nil, err
 	}
 	defer rows.Close()
 
-	var records []*DailyRecord
+	// 🔥 ใช้ map รวมข้อมูล
+	recordMap := make(map[uint]*DailyRecordResponse)
+
 	for rows.Next() {
-		record := &DailyRecord{}
+		var (
+			id         uint
+			iconID     uint
+			startTime  time.Time
+			endTime    time.Time
+			repeatType uint
+			important  bool
+			header     string
+			detail     string
+			recordDate *time.Time // pointer เพราะ LEFT JOIN อาจเป็น null
+		)
+
 		err := rows.Scan(
-			&record.ID, &record.UserID, &record.IconID, &record.StartTime, &record.EndTime,
-			&record.RepeatType, &record.Important, &record.ActivityHeader, &record.ActivityDetail,
-			&record.CreatedAt, &record.UpdatedAt,
+			&id,
+			&iconID,
+			&startTime,
+			&endTime,
+			&repeatType,
+			&important,
+			&header,
+			&detail,
+			&recordDate,
 		)
 		if err != nil {
-			log.Printf("Error scanning daily record: %v", err)
+			log.Printf("Error scanning: %v", err)
 			continue
 		}
-		records = append(records, record)
+
+		// 🔥 ถ้ายังไม่เคยมี record นี้ → สร้างใหม่
+		if _, exists := recordMap[id]; !exists {
+			recordMap[id] = &DailyRecordResponse{
+				ID:             id,
+				IconID:         iconID,
+				StartTime:      startTime.Format("15:04"),
+				EndTime:        endTime.Format("15:04"),
+				RepeatType:     repeatType,
+				Important:      important,
+				ActivityHeader: header,
+				ActivityDetail: detail,
+				Dates:          []string{},
+			}
+		}
+
+		// 🔥 ถ้ามี date → append
+		if recordDate != nil {
+			recordMap[id].Dates = append(
+				recordMap[id].Dates,
+				recordDate.Format("2006-01-02"),
+			)
+		}
 	}
 
-	// Check if there was an error during iteration
-	if err := rows.Err(); err != nil {
-		log.Printf("Error iterating daily records: %v", err)
-		return nil, err
+	// 🔥 map → slice
+	var results []*DailyRecordResponse
+	for _, v := range recordMap {
+		results = append(results, v)
 	}
 
-	return records, nil
+	return results, nil
 }
 
-// DeleteDailyRecord deletes a daily record (only owner can delete)
-// includes user_id in WHERE clause to prevent users from deleting others' records
+// ลบ
 func (s *DailyRecordStore) DeleteDailyRecord(id uint, userID uint) error {
 	query := `DELETE FROM daily_records WHERE id = $1 AND user_id = $2`
 	result, err := s.db.Exec(query, id, userID)
@@ -197,8 +216,7 @@ func (s *DailyRecordStore) DeleteDailyRecord(id uint, userID uint) error {
 	return nil
 }
 
-// UpdateDailyRecord updates a daily record (only owner can update)
-// includes user_id in WHERE clause to prevent users from updating others' records
+// แก้ไข
 func (s *DailyRecordStore) UpdateDailyRecord(r *DailyRecord, userID uint) error {
 	query := `
 		UPDATE daily_records

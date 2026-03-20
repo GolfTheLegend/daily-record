@@ -37,6 +37,7 @@ func Setup(app *fiber.App, store *models.Store, cfg *config.Config) {
 	protected.Get("/auth/me", authHandler.Me)
 	protected.Post("/auth/logout-all", authHandler.LogoutAll)
 	protected.Post("/daily-records", dailyHandler.CreateDailyRecord)
+	protected.Get("/daily-records", dailyHandler.GetDailyRecords)
 
 	// ── Admin Routes ──────────────────────────────────────────────────────────
 	admin := api.Group("/admin",

@@ -69,32 +69,59 @@ func (h *DailyRecordHandler) CreateDailyRecord(c fiber.Ctx) error {
 		CreatedAt:      time.Now(),
 	}
 
-	// save main record
-	recordID, err := h.store.CreateDailyRecord(&record)
-	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
-	}
+	var days []*models.DailyRecordDay
 
-	// 🔥 ถ้าเลือกวัน
 	if req.RepeatType == 1 {
 		for _, d := range req.Dates {
 			date, err := time.Parse("2006-01-02", d)
 			if err != nil {
-				return c.Status(400).JSON(fiber.Map{"error": "invalid date format, use YYYY-MM-DD"})
+				return c.Status(400).JSON(fiber.Map{"error": "invalid date format"})
 			}
 
-			err = h.store.CreateDailyRecordDay(&models.DailyRecordDay{
-				RecordID:   recordID,
+			days = append(days, &models.DailyRecordDay{
 				RecordDate: date,
 				CreatedAt:  time.Now(),
 			})
-			if err != nil {
-				return c.Status(500).JSON(fiber.Map{"error": err.Error()})
-			}
 		}
 	}
 
+	// 🔥 ใช้ transaction ตัวเดียวจบ
+	recordID, err := h.store.CreateDailyRecord(&record, days)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.Status(201).JSON(fiber.Map{
+		"message":   "created success",
+		"record_id": recordID,
+	})
+}
+
+// @Summary Get Daily-Records
+// @Description Get all daily records for a user
+// @Tags Daily Records
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Router /daily-records [get]
+func (h *DailyRecordHandler) GetDailyRecords(c fiber.Ctx) error {
+	// 🔥 ดึง user จาก JWT
+	claims := c.Locals("claims").(*AccessClaims)
+
+	// 🔥 เรียก store
+	records, err := h.store.GetDailyRecordsByUserID(claims.UserID)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{
+			"success": false,
+			"error":   err.Error(),
+		})
+	}
+
+	// 🔥 response
 	return c.JSON(fiber.Map{
-		"message": "created success",
+		"success": true,
+		"data":    records,
 	})
 }
