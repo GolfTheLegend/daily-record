@@ -38,6 +38,8 @@ func Setup(app *fiber.App, store *models.Store, cfg *config.Config) {
 	protected.Post("/auth/logout-all", authHandler.LogoutAll)
 	protected.Post("/daily-records", dailyHandler.CreateDailyRecord)
 	protected.Get("/daily-records", dailyHandler.GetDailyRecords)
+	protected.Put("/daily-records/{id}", dailyHandler.UpdateDailyRecord)
+	protected.Delete("/daily-records/{id}", dailyHandler.DeleteDailyRecord)
 
 	// ── Admin Routes ──────────────────────────────────────────────────────────
 	admin := api.Group("/admin",

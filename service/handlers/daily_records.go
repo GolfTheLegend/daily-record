@@ -3,6 +3,9 @@ package handlers
 import (
 	"daily-record/config"
 	"daily-record/models"
+	"database/sql"
+	"errors"
+	"fmt"
 	"strconv"
 	"time"
 
@@ -182,4 +185,132 @@ func (h *DailyRecordHandler) GetDailyRecords(c fiber.Ctx) error {
 	}
 
 	return c.JSON(fiber.Map{"success": true, "data": records})
+}
+
+// @Summary Get Daily Record by ID
+// @Description Get a single daily record by ID
+// @Tags Daily Records
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id path integer true "Record ID"
+// @Success 200 {object} models.DailyRecordDetailResponse
+// @Failure 404 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /daily-records/{id} [get]
+func (h *DailyRecordHandler) GetDailyRecordByID(c fiber.Ctx) error {
+	claims := c.Locals("claims").(*AccessClaims)
+
+	recordID, err := strconv.ParseUint(c.Params("id"), 10, 64)
+	if err != nil {
+		return c.Status(400).JSON(models.ErrorResponse{Success: false, Error: "invalid record id"})
+	}
+
+	record, err := h.store.GetDailyRecordByID(claims.UserID, uint(recordID))
+	if errors.Is(err, sql.ErrNoRows) {
+		return c.Status(404).JSON(models.ErrorResponse{Success: false, Error: "record not found"})
+	}
+	if err != nil {
+		return c.Status(500).JSON(models.ErrorResponse{Success: false, Error: err.Error()})
+	}
+
+	return c.JSON(models.DailyRecordDetailResponse{Success: true, Data: record})
+}
+
+// @Summary Update Daily Record
+// @Description Update an existing daily record and its dates by ID
+// @Tags Daily Records
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id      path integer                        true "Record ID"
+// @Param request body models.UpdateDailyRecordRequest true "Updated record details"
+// @Success 200 {object} models.ErrorResponse
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 404 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /daily-records/{id} [put]
+func (h *DailyRecordHandler) UpdateDailyRecord(c fiber.Ctx) error {
+	claims := c.Locals("claims").(*AccessClaims)
+
+	recordID, err := strconv.ParseUint(c.Params("id"), 10, 64)
+	if err != nil {
+		return c.Status(400).JSON(models.ErrorResponse{Success: false, Error: "invalid record id"})
+	}
+
+	var req models.UpdateDailyRecordRequest
+	if err := c.Bind().JSON(&req); err != nil {
+		return c.Status(400).JSON(models.ErrorResponse{Success: false, Error: "invalid request body"})
+	}
+
+	startTime, err := time.Parse("15:04", req.StartTime)
+	if err != nil {
+		return c.Status(400).JSON(models.ErrorResponse{Success: false, Error: "invalid start_time, expected HH:MM"})
+	}
+
+	endTime, err := time.Parse("15:04", req.EndTime)
+	if err != nil {
+		return c.Status(400).JSON(models.ErrorResponse{Success: false, Error: "invalid end_time, expected HH:MM"})
+	}
+
+	dates := make([]time.Time, 0, len(req.Dates))
+	for _, d := range req.Dates {
+		parsed, err := time.Parse("2006-01-02", d)
+		if err != nil {
+			return c.Status(400).JSON(models.ErrorResponse{Success: false, Error: fmt.Sprintf("invalid date %q, expected YYYY-MM-DD", d)})
+		}
+		dates = append(dates, parsed)
+	}
+
+	record := &models.DailyRecord{
+		ID:             uint(recordID),
+		IconID:         req.IconID,
+		StartTime:      startTime,
+		EndTime:        endTime,
+		RepeatType:     req.RepeatType,
+		Important:      req.Important,
+		ActivityHeader: req.ActivityHeader,
+		ActivityDetail: req.ActivityDetail,
+	}
+
+	err = h.store.UpdateDailyRecord(record, dates, claims.UserID)
+	if errors.Is(err, sql.ErrNoRows) {
+		return c.Status(404).JSON(models.ErrorResponse{Success: false, Error: "record not found"})
+	}
+	if err != nil {
+		return c.Status(500).JSON(models.ErrorResponse{Success: false, Error: err.Error()})
+	}
+
+	return c.JSON(models.ErrorResponse{Success: true})
+}
+
+// @Summary Delete Daily Record
+// @Description Delete a daily record by ID (related days are removed automatically)
+// @Tags Daily Records
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id path integer true "Record ID"
+// @Success 200 {object} models.ErrorResponse
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 404 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /daily-records/{id} [delete]
+func (h *DailyRecordHandler) DeleteDailyRecord(c fiber.Ctx) error {
+	claims := c.Locals("claims").(*AccessClaims)
+
+	recordID, err := strconv.ParseUint(c.Params("id"), 10, 64)
+	if err != nil {
+		return c.Status(400).JSON(models.ErrorResponse{Success: false, Error: "invalid record id"})
+	}
+
+	err = h.store.DeleteDailyRecord(uint(recordID), claims.UserID)
+	if errors.Is(err, sql.ErrNoRows) {
+		return c.Status(404).JSON(models.ErrorResponse{Success: false, Error: "record not found"})
+	}
+	if err != nil {
+		return c.Status(500).JSON(models.ErrorResponse{Success: false, Error: err.Error()})
+	}
+
+	return c.JSON(models.ErrorResponse{Success: true})
 }

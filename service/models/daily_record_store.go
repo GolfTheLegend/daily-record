@@ -241,49 +241,78 @@ func (s *DailyRecordStore) GetDailyRecordByID(userID, recordID uint) (*DailyReco
 	return result, nil
 }
 
-// ลบ
-func (s *DailyRecordStore) DeleteDailyRecord(id uint, userID uint) error {
-	query := `DELETE FROM daily_records WHERE id = $1 AND user_id = $2`
-	result, err := s.db.Exec(query, id, userID)
+// แก้ไข
+func (s *DailyRecordStore) UpdateDailyRecord(r *DailyRecord, dates []time.Time, userID uint) error {
+	tx, err := s.db.Begin()
 	if err != nil {
-		log.Printf("Error deleting daily record: %v", err)
-		return err
+		return fmt.Errorf("begin transaction: %w", err)
+	}
+	defer tx.Rollback()
+
+	const updateQuery = `
+		UPDATE daily_records
+		SET
+			icon_id         = $1,
+			start_time      = $2,
+			end_time        = $3,
+			repeat_type     = $4,
+			important       = $5,
+			activity_header = $6,
+			activity_detail = $7,
+			updated_at      = NOW()
+		WHERE id = $8 AND user_id = $9
+	`
+
+	result, err := tx.Exec(updateQuery,
+		r.IconID, r.StartTime, r.EndTime, r.RepeatType, r.Important, r.ActivityHeader, r.ActivityDetail,
+		r.ID, userID,
+	)
+	if err != nil {
+		return fmt.Errorf("update daily record: %w", err)
 	}
 
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
-		log.Printf("Error getting rows affected: %v", err)
-		return err
+		return fmt.Errorf("rows affected daily record: %w", err)
 	}
-
 	if rowsAffected == 0 {
 		return sql.ErrNoRows
+	}
+
+	_, err = tx.Exec(`DELETE FROM daily_record_days WHERE record_id = $1`, r.ID)
+	if err != nil {
+		return fmt.Errorf("delete daily record days: %w", err)
+	}
+
+	for _, date := range dates {
+		_, err = tx.Exec(
+			`INSERT INTO daily_record_days (record_id, record_date) VALUES ($1, $2)`,
+			r.ID, date,
+		)
+		if err != nil {
+			return fmt.Errorf("insert daily record day: %w", err)
+		}
+	}
+
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("commit transaction: %w", err)
 	}
 
 	return nil
 }
 
-// แก้ไข
-func (s *DailyRecordStore) UpdateDailyRecord(r *DailyRecord, userID uint) error {
-	query := `
-		UPDATE daily_records
-		SET icon_id = $1, start_time = $2, end_time = $3, repeat_type = $4, important = $5, activity_header = $6, activity_detail = $7, updated_at = NOW()
-		WHERE id = $8 AND user_id = $9
-	`
+// ลบ
+func (s *DailyRecordStore) DeleteDailyRecord(id, userID uint) error {
+	const query = `DELETE FROM daily_records WHERE id = $1 AND user_id = $2`
 
-	result, err := s.db.Exec(
-		query,
-		r.IconID, r.StartTime, r.EndTime, r.RepeatType, r.Important, r.ActivityHeader, r.ActivityDetail, r.ID, userID,
-	)
+	result, err := s.db.Exec(query, id, userID)
 	if err != nil {
-		log.Printf("Error updating daily record: %v", err)
-		return err
+		return fmt.Errorf("delete daily record: %w", err)
 	}
 
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
-		log.Printf("Error getting rows affected: %v", err)
-		return err
+		return fmt.Errorf("rows affected daily record: %w", err)
 	}
 
 	if rowsAffected == 0 {

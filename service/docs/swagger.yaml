@@ -39,6 +39,13 @@ definitions:
       refresh_token:
         type: string
     type: object
+  models.DailyRecordDetailResponse:
+    properties:
+      data:
+        $ref: '#/definitions/models.DailyRecordResponse'
+      success:
+        type: boolean
+    type: object
   models.DailyRecordResponse:
     properties:
       activity_detail:
@@ -60,6 +67,37 @@ definitions:
       repeat_type:
         type: integer
       start_time:
+        type: string
+    type: object
+  models.ErrorResponse:
+    properties:
+      error:
+        type: string
+      success:
+        type: boolean
+    type: object
+  models.UpdateDailyRecordRequest:
+    properties:
+      activity_detail:
+        type: string
+      activity_header:
+        type: string
+      dates:
+        description: '"YYYY-MM-DD"'
+        items:
+          type: string
+        type: array
+      end_time:
+        description: '"HH:MM"'
+        type: string
+      icon_id:
+        type: integer
+      important:
+        type: boolean
+      repeat_type:
+        type: integer
+      start_time:
+        description: '"HH:MM"'
         type: string
     type: object
   models.User:
@@ -335,6 +373,111 @@ paths:
       security:
       - BearerAuth: []
       summary: Create Daily-Record
+      tags:
+      - Daily Records
+  /daily-records/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a daily record by ID (related days are removed automatically)
+      parameters:
+      - description: Record ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete Daily Record
+      tags:
+      - Daily Records
+    get:
+      consumes:
+      - application/json
+      description: Get a single daily record by ID
+      parameters:
+      - description: Record ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.DailyRecordDetailResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get Daily Record by ID
+      tags:
+      - Daily Records
+    put:
+      consumes:
+      - application/json
+      description: Update an existing daily record and its dates by ID
+      parameters:
+      - description: Record ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated record details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateDailyRecordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update Daily Record
       tags:
       - Daily Records
 securityDefinitions:

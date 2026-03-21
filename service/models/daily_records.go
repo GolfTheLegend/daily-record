@@ -33,6 +33,17 @@ type DailyRecordFilter struct {
 	Offset         int
 }
 
+type UpdateDailyRecordRequest struct {
+	IconID         uint     `json:"icon_id"`
+	StartTime      string   `json:"start_time"` // "HH:MM"
+	EndTime        string   `json:"end_time"`   // "HH:MM"
+	RepeatType     uint     `json:"repeat_type"`
+	Important      bool     `json:"important"`
+	ActivityHeader string   `json:"activity_header"`
+	ActivityDetail string   `json:"activity_detail"`
+	Dates          []string `json:"dates"` // "YYYY-MM-DD"
+}
+
 type DailyRecordResponse struct {
 	ID             uint     `json:"id"`
 	IconID         uint     `json:"icon_id"`
@@ -53,4 +64,9 @@ type DailyRecordListResponse struct {
 type ErrorResponse struct {
 	Success bool   `json:"success"`
 	Error   string `json:"error"`
+}
+
+type DailyRecordDetailResponse struct {
+	Success bool                 `json:"success"`
+	Data    *DailyRecordResponse `json:"data"`
 }
