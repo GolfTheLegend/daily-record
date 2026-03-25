@@ -99,7 +99,7 @@ func main() {
 
 	// 8. Start
 	log.Println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-	log.Println("  🚀  daily-record — JWT Auth Service")
+	log.Println("  🚀  daily-record — Service")
 	log.Printf("  📡  Port          : %s\n", cfg.Port)
 	log.Printf("  🔑  Access Token  : %s\n", cfg.AccessTokenExpiry)
 	log.Printf("  🔄  Refresh Token : %s\n", cfg.RefreshTokenExpiry)
