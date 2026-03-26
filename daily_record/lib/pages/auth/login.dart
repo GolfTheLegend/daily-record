@@ -3,6 +3,8 @@ import 'dart:math';
 import 'package:daily_record/components/border_button.dart';
 import 'package:daily_record/components/input.dart';
 import 'package:daily_record/core/themes/theme_provider.dart';
+import 'package:daily_record/core/models/login_request.dart';
+import 'package:daily_record/core/services/login_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
@@ -15,6 +17,62 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+  late TextEditingController _usernameController;
+  late TextEditingController _passwordController;
+  bool _isLoading = false;
+  String? _errorMessage; //message error login
+  final LoginService _loginService = LoginService();
+
+  @override
+  void initState() {
+    super.initState();
+    _usernameController = TextEditingController();
+    _passwordController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleLogin() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final request = LoginRequest(
+        username: _usernameController.text,
+        password: _passwordController.text,
+      );
+
+      await _loginService.login(request);
+
+      if (mounted) {
+        // Login successful, navigate to home or next page
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Login successful')));
+        // TODO: Navigate to home page
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _errorMessage = e.toString();
+        });
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final themeItem = context.watch<ThemeProvider>().currentThemeItem!;
@@ -40,7 +98,11 @@ class _LoginState extends State<Login> {
                 SizedBox(
                   width: screenWidth * 0.8,
                   height: 45,
-                  child: Input(isMultiline: false, hideMaxWord: true),
+                  child: Input(
+                    isMultiline: false,
+                    hideMaxWord: true,
+                    controller: _usernameController,
+                  ),
                 ),
               ],
             ),
@@ -60,19 +122,37 @@ class _LoginState extends State<Login> {
                 SizedBox(
                   width: screenWidth * 0.8,
                   height: 45,
-                  child: Input(isMultiline: false, hideMaxWord: true),
+                  child: Input(
+                    isMultiline: false,
+                    hideMaxWord: true,
+                    controller: _passwordController,
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 30),
+            if (_errorMessage != null)
+              Container(
+                margin: EdgeInsets.only(bottom: 16),
+                padding: EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.red.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.red, width: 1),
+                ),
+                child: Text(
+                  _errorMessage!,
+                  style: TextStyle(color: Colors.red, fontSize: 14),
+                ),
+              ),
             Center(
               child: BorderButton(
                 width: min(MediaQuery.of(context).size.width * 0.8, 500),
                 borderColor1: themeItem.secondary,
                 borderColor2: themeItem.primary,
                 backgroundColor: themeItem.background2,
-                text: 'Login',
-                onPressed: () {},
+                text: _isLoading ? 'Loading...' : 'Login',
+                onPressed: _isLoading ? null : _handleLogin,
               ),
             ),
             const SizedBox(height: 20),
