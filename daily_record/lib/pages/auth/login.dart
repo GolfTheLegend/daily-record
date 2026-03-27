@@ -130,6 +130,7 @@ class _LoginState extends State<Login> {
                     isMultiline: false,
                     hideMaxWord: true,
                     controller: _passwordController,
+                    ispassword: true,
                   ),
                 ),
               ],

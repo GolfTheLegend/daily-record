@@ -38,7 +38,7 @@ const List<ThemeItem> themeDataList = [
     key: 1,
     primary: const Color(0xFFFF6FD8),
     secondary: const Color(0xFFFFB3EC),
-    shadowPrimary: const Color(0x33FF4FC3),
+    shadowPrimary: Color.fromARGB(255, 255, 146, 228),
     background1: const Color(0xFFFFE6F6),
     background2: const Color(0xFFFFF5FB),
     textPrimary: const Color(0xFF2A2A2A),
