@@ -1,3 +1,6 @@
+import 'package:daily_record/core/models/get_daily_record_request.dart';
+import 'package:daily_record/core/models/get_daily_record_response.dart';
+import 'package:daily_record/core/services/get_daily_record_service.dart';
 import 'package:daily_record/core/themes/theme_provider.dart';
 import 'package:daily_record/pages/home/activity_card.dart';
 import 'package:daily_record/pages/home/activity_header.dart';
@@ -14,24 +17,35 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final _service = GetDailyRecordService();
+  List<DailyRecordItem> _records = [];
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchRecords();
+  }
+
+  Future<void> _fetchRecords() async {
+    setState(() => _isLoading = true);
+    try {
+      final request = GetDailyRecordsRequest();
+      final response = await _service.getDailyRecords(request);
+      setState(() => _records = response.data);
+    } catch (e) {
+      // handle error
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    
-    final List<Map<String, dynamic>> activities = [
-      {
-        'icon': Icons.description,
-        'title': 'ทำงาน',
-        'time': '09:00',
-        'trailing': 2,
-      },
-      {
-        'icon': Icons.restaurant,
-        'title': 'ทานอาหาร',
-        'time': '09:00',
-        'trailing': 1,
-      },
-      {'icon': Icons.local_cafe, 'title': 'พักผ่อน', 'time': '09:00'},
-    ];
+    final current = _records.isNotEmpty ? _records[0] : null;
+    final upcoming = _records.length > 1
+        ? _records.sublist(1)
+        : <DailyRecordItem>[];
 
     return Background(
       floatingActionButton: _floatingButton(context),
@@ -55,13 +69,16 @@ class _HomePageState extends State<HomePage> {
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     child: Column(
                       children: [
-                        _sectionHeader(context,'ขณะนี้'),
-                        ActivityCard(
-                          icon: Icons.directions_run,
-                          title: 'ออกกำลังกาย',
-                          time: '06:00',
-                        ),
-                        _sectionHeader(context,'รายการถัดไป'),
+                        _sectionHeader(context, 'ขณะนี้'),
+                        if (current != null)
+                          ActivityCard(
+                            icon: Icons.directions_run,
+                            title: current.activityHeader ?? '-',
+                            time: current.startTime ?? '',
+                          )
+                        else
+                          const SizedBox.shrink(),
+                        _sectionHeader(context, 'รายการถัดไป'),
                       ],
                     ),
                   ),
@@ -70,18 +87,16 @@ class _HomePageState extends State<HomePage> {
                       padding: const EdgeInsets.symmetric(
                         horizontal: 10,
                         vertical: 10,
-                      ), // เผื่อที่ให้ปุ่ม Floating
-                      itemCount: activities.length,
-                      separatorBuilder: (context, index) =>
-                          const SizedBox(height: 0),
+                      ),
+                      itemCount: upcoming.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 0),
                       itemBuilder: (context, index) {
-                        final item = activities[index];
-
+                        final item = upcoming[index];
                         return ActivityCard(
-                          icon: item['icon'],
-                          title: item['title'],
-                          time: item['time'],
-                          trailing: item['trailing'],
+                          icon: Icons.description, 
+                          title: item.activityHeader ?? '-',
+                          time: item.startTime ?? '',
+                          trailing: item.repeatType,
                         );
                       },
                     ),
@@ -105,10 +120,14 @@ Widget _sectionHeader(BuildContext context, String text) {
       children: [
         Text(
           text,
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold,color: themeItem.textPrimary),
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: themeItem.textPrimary,
+          ),
         ),
         const SizedBox(width: 8),
-        Expanded(child: Divider(thickness: 1.5,color: themeItem.textPrimary,)),
+        Expanded(child: Divider(thickness: 1.5, color: themeItem.textPrimary)),
       ],
     ),
   );
@@ -129,29 +148,47 @@ Widget _floatingButton(BuildContext context) {
     childPadding: const EdgeInsets.all(0),
     buttonSize: Size(mainButtonSize, mainButtonSize),
     childrenButtonSize: Size(childrenButtonSize, childrenButtonSize),
-    iconTheme: IconThemeData(
-      color: themeItem.primary,
-    ),
+    iconTheme: IconThemeData(color: themeItem.primary),
 
     children: [
-      _customDial(context,Icons.settings, childrenButtonSize,() => Navigator.pushNamed(context, '/setting')),
-      _customDial(context,Icons.calendar_month, childrenButtonSize,() => Navigator.pushNamed(context, '/calendar')),
+      _customDial(
+        context,
+        Icons.settings,
+        childrenButtonSize,
+        () => Navigator.pushNamed(context, '/setting'),
+      ),
+      _customDial(
+        context,
+        Icons.calendar_month,
+        childrenButtonSize,
+        () => Navigator.pushNamed(context, '/calendar'),
+      ),
     ],
 
-    child: _circleButton(context,Icons.add, mainButtonSize,null),
+    child: _circleButton(context, Icons.add, mainButtonSize, null),
   );
 }
 
-SpeedDialChild _customDial(BuildContext context, IconData icon, double size,Function()? onTap) {
+SpeedDialChild _customDial(
+  BuildContext context,
+  IconData icon,
+  double size,
+  Function()? onTap,
+) {
   return SpeedDialChild(
     backgroundColor: Colors.transparent,
     elevation: 0,
     onTap: onTap,
-    child: _circleButton(context,icon, size,null),
+    child: _circleButton(context, icon, size, null),
   );
 }
 
-Widget _circleButton(BuildContext context, IconData icon, double size,Function()? onTap) {
+Widget _circleButton(
+  BuildContext context,
+  IconData icon,
+  double size,
+  Function()? onTap,
+) {
   final themeItem = context.watch<ThemeProvider>().currentThemeItem!;
 
   const double outerBorder = 4;
@@ -173,10 +210,7 @@ Widget _circleButton(BuildContext context, IconData icon, double size,Function()
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: themeItem.background2,
-              border: Border.all(
-                color: themeItem.primary,
-                width: innerBorder,
-              ),
+              border: Border.all(color: themeItem.primary, width: innerBorder),
             ),
             child: Center(
               child: Icon(icon, color: themeItem.text1, size: size * 0.45),
