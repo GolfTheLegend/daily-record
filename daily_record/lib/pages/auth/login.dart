@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:daily_record/components/app_alert.dart';
 import 'package:daily_record/components/border_button.dart';
 import 'package:daily_record/components/input.dart';
 import 'package:daily_record/core/themes/theme_provider.dart';
@@ -20,7 +21,6 @@ class _LoginState extends State<Login> {
   late TextEditingController _usernameController;
   late TextEditingController _passwordController;
   bool _isLoading = false;
-  String? _errorMessage; //message error login
   final LoginService _loginService = LoginService();
 
   @override
@@ -40,7 +40,6 @@ class _LoginState extends State<Login> {
   Future<void> _handleLogin() async {
     setState(() {
       _isLoading = true;
-      _errorMessage = null;
     });
 
     try {
@@ -52,17 +51,22 @@ class _LoginState extends State<Login> {
       await _loginService.login(request);
 
       if (mounted) {
-        // Login successful, navigate to home or next page
-        ScaffoldMessenger.of(
+        AppAlert.show(
           context,
-        ).showSnackBar(SnackBar(content: Text('Login successful')));
-        // TODO: Navigate to home page
+          title: 'สำเร็จ',
+          message: 'เข้าสู่ระบบสำเร็จ',
+          type: AlertType.success,
+          onConfirm: () => Navigator.pushNamed(context, '/Home'),
+        );
       }
     } catch (e) {
       if (mounted) {
-        setState(() {
-          _errorMessage = e.toString();
-        });
+        AppAlert.show(
+          context,
+          title: 'เกิดข้อผิดพลาด',
+          message: e.toString(),
+          type: AlertType.error,
+        );
       }
     } finally {
       if (mounted) {
@@ -131,20 +135,6 @@ class _LoginState extends State<Login> {
               ],
             ),
             const SizedBox(height: 30),
-            if (_errorMessage != null)
-              Container(
-                margin: EdgeInsets.only(bottom: 16),
-                padding: EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.red.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.red, width: 1),
-                ),
-                child: Text(
-                  _errorMessage!,
-                  style: TextStyle(color: Colors.red, fontSize: 14),
-                ),
-              ),
             Center(
               child: BorderButton(
                 width: min(MediaQuery.of(context).size.width * 0.8, 500),

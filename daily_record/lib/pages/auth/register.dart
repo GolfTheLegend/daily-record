@@ -1,20 +1,92 @@
 import 'dart:math';
 
+import 'package:daily_record/components/app_alert.dart';
 import 'package:daily_record/components/border_button.dart';
 import 'package:daily_record/components/input.dart';
+import 'package:daily_record/core/models/register_request.dart';
+import 'package:daily_record/core/services/register_service.dart';
 import 'package:daily_record/core/themes/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
 class Register extends StatefulWidget {
-  const Register({super.key});
+  final ValueChanged<bool> onRegisterSuccess;
+  const Register({super.key, required this.onRegisterSuccess});
 
   @override
   State<Register> createState() => _RegisterState();
 }
 
 class _RegisterState extends State<Register> {
+  late TextEditingController _usernameController;
+  late TextEditingController _emailController;
+  late TextEditingController _passwordController;
+  bool _isLoading = false;
+  final RegisterService _registerService = RegisterService();
+
+  @override
+  void initState() {
+    super.initState();
+    _usernameController = TextEditingController();
+    _emailController = TextEditingController();
+    _passwordController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleRegister() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final request = RegisterRequest(
+        username: _usernameController.text,
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
+
+      await _registerService.register(request);
+
+      if (mounted) {
+        AppAlert.show(
+          context,
+          title: 'สำเร็จ',
+          message: 'ลงทะเบียนสำเร็จ',
+          type: AlertType.success,
+          onConfirm: () {
+            _usernameController.clear();
+            _emailController.clear();
+            _passwordController.clear();
+            widget.onRegisterSuccess(true);
+          },
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        AppAlert.show(
+          context,
+          title: 'เกิดข้อผิดพลาด',
+          message: e.toString(),
+          type: AlertType.error,
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final themeItem = context.watch<ThemeProvider>().currentThemeItem!;
@@ -29,7 +101,7 @@ class _RegisterState extends State<Register> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'User',
+                  'Username',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -40,7 +112,35 @@ class _RegisterState extends State<Register> {
                 SizedBox(
                   width: screenWidth * 0.8,
                   height: 45,
-                  child: Input(isMultiline: false, hideMaxWord: true),
+                  child: Input(
+                    isMultiline: false,
+                    hideMaxWord: true,
+                    controller: _usernameController,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'E-mail',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Inter',
+                  ),
+                ),
+                const SizedBox(height: 10),
+                SizedBox(
+                  width: screenWidth * 0.8,
+                  height: 45,
+                  child: Input(
+                    isMultiline: false,
+                    hideMaxWord: true,
+                    controller: _emailController,
+                  ),
                 ),
               ],
             ),
@@ -60,27 +160,12 @@ class _RegisterState extends State<Register> {
                 SizedBox(
                   width: screenWidth * 0.8,
                   height: 45,
-                  child: Input(isMultiline: false, hideMaxWord: true),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Confirm Password',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Inter',
+                  child: Input(
+                    isMultiline: false,
+                    hideMaxWord: true,
+                    controller: _passwordController,
+                    ispassword: true,
                   ),
-                ),
-                const SizedBox(height: 10),
-                SizedBox(
-                  width: screenWidth * 0.8,
-                  height: 45,
-                  child: Input(isMultiline: false, hideMaxWord: true),
                 ),
               ],
             ),
@@ -91,8 +176,8 @@ class _RegisterState extends State<Register> {
                 borderColor1: themeItem.secondary,
                 borderColor2: themeItem.primary,
                 backgroundColor: themeItem.background2,
-                text: 'Register',
-                onPressed: () {},
+                text: _isLoading ? 'Loading...' : 'Register',
+                onPressed: _isLoading ? null : _handleRegister,
               ),
             ),
             const SizedBox(height: 20),

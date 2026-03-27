@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class SwitchButton extends StatefulWidget {
+  final bool initialValue;
   final Widget box1;
   final Widget box2;
   final ValueChanged<bool> onSelect;
 
   const SwitchButton({
     super.key,
+    this.initialValue = true,
     required this.box1,
     required this.box2,
     required this.onSelect,
@@ -20,6 +22,22 @@ class SwitchButton extends StatefulWidget {
 
 class _SwitchButtonState extends State<SwitchButton> {
   bool onSwitch = true;
+
+  @override
+  void initState() {
+    super.initState();
+    onSwitch = widget.initialValue;
+  }
+
+  @override
+  void didUpdateWidget(SwitchButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.initialValue != widget.initialValue) {
+      setState(() {
+        onSwitch = widget.initialValue;
+      });
+    }
+  }
 
   void selectLeft() {
     widget.onSelect(true);

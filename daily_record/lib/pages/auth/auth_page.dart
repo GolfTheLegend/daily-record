@@ -22,8 +22,10 @@ class _AuthPageState extends State<AuthPage> {
 
   @override
   Widget build(BuildContext context) {
+    final header = _TextHeader(isLogin);
+
     return ActionBackground(
-      header: _TextHeader(isLogin),
+      header: header,
       child: Container(
         decoration: BoxDecoration(),
         width: double.infinity,
@@ -38,6 +40,7 @@ class _AuthPageState extends State<AuthPage> {
                     box1: Text('Login'),
                     box2: Text('Register'),
                     onSelect: _onSwitch,
+                    initialValue: isLogin,
                   ),
                 ),
               ),
@@ -63,7 +66,15 @@ class _AuthPageState extends State<AuthPage> {
                     left: isLogin ? 500 : 0,
                     right: isLogin ? -500 : 0,
                     bottom: 0,
-                    child: Register(),
+                    child: Register(
+                      onRegisterSuccess: (success) {
+                        if (success) {
+                          setState(() {
+                            isLogin = true;
+                          });
+                        }
+                      },
+                    ),
                   ),
                 ],
               ),

@@ -14,10 +14,7 @@ void main() async {
   await themeProvider.loadSavedTheme(); // โหลด key ที่บันทึกไว้
 
   runApp(
-    ChangeNotifierProvider.value(
-      value: themeProvider,
-      child: const MyApp(),
-    ),
+    ChangeNotifierProvider.value(value: themeProvider, child: const MyApp()),
   );
 }
 
@@ -26,17 +23,16 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: Provider.of<ThemeProvider>(context).themeData,
       initialRoute: '/',
       routes: {
-        // '/': (context) => const HomePage(),
+        '/': (context) => const AuthPage(),
+        '/Home': (context) => const HomePage(),
         // '/create': (context) => const CreateActivePage(),
         // '/calendar': (context) => const CalendarPage(),
         // '/setting': (context) => const SettingPage(),
-        '/': (context) => const AuthPage(),
       },
     );
   }

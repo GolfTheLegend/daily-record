@@ -10,6 +10,7 @@ class Input extends StatefulWidget {
   final bool isMultiline; //เปลี่ยนเป็นแบบหลายบรรทัดได้
   final double? height;
   final bool? hideMaxWord;
+  final bool ispassword;
 
   const Input({
     super.key,
@@ -19,6 +20,7 @@ class Input extends StatefulWidget {
     this.isMultiline = false,
     this.height,
     this.hideMaxWord = false,
+    this.ispassword = false,
   });
 
   @override
@@ -28,6 +30,7 @@ class Input extends StatefulWidget {
 class _InputState extends State<Input> {
   late TextEditingController _controller;
   late bool _isExternalController;
+  bool _obscureText = true;
 
   @override
   void initState() {
@@ -35,6 +38,7 @@ class _InputState extends State<Input> {
     _isExternalController = widget.controller != null;
     _controller = widget.controller ?? TextEditingController();
     _controller.addListener(_onTextChanged);
+    _obscureText = widget.ispassword;
   }
 
   void _onTextChanged() {
@@ -79,6 +83,7 @@ class _InputState extends State<Input> {
             controller: _controller,
             maxLength: widget.maxLength,
             maxLines: 1,
+            obscureText: _obscureText,
             decoration: InputDecoration(
               hintText: widget.hintText ?? '',
               border: InputBorder.none,
@@ -88,6 +93,18 @@ class _InputState extends State<Input> {
             style: TextStyle(color: textColor),
           ),
         ),
+        // ปุ่ม toggle password
+        if (widget.ispassword) ...[
+          const SizedBox(width: 4),
+          GestureDetector(
+            onTap: () => setState(() => _obscureText = !_obscureText),
+            child: Icon(
+              _obscureText ? Icons.visibility_off : Icons.visibility,
+              size: 20,
+              color: themeItem.primary.withValues(alpha: 0.7),
+            ),
+          ),
+        ],
         if (widget.hideMaxWord == false) ...[
           const SizedBox(width: 8),
           _buildCounter(themeItem),
@@ -122,7 +139,10 @@ class _InputState extends State<Input> {
   Widget _buildCounter(ThemeItem themeItem) {
     return Text(
       "${_controller.text.length}/${widget.maxLength}",
-      style: TextStyle(fontSize: 12, color: themeItem.primary.withValues(alpha: 0.8)),
+      style: TextStyle(
+        fontSize: 12,
+        color: themeItem.primary.withValues(alpha: 0.8),
+      ),
     );
   }
 }
