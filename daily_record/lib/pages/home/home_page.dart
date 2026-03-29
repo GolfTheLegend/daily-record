@@ -55,7 +55,11 @@ class _HomePageState extends State<HomePage> {
             flex: 1,
             child: Container(
               width: double.infinity,
-              child: const ActivityHeader(),
+              child: ActivityHeader(
+                onDateSelected: (DateTime date) {
+                  print('เลือกวันที่: $date');
+                },
+              ),
             ),
           ),
           Expanded(
@@ -93,7 +97,7 @@ class _HomePageState extends State<HomePage> {
                       itemBuilder: (context, index) {
                         final item = upcoming[index];
                         return ActivityCard(
-                          icon: Icons.description, 
+                          icon: Icons.description,
                           title: item.activityHeader ?? '-',
                           time: item.startTime ?? '',
                           trailing: item.repeatType,

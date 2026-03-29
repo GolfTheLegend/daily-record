@@ -147,16 +147,6 @@ class ActivityCardState extends State<ActivityCard> {
                       child: Row(
                         children: [
                           ButtonBox(
-                            title: 'ไม่สำเร็จ',
-                            onPressed: () {
-                              print('ไม่สำเร็จ');
-                            },
-                            textColor: const Color.fromARGB(255, 102, 12, 6),
-                            color1: const Color.fromARGB(255, 252, 95, 83),
-                            color2: const Color.fromARGB(255, 102, 12, 6),
-                          ),
-                          const SizedBox(width: 8),
-                          ButtonBox(
                             title: 'สำเร็จ',
                             onPressed: () {
                               print('สำเร็จ');
@@ -164,6 +154,16 @@ class ActivityCardState extends State<ActivityCard> {
                             textColor: const Color.fromARGB(255, 7, 68, 9),
                             color1: Colors.green,
                             color2: const Color.fromARGB(255, 7, 68, 9),
+                          ),
+                          const SizedBox(width: 8),
+                          ButtonBox(
+                            title: 'ไม่สำเร็จ',
+                            onPressed: () {
+                              print('ไม่สำเร็จ');
+                            },
+                            textColor: const Color.fromARGB(255, 102, 12, 6),
+                            color1: const Color.fromARGB(255, 252, 95, 83),
+                            color2: const Color.fromARGB(255, 102, 12, 6),
                           ),
                         ],
                       ),

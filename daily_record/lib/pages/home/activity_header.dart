@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class ActivityHeader extends StatefulWidget {
-  const ActivityHeader({super.key});
+  final Function(DateTime)? onDateSelected;
+  const ActivityHeader({super.key, this.onDateSelected});
 
   @override
   State<ActivityHeader> createState() => _ActivityHeaderState();
@@ -13,6 +14,7 @@ class ActivityHeader extends StatefulWidget {
 class _ActivityHeaderState extends State<ActivityHeader> {
   String _currentTime = '';
   Timer? _timer;
+  DateTime? _selectedDate;
 
   @override
   void initState() {
@@ -44,6 +46,12 @@ class _ActivityHeaderState extends State<ActivityHeader> {
   @override
   Widget build(BuildContext context) {
     final themeItem = context.watch<ThemeProvider>().currentThemeItem!;
+
+    final today = DateTime(
+      DateTime.now().year,
+      DateTime.now().month,
+      DateTime.now().day,
+    );
 
     return Column(
       children: [
@@ -84,10 +92,26 @@ class _ActivityHeaderState extends State<ActivityHeader> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const SizedBox(width: 10),
-                _DateBox(context, 'วันนี้', isToday: true),
+                GestureDetector(
+                  onTap: () {
+                    setState(() => _selectedDate = today);
+                    widget.onDateSelected?.call(today);
+                  },
+                  child: _DateBox(
+                    context,
+                    'วันนี้',
+                    isToday: true,
+                    isSelected: _selectedDate == null || _selectedDate == today,
+                  ),
+                ),
                 const SizedBox(width: 10),
                 ...List.generate(30, (index) {
                   final date = DateTime.now().add(Duration(days: index + 1));
+                  final normalizedDate = DateTime(
+                    date.year,
+                    date.month,
+                    date.day,
+                  );
                   final shortMonths = [
                     'ม.ค.',
                     'ก.พ.',
@@ -104,9 +128,21 @@ class _ActivityHeaderState extends State<ActivityHeader> {
                   ];
                   final dayText = '${date.day}';
                   final monthText = shortMonths[date.month - 1];
+
                   return Padding(
                     padding: const EdgeInsets.only(right: 10),
-                    child: _DateBox(context, dayText, subtitle: monthText),
+                    child: GestureDetector(
+                      onTap: () {
+                        setState(() => _selectedDate = normalizedDate);
+                        widget.onDateSelected?.call(normalizedDate);
+                      },
+                      child: _DateBox(
+                        context,
+                        dayText,
+                        subtitle: monthText,
+                        isSelected: _selectedDate == normalizedDate,
+                      ),
+                    ),
                   );
                 }),
               ],
@@ -122,6 +158,7 @@ class _ActivityHeaderState extends State<ActivityHeader> {
     String text, {
     String? subtitle,
     bool isToday = false,
+    bool isSelected = false,
   }) {
     final themeItem = context.watch<ThemeProvider>().currentThemeItem!;
 
@@ -130,7 +167,9 @@ class _ActivityHeaderState extends State<ActivityHeader> {
       height: 50,
       padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
       decoration: BoxDecoration(
-        color: themeItem.primary,
+        color: isSelected
+            ? themeItem.primary
+            : themeItem.primary.withOpacity(0.4), // highlight ตรงนี้
         borderRadius: BorderRadius.circular(12),
       ),
       child: Container(
