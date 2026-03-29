@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:daily_record/core/models/get_daily_record_request.dart';
 import 'package:daily_record/core/models/get_daily_record_response.dart';
 import 'package:daily_record/core/services/get_daily_record_service.dart';
@@ -22,11 +24,26 @@ class _HomePageState extends State<HomePage> {
   List<DailyRecordItem> _currentRecords = [];
   bool _isLoading = false;
   DateTime _selectedDate = DateTime.now();
+  Timer? _timer;
 
   @override
   void initState() {
     super.initState();
-    _fetchRecords(_selectedDate);
+    _fetchRecords(_selectedDate, true);
+    _startPolling();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  void _startPolling() {
+    _timer = Timer.periodic(const Duration(seconds: 30), (_) {
+      if (!mounted) return;
+      _fetchRecords(_selectedDate, false);
+    });
   }
 
   int _toMinutes(String time) {
@@ -34,47 +51,62 @@ class _HomePageState extends State<HomePage> {
     return int.parse(parts[0]) * 60 + int.parse(parts[1]);
   }
 
-  Future<void> _fetchRecords(DateTime date) async {
+  Future<void> _fetchRecords(DateTime date, bool onRefresh) async {
     final now = DateTime.now().toUtc().add(const Duration(hours: 7));
     final nowMin = now.hour * 60 + now.minute;
 
-    setState(() {
-      _isLoading = true;
-      _records = [];
-      _currentRecords = [];
-    });
-    
+    if (onRefresh) {
+      setState(() {
+        _isLoading = true;
+        _records = [];
+        _currentRecords = [];
+      });
+    }
+
     final dateStr =
         '${date.year.toString().padLeft(4, '0')}-'
         '${date.month.toString().padLeft(2, '0')}-'
         '${date.day.toString().padLeft(2, '0')}';
+
     try {
       final request = GetDailyRecordsRequest(
         dateFrom: dateStr,
         dateTo: dateStr,
       );
+
       final response = await _service.getDailyRecords(request);
 
+      final isToday =
+          now.year == date.year &&
+          now.month == date.month &&
+          now.day == date.day;
+
       final current = response.data.where((i) {
+        if (!isToday) return false;
         if (i.startTime == null || i.endTime == null) return false;
 
         final start = _toMinutes(i.startTime!);
         final end = _toMinutes(i.endTime!);
+
         return nowMin >= start && nowMin <= end;
       }).toList();
 
-      final currentItem = current.isNotEmpty ? current[0] : null;
+      final currentItem = current.isNotEmpty ? current.first : null;
+
       final record = response.data
           .where((i) => currentItem == null || i.id != currentItem.id)
           .toList();
+
+      if (!mounted) return;
 
       setState(() {
         _currentRecords = current;
         _records = record;
       });
     } catch (e) {
-      // handle error
+      debugPrint('Fetch error: $e');
     } finally {
+      if (!mounted) return;
       setState(() => _isLoading = false);
     }
   }
@@ -96,7 +128,7 @@ class _HomePageState extends State<HomePage> {
               child: ActivityHeader(
                 onDateSelected: (DateTime date) {
                   setState(() => _selectedDate = date);
-                  _fetchRecords(date);
+                  _fetchRecords(date, true);
                 },
               ),
             ),
