@@ -19,20 +19,59 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final _service = GetDailyRecordService();
   List<DailyRecordItem> _records = [];
+  List<DailyRecordItem> _currentRecords = [];
   bool _isLoading = false;
+  DateTime _selectedDate = DateTime.now();
 
   @override
   void initState() {
     super.initState();
-    _fetchRecords();
+    _fetchRecords(_selectedDate);
   }
 
-  Future<void> _fetchRecords() async {
-    setState(() => _isLoading = true);
+  int _toMinutes(String time) {
+    final parts = time.split(':');
+    return int.parse(parts[0]) * 60 + int.parse(parts[1]);
+  }
+
+  Future<void> _fetchRecords(DateTime date) async {
+    final now = DateTime.now().toUtc().add(const Duration(hours: 7));
+    final nowMin = now.hour * 60 + now.minute;
+
+    setState(() {
+      _isLoading = true;
+      _records = [];
+      _currentRecords = [];
+    });
+    
+    final dateStr =
+        '${date.year.toString().padLeft(4, '0')}-'
+        '${date.month.toString().padLeft(2, '0')}-'
+        '${date.day.toString().padLeft(2, '0')}';
     try {
-      final request = GetDailyRecordsRequest();
+      final request = GetDailyRecordsRequest(
+        dateFrom: dateStr,
+        dateTo: dateStr,
+      );
       final response = await _service.getDailyRecords(request);
-      setState(() => _records = response.data);
+
+      final current = response.data.where((i) {
+        if (i.startTime == null || i.endTime == null) return false;
+
+        final start = _toMinutes(i.startTime!);
+        final end = _toMinutes(i.endTime!);
+        return nowMin >= start && nowMin <= end;
+      }).toList();
+
+      final currentItem = current.isNotEmpty ? current[0] : null;
+      final record = response.data
+          .where((i) => currentItem == null || i.id != currentItem.id)
+          .toList();
+
+      setState(() {
+        _currentRecords = current;
+        _records = record;
+      });
     } catch (e) {
       // handle error
     } finally {
@@ -42,10 +81,9 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final current = _records.isNotEmpty ? _records[0] : null;
-    final upcoming = _records.length > 1
-        ? _records.sublist(1)
-        : <DailyRecordItem>[];
+    final themeItem = context.watch<ThemeProvider>().currentThemeItem!;
+    final current = _currentRecords.isNotEmpty ? _currentRecords[0] : null;
+    final upcoming = _records.sublist(0);
 
     return Background(
       floatingActionButton: _floatingButton(context),
@@ -57,7 +95,8 @@ class _HomePageState extends State<HomePage> {
               width: double.infinity,
               child: ActivityHeader(
                 onDateSelected: (DateTime date) {
-                  print('เลือกวันที่: $date');
+                  setState(() => _selectedDate = date);
+                  _fetchRecords(date);
                 },
               ),
             ),
@@ -78,10 +117,21 @@ class _HomePageState extends State<HomePage> {
                           ActivityCard(
                             icon: Icons.directions_run,
                             title: current.activityHeader ?? '-',
-                            time: current.startTime ?? '',
+                            time: '${current.startTime} - ${current.endTime}',
                           )
                         else
-                          const SizedBox.shrink(),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            child: Text(
+                              'ไม่มีรายการ',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: themeItem.textPrimary.withValues(
+                                  alpha: 0.5,
+                                ),
+                              ),
+                            ),
+                          ),
                         _sectionHeader(context, 'รายการถัดไป'),
                       ],
                     ),
@@ -99,7 +149,7 @@ class _HomePageState extends State<HomePage> {
                         return ActivityCard(
                           icon: Icons.description,
                           title: item.activityHeader ?? '-',
-                          time: item.startTime ?? '',
+                          time: '${item.startTime} - ${item.endTime}',
                           trailing: item.repeatType,
                         );
                       },
