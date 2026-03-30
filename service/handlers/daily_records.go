@@ -187,6 +187,54 @@ func (h *DailyRecordHandler) GetDailyRecords(c fiber.Ctx) error {
 	return c.JSON(fiber.Map{"success": true, "data": records})
 }
 
+// @Summary Get Status Daily Records
+// @Description Get status of daily records for a user filtered by date, month, or year
+// @Tags Daily Records
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param day   query integer false "Filter by day (1-31)"
+// @Param month query integer false "Filter by month (1-12)"
+// @Param year  query integer false "Filter by year (e.g. 2025)"
+// @Success 200 {object} object{success=bool,data=[]models.DailyRecordStatusResponse}
+// @Failure 400 {object} object{success=bool,error=string}
+// @Failure 500 {object} object{success=bool,error=string}
+// @Router /daily-records/status [get]
+func (h *DailyRecordHandler) GetStatusDailyRecords(c fiber.Ctx) error {
+	claims := c.Locals("claims").(*AccessClaims)
+
+	filter := models.DailyRecordStatusFilter{}
+
+	if v := c.Query("day"); v != "" {
+		parsed, err := strconv.Atoi(v)
+		if err != nil || parsed < 1 || parsed > 31 {
+			return c.Status(400).JSON(fiber.Map{"success": false, "error": "invalid day, expected 1-31"})
+		}
+		filter.Day = parsed
+	}
+	if v := c.Query("month"); v != "" {
+		parsed, err := strconv.Atoi(v)
+		if err != nil || parsed < 1 || parsed > 12 {
+			return c.Status(400).JSON(fiber.Map{"success": false, "error": "invalid month, expected 1-12"})
+		}
+		filter.Month = parsed
+	}
+	if v := c.Query("year"); v != "" {
+		parsed, err := strconv.Atoi(v)
+		if err != nil || parsed < 1 {
+			return c.Status(400).JSON(fiber.Map{"success": false, "error": "invalid year"})
+		}
+		filter.Year = parsed
+	}
+
+	records, err := h.store.GetStatusDailyRecordsByUserID(claims.UserID, filter)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"success": false, "error": err.Error()})
+	}
+
+	return c.JSON(fiber.Map{"success": true, "data": records})
+}
+
 // @Summary Get Daily Record by ID
 // @Description Get a single daily record by ID
 // @Tags Daily Records

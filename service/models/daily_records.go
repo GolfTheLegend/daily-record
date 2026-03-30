@@ -1,6 +1,8 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 type DailyRecord struct {
 	ID             uint      `json:"id"`              // รหัสของกิจกรรม (Primary Key)
@@ -54,6 +56,20 @@ type DailyRecordResponse struct {
 	ActivityHeader string   `json:"activity_header"`
 	ActivityDetail string   `json:"activity_detail"`
 	Dates          []string `json:"dates"`
+}
+
+type DailyRecordStatusFilter struct {
+	Day   int
+	Month int
+	Year  int
+}
+
+type DailyRecordStatusResponse struct {
+	HasRecord bool `json:"has_record"`
+	Important bool `json:"important"`
+	Day       int  `json:"day"`
+	Month     int  `json:"month"`
+	Year      int  `json:"year"`
 }
 
 type DailyRecordListResponse struct {

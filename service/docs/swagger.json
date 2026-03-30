@@ -400,6 +400,93 @@
                 }
             }
         },
+        "/daily-records/status": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get status of daily records for a user filtered by date, month, or year",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Daily Records"
+                ],
+                "summary": "Get Status Daily Records",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Filter by day (1-31)",
+                        "name": "day",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Filter by month (1-12)",
+                        "name": "month",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Filter by year (e.g. 2025)",
+                        "name": "year",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "data": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/definitions/models.DailyRecordStatusResponse"
+                                    }
+                                },
+                                "success": {
+                                    "type": "boolean"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "error": {
+                                    "type": "string"
+                                },
+                                "success": {
+                                    "type": "boolean"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "error": {
+                                    "type": "string"
+                                },
+                                "success": {
+                                    "type": "boolean"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/daily-records/{id}": {
             "get": {
                 "security": [
@@ -669,6 +756,26 @@
                 },
                 "start_time": {
                     "type": "string"
+                }
+            }
+        },
+        "models.DailyRecordStatusResponse": {
+            "type": "object",
+            "properties": {
+                "day": {
+                    "type": "integer"
+                },
+                "has_record": {
+                    "type": "boolean"
+                },
+                "important": {
+                    "type": "boolean"
+                },
+                "month": {
+                    "type": "integer"
+                },
+                "year": {
+                    "type": "integer"
                 }
             }
         },

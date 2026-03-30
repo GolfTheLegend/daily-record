@@ -241,6 +241,94 @@ func (s *DailyRecordStore) GetDailyRecordByID(userID, recordID uint) (*DailyReco
 	return result, nil
 }
 
+// ดึงค่าStatus ของกิจกรรมในแต่ละวัน
+func (s *DailyRecordStore) GetStatusDailyRecordsByUserID(userID uint, filter DailyRecordStatusFilter) ([]*DailyRecordStatusResponse, error) {
+	base := `
+		SELECT
+			d.record_date,
+			BOOL_OR(r.important) AS important
+		FROM daily_records r
+		INNER JOIN daily_record_days d ON r.id = d.record_id
+	`
+
+	args := []any{userID}
+	conditions := []string{"r.user_id = $1", "d.record_date IS NOT NULL"}
+	i := 2
+
+	if filter.Year > 0 && filter.Month > 0 && filter.Day > 0 {
+		// ค้นหาวันที่ตรงๆ
+		t := time.Date(filter.Year, time.Month(filter.Month), filter.Day, 0, 0, 0, 0, time.UTC)
+		conditions = append(conditions, fmt.Sprintf("d.record_date = $%d", i))
+		args = append(args, t)
+		i++
+	} else if filter.Year > 0 && filter.Month > 0 {
+		// ค้นหาทั้งเดือน → ใช้ range แทน EXTRACT เพื่อให้ใช้ index ได้
+		from := time.Date(filter.Year, time.Month(filter.Month), 1, 0, 0, 0, 0, time.UTC)
+		to := from.AddDate(0, 1, 0) // ต้นเดือนถัดไป
+		conditions = append(conditions, fmt.Sprintf("d.record_date >= $%d AND d.record_date < $%d", i, i+1))
+		args = append(args, from, to)
+		i += 2
+	} else if filter.Year > 0 {
+		// ค้นหาทั้งปี
+		from := time.Date(filter.Year, 1, 1, 0, 0, 0, 0, time.UTC)
+		to := time.Date(filter.Year+1, 1, 1, 0, 0, 0, 0, time.UTC)
+		conditions = append(conditions, fmt.Sprintf("d.record_date >= $%d AND d.record_date < $%d", i, i+1))
+		args = append(args, from, to)
+		i += 2
+	} else if filter.Month > 0 {
+		// ค้นหาทุกปีในเดือนนั้น (จำเป็นต้องใช้ EXTRACT กรณีนี้)
+		conditions = append(conditions, fmt.Sprintf("EXTRACT(MONTH FROM d.record_date) = $%d", i))
+		args = append(args, filter.Month)
+		i++
+		if filter.Day > 0 {
+			conditions = append(conditions, fmt.Sprintf("EXTRACT(DAY FROM d.record_date) = $%d", i))
+			args = append(args, filter.Day)
+			i++
+		}
+	} else if filter.Day > 0 {
+		conditions = append(conditions, fmt.Sprintf("EXTRACT(DAY FROM d.record_date) = $%d", i))
+		args = append(args, filter.Day)
+		i++
+	}
+
+	query := base + " WHERE " + strings.Join(conditions, " AND ")
+	query += " GROUP BY d.record_date"
+	query += " ORDER BY d.record_date ASC"
+
+	rows, err := s.db.Query(query, args...)
+	if err != nil {
+		return nil, fmt.Errorf("query daily records: %w", err)
+	}
+	defer rows.Close()
+
+	var results []*DailyRecordStatusResponse
+
+	for rows.Next() {
+		var (
+			recordDate time.Time
+			important  bool
+		)
+
+		if err := rows.Scan(&recordDate, &important); err != nil {
+			return nil, fmt.Errorf("scan daily record: %w", err)
+		}
+
+		results = append(results, &DailyRecordStatusResponse{
+			HasRecord: true,
+			Important: important,
+			Day:       recordDate.Day(),
+			Month:     int(recordDate.Month()),
+			Year:      recordDate.Year(),
+		})
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate daily records: %w", err)
+	}
+
+	return results, nil
+}
+
 // แก้ไข
 func (s *DailyRecordStore) UpdateDailyRecord(r *DailyRecord, dates []time.Time, userID uint) error {
 	tx, err := s.db.Begin()
