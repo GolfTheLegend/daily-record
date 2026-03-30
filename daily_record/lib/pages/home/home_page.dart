@@ -25,6 +25,9 @@ class _HomePageState extends State<HomePage> {
   bool _isLoading = false;
   DateTime _selectedDate = DateTime.now();
   Timer? _timer;
+  final ScrollController _scrollController = ScrollController();
+  final _firstItemKey = GlobalKey();
+  double _itemHeight = 130.0;
 
   @override
   void initState() {
@@ -36,7 +39,47 @@ class _HomePageState extends State<HomePage> {
   @override
   void dispose() {
     _timer?.cancel();
+    _scrollController.dispose();
     super.dispose();
+  }
+
+  void _autoScroll() {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // รอให้ microtask queue ว่างก่อน — รับประกันว่า ListView rebuild เสร็จแล้ว
+      await Future.delayed(Duration.zero);
+
+      final ctx = _firstItemKey.currentContext;
+      if (ctx != null) {
+        final box = ctx.findRenderObject() as RenderBox?;
+        if (box != null) {
+          _itemHeight = box.size.height;
+        }
+      }
+
+      if (!_scrollController.hasClients) return;
+
+      final now = DateTime.now().toUtc().add(const Duration(hours: 7));
+      final nowMin = now.hour * 60 + now.minute;
+
+      int firstActiveIndex = 0;
+      for (int i = 0; i < _records.length; i++) {
+        final endMin = _records[i].endTime != null
+            ? _toMinutes(_records[i].endTime!)
+            : null;
+        if (endMin != null && nowMin > endMin) {
+          firstActiveIndex = i + 1;
+        } else {
+          break;
+        }
+      }
+
+      final double targetOffset = firstActiveIndex * _itemHeight;
+      _scrollController.animateTo(
+        targetOffset.clamp(0.0, _scrollController.position.maxScrollExtent),
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+      );
+    });
   }
 
   void _startPolling() {
@@ -102,6 +145,8 @@ class _HomePageState extends State<HomePage> {
         _currentRecords = current;
         _records = record;
       });
+
+      _autoScroll();
     } catch (e) {
       debugPrint('Fetch error: $e');
     } finally {
@@ -188,15 +233,34 @@ class _HomePageState extends State<HomePage> {
                         horizontal: 10,
                         vertical: 10,
                       ),
+                      controller: _scrollController,
                       itemCount: upcoming.length,
                       separatorBuilder: (_, __) => const SizedBox(height: 0),
                       itemBuilder: (context, index) {
                         final item = upcoming[index];
-                        return ActivityCard(
-                          icon: Icons.description,
-                          title: item.activityHeader ?? '-',
-                          time: '${item.startTime} - ${item.endTime}',
-                          trailing: item.repeatType,
+                        final now = DateTime.now().toUtc().add(
+                          const Duration(hours: 7),
+                        );
+                        final nowMin = now.hour * 60 + now.minute;
+                        final endMin = item.endTime != null
+                            ? _toMinutes(item.endTime!)
+                            : null;
+                        final isPast = endMin != null && nowMin > endMin;
+
+                        return KeyedSubtree(
+                          key: index == 0
+                              ? _firstItemKey
+                              : null, // 👈 วัดแค่ item แรก
+                          child: Opacity(
+                            opacity: isPast ? 0.35 : 1.0,
+                            child: ActivityCard(
+                              icon: Icons.description,
+                              title: item.activityHeader ?? '-',
+                              time: '${item.startTime} - ${item.endTime}',
+                              trailing: item.repeatType,
+                              isDisable: isPast,
+                            ),
+                          ),
                         );
                       },
                     ),

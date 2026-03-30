@@ -9,6 +9,7 @@ class ActivityCard extends StatefulWidget {
   final String title;
   final String time;
   final int? trailing;
+  final bool isDisable;
 
   const ActivityCard({
     super.key,
@@ -16,6 +17,7 @@ class ActivityCard extends StatefulWidget {
     required this.title,
     required this.time,
     this.trailing,
+    this.isDisable = false,
   });
 
   @override
@@ -45,11 +47,13 @@ class ActivityCardState extends State<ActivityCard> {
     }
 
     return GestureDetector(
-      onTap: () {
-        setState(() {
-          _showActions = !_showActions;
-        });
-      },
+      onTap: widget.isDisable
+          ? null
+          : () {
+              setState(() {
+                _showActions = !_showActions;
+              });
+            },
       child: Column(
         children: [
           Container(
