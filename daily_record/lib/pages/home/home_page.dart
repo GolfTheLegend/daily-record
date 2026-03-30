@@ -91,10 +91,9 @@ class _HomePageState extends State<HomePage> {
         return nowMin >= start && nowMin <= end;
       }).toList();
 
-      final currentItem = current.isNotEmpty ? current.first : null;
-
+      final currentIds = current.map((i) => i.id).toSet();
       final record = response.data
-          .where((i) => currentItem == null || i.id != currentItem.id)
+          .where((i) => !currentIds.contains(i.id))
           .toList();
 
       if (!mounted) return;
@@ -114,7 +113,6 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final themeItem = context.watch<ThemeProvider>().currentThemeItem!;
-    final current = _currentRecords.isNotEmpty ? _currentRecords[0] : null;
     final upcoming = _records.sublist(0);
 
     return Background(
@@ -145,25 +143,41 @@ class _HomePageState extends State<HomePage> {
                     child: Column(
                       children: [
                         _sectionHeader(context, 'ขณะนี้'),
-                        if (current != null)
-                          ActivityCard(
-                            icon: Icons.directions_run,
-                            title: current.activityHeader ?? '-',
-                            time: '${current.startTime} - ${current.endTime}',
-                          )
-                        else
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8),
-                            child: Text(
-                              'ไม่มีรายการ',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: themeItem.textPrimary.withValues(
-                                  alpha: 0.5,
-                                ),
-                              ),
+                        ConstrainedBox(
+                          constraints: const BoxConstraints(
+                            maxHeight: 240,
+                          ), // ความสูง ~2 cards
+                          child: SingleChildScrollView(
+                            child: Column(
+                              children: _currentRecords.isNotEmpty
+                                  ? _currentRecords
+                                        .map(
+                                          (item) => ActivityCard(
+                                            icon: Icons.directions_run,
+                                            title: item.activityHeader ?? '-',
+                                            time:
+                                                '${item.startTime} - ${item.endTime}',
+                                          ),
+                                        )
+                                        .toList()
+                                  : [
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 8,
+                                        ),
+                                        child: Text(
+                                          'ไม่มีรายการ',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            color: themeItem.textPrimary
+                                                .withValues(alpha: 0.5),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                             ),
                           ),
+                        ),
                         _sectionHeader(context, 'รายการถัดไป'),
                       ],
                     ),
