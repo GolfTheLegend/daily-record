@@ -1,5 +1,7 @@
 import 'package:daily_record/core/models/get_daily_record_request.dart';
 import 'package:daily_record/core/models/get_daily_record_response.dart';
+import 'package:daily_record/core/models/get_status_daily_record_request.dart';
+import 'package:daily_record/core/models/get_status_daily_record_response.dart';
 import 'package:daily_record/core/utils/error_handler.dart';
 import 'package:dio/dio.dart';
 import 'package:daily_record/core/constants/api_constants.dart';
@@ -28,6 +30,21 @@ class GetDailyRecordService {
         queryParameters: request.toMap(),
       );
       return GetDailyRecordsResponse.fromMap(response.data);
+    } on DioException catch (e) {
+      throw DioErrorHandler.handle(e);
+    }
+  }
+
+  // GET /daily-records/status
+  Future<GetStatusDailyRecordsResponse> getStatusDailyRecords(
+    GetStatusDailyRecordsRequest request,
+  ) async {
+    try {
+      final response = await _dio.get(
+        ApiConstants.dailyRecordsStatus,
+        queryParameters: request.toMap(),
+      );
+      return GetStatusDailyRecordsResponse.fromMap(response.data);
     } on DioException catch (e) {
       throw DioErrorHandler.handle(e);
     }
