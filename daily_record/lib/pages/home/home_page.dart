@@ -190,7 +190,7 @@ class _HomePageState extends State<HomePage> {
                         _sectionHeader(context, 'ขณะนี้'),
                         ConstrainedBox(
                           constraints: const BoxConstraints(
-                            maxHeight: 240,
+                            maxHeight: 120,
                           ), // ความสูง ~2 cards
                           child: SingleChildScrollView(
                             child: Column(
