@@ -48,7 +48,14 @@ class _CalendarPageState extends State<CalendarPage> {
               ),
             ),
           ),
-          Expanded(flex: 5, child: CalendarTable()),
+          Expanded(
+            flex: 5,
+            child: CalendarTable(
+              onDateSelected: (String date) {
+                print('Selected date: $date');
+              },
+            ),
+          ),
           Expanded(
             flex: 3,
             child: Column(
@@ -104,7 +111,7 @@ class _CalendarPageState extends State<CalendarPage> {
                               color: themeItem.background2,
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withValues(alpha:0.3),
+                                  color: Colors.black.withValues(alpha: 0.3),
                                   blurRadius: 6,
                                   offset: const Offset(0, 2),
                                 ),
@@ -199,4 +206,3 @@ class _CalendarPageState extends State<CalendarPage> {
     );
   }
 }
-

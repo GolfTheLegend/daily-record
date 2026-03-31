@@ -1,16 +1,23 @@
+import 'package:daily_record/core/models/get_status_daily_record_request.dart';
+import 'package:daily_record/core/services/get_daily_record_service.dart';
 import 'package:daily_record/core/themes/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class CalendarTable extends StatefulWidget {
-  const CalendarTable();
+  final Function(String)? onDateSelected;
+  const CalendarTable({this.onDateSelected});
 
   @override
   State<CalendarTable> createState() => CalendarTableState();
 }
 
 class CalendarTableState extends State<CalendarTable> {
-  DateTime selectedDate = DateTime.now(); // เดือนปจุบัน
+  DateTime selectedMonth = DateTime.now(); // เดือนปจุบัน
+  int selectedDate = DateTime.now().day; // วันที่เลือก
+  final _service = GetDailyRecordService();
+  bool _isLoading = false;
+
   List<String> monthNameTH = [
     'มกราคม',
     'กุมภาพันธ์',
@@ -26,8 +33,14 @@ class CalendarTableState extends State<CalendarTable> {
     'ธันวาคม',
   ];
   List<String> weekNameTH = ['อา.', 'จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.'];
-  List<int> waitingDates = [15, 16, 18, 23, 28]; // วันที่สำคัญ
-  List<int> hasDayRecord = [2, 20, 25, 28]; // วันที่มีบันทึกกิจกรรม
+  List<int> waitingDates = []; // วันที่สำคัญ
+  List<int> hasDayRecord = []; // วันที่มีบันทึกกิจกรรม
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchStatus(selectedMonth.month, selectedMonth.year);
+  }
 
   // ฟังก์ชันสำหรับดึงจำนวนวันในเดือน
   int getDaysInMonth(DateTime date) {
@@ -40,27 +53,65 @@ class CalendarTableState extends State<CalendarTable> {
   }
 
   void previousMonth() {
+    final lastMonth = DateTime(selectedMonth.year, selectedMonth.month - 1, 1);
     setState(() {
-      selectedDate = DateTime(selectedDate.year, selectedDate.month - 1, 1);
+      selectedMonth = lastMonth;
     });
+    _fetchStatus(lastMonth.month, lastMonth.year);
   }
 
   void nextMonth() {
+    final nextMonth = DateTime(selectedMonth.year, selectedMonth.month + 1, 1);
     setState(() {
-      selectedDate = DateTime(selectedDate.year, selectedDate.month + 1, 1);
+      selectedMonth = nextMonth;
     });
+    _fetchStatus(nextMonth.month, nextMonth.year);
+  }
+
+  Future<void> _fetchStatus(int month, int year) async {
+    setState(() {
+      _isLoading = true;
+      waitingDates = [];
+      hasDayRecord = [];
+    });
+
+    try {
+      final request = GetStatusDailyRecordsRequest(month: month, year: year);
+
+      final response = await _service.getStatusDailyRecords(request);
+
+      final waiting = <int>[];
+      final record = <int>[];
+
+      for (final i in response.data) {
+        if (i.hasRecord) record.add(i.day);
+        if (i.important) waiting.add(i.day);
+      }
+
+      if (!mounted) return;
+
+      setState(() {
+        waitingDates = waiting;
+        hasDayRecord = record;
+      });
+    } catch (e) {
+      debugPrint('Fetch error: $e');
+    } finally {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final themeItem = context.watch<ThemeProvider>().currentThemeItem!;
-    int daysInMonth = getDaysInMonth(selectedDate);
-    int firstDayOfWeek = getFirstDayOfMonth(selectedDate);
+    int daysInMonth = getDaysInMonth(selectedMonth);
+    int firstDayOfWeek = getFirstDayOfMonth(selectedMonth);
     int totalItems = firstDayOfWeek + daysInMonth;
     int rowCount = (totalItems / 7).ceil();
     int itemCount = rowCount * 7;
-    String monthText = monthNameTH[selectedDate.month - 1]; //แสดงชื่อเดือน
-    int buddhistYear = selectedDate.year + 543; //แสดงเลขปี
+    String monthText = monthNameTH[selectedMonth.month - 1]; //แสดงชื่อเดือน
+    int buddhistYear = selectedMonth.year + 543; //แสดงเลขปี
 
     return Column(
       children: [
@@ -137,58 +188,67 @@ class CalendarTableState extends State<CalendarTable> {
               bool isWaiting = waitingDates.contains(dayNumber);
               bool hasRecord = hasDayRecord.contains(dayNumber);
 
-              return Container(
-                decoration: BoxDecoration(
-                  color: themeItem.background2,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: themeItem.primary, width: 4),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.3),
-                      blurRadius: 5,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Stack(
-                  children: [
-                    Center(
-                      child: Text(
-                        '$dayNumber',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: themeItem.textPrimary,
-                          fontWeight: FontWeight.bold,
-                        ),
+              String dateText =
+                  '${selectedMonth.year}-${selectedMonth.month.toString().padLeft(2, '0')}-${dayNumber.toString().padLeft(2, '0')}';
+
+              return GestureDetector(
+                onTap: () {
+                  setState(() => selectedDate = dayNumber);
+                  widget.onDateSelected?.call(dateText);
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: selectedDate == dayNumber ? themeItem.secondary : themeItem.background2,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: themeItem.primary, width: 4),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.3),
+                        blurRadius: 5,
+                        offset: const Offset(0, 2),
                       ),
-                    ),
-                    if (isWaiting)
-                      Positioned(
-                        top: 4,
-                        right: 4,
-                        child: Container(
-                          width: 8,
-                          height: 8,
-                          decoration: BoxDecoration(
-                            color: themeItem.status2,
-                            shape: BoxShape.circle,
+                    ],
+                  ),
+                  child: Stack(
+                    children: [
+                      Center(
+                        child: Text(
+                          '$dayNumber',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: selectedDate == dayNumber ? themeItem.background2 : themeItem.textPrimary,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
-                    if (hasRecord)
-                      Positioned(
-                        top: 4,
-                        left: 4,
-                        child: Container(
-                          width: 8,
-                          height: 8,
-                          decoration: BoxDecoration(
-                            color: themeItem.status1,
-                            shape: BoxShape.circle,
+                      if (isWaiting)
+                        Positioned(
+                          top: 4,
+                          right: 4,
+                          child: Container(
+                            width: 8,
+                            height: 8,
+                            decoration: BoxDecoration(
+                              color: themeItem.status2,
+                              shape: BoxShape.circle,
+                            ),
                           ),
                         ),
-                      ),
-                  ],
+                      if (hasRecord)
+                        Positioned(
+                          top: 4,
+                          left: 4,
+                          child: Container(
+                            width: 8,
+                            height: 8,
+                            decoration: BoxDecoration(
+                              color: themeItem.status1,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
               );
             },
