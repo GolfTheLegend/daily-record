@@ -26,13 +26,13 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: Provider.of<ThemeProvider>(context).themeData,
-      initialRoute: '/',
+      initialRoute: '/create',
       routes: {
-        '/': (context) => const AuthPage(),
-        '/Home': (context) => const HomePage(),
+        // '/': (context) => const AuthPage(),
+        // '/Home': (context) => const HomePage(),
         '/create': (context) => const CreateActivePage(),
-        '/calendar': (context) => const CalendarPage(),
-        '/setting': (context) => const SettingPage(),
+        // '/calendar': (context) => const CalendarPage(),
+        // '/setting': (context) => const SettingPage(),
       },
     );
   }

@@ -3,6 +3,9 @@ import 'dart:math';
 import 'package:daily_record/components/background.dart';
 import 'package:daily_record/components/border_button.dart';
 import 'package:daily_record/components/calendar_table.dart';
+import 'package:daily_record/core/models/get_daily_record_request.dart';
+import 'package:daily_record/core/models/get_daily_record_response.dart';
+import 'package:daily_record/core/services/get_daily_record_service.dart';
 import 'package:daily_record/core/themes/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -15,10 +18,46 @@ class CalendarPage extends StatefulWidget {
 }
 
 class _CalendarPageState extends State<CalendarPage> {
+  final _service = GetDailyRecordService();
+  late String _defaultDate;
+  late String _filteredDate;
+  bool _isLoading = false;
+  List<DailyRecordItem> _recordData = [];
+
+  @override
+  void initState() {
+    super.initState();
+    final now = DateTime.now();
+    _defaultDate =
+        '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+    _filteredDate = _defaultDate;
+    _fetchRecords(_filteredDate, true);
+  }
+
+  Future<void> _fetchRecords(String date, bool onRefresh) async {
+    setState(() => _isLoading = true);
+
+    if (onRefresh) {
+      _filteredDate = _defaultDate;
+    }
+    try {
+      final request = GetDailyRecordsRequest(dateFrom: date, dateTo: date);
+      final response = await _service.getDailyRecords(request);
+      if (!mounted) return;
+      setState(() {
+        _recordData = response.data;
+      });
+    } catch (e) {
+      debugPrint('Fetch error: $e');
+    } finally {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final themeItem = context.watch<ThemeProvider>().currentThemeItem!;
-
     return Background(
       child: Column(
         children: [
@@ -52,7 +91,10 @@ class _CalendarPageState extends State<CalendarPage> {
             flex: 5,
             child: CalendarTable(
               onDateSelected: (String date) {
-                print('Selected date: $date');
+                setState(() {
+                  _filteredDate = date; // อัปเดตวันที่ที่ถูกเลือก
+                });
+                _fetchRecords(date, false);
               },
             ),
           ),
@@ -86,14 +128,14 @@ class _CalendarPageState extends State<CalendarPage> {
                               _dot(themeItem.status1),
                               const SizedBox(width: 5),
                               const Text(
-                                'มีรายการ',
+                                'รายวัน',
                                 style: TextStyle(fontWeight: FontWeight.bold),
                               ),
                               const SizedBox(width: 10),
                               _dot(themeItem.status2),
                               const SizedBox(width: 5),
                               const Text(
-                                'วันสำคัญ',
+                                'สำคัญ',
                                 style: TextStyle(fontWeight: FontWeight.bold),
                               ),
                               const SizedBox(width: 5),
@@ -147,7 +189,68 @@ class _CalendarPageState extends State<CalendarPage> {
                       ),
                       child: Padding(
                         padding: EdgeInsetsGeometry.all(10),
-                        child: Text('x'),
+                        child: _recordData.isEmpty
+                            ? Text(
+                                'ไม่มีรายการ',
+                                style: TextStyle(
+                                  color: themeItem.textPrimary.withValues(
+                                    alpha: 0.5,
+                                  ),
+                                ),
+                              )
+                            : ListView.builder(
+                                itemCount: _recordData.length,
+                                itemBuilder: (context, index) {
+                                  final item = _recordData[index];
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 4,
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          '${item.startTime ?? '00:00'} - ${item.endTime ?? '00:00'}',
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            color: item.important == true
+                                                ? themeItem.status2
+                                                : (item.repeatType == 0
+                                                      ? themeItem.status1
+                                                      : themeItem.textPrimary),
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 6),
+                                        Text(
+                                          '|',
+                                          style: TextStyle(
+                                            color: themeItem.textPrimary,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 6),
+                                        Expanded(
+                                          child: Text(
+                                            item.activityHeader ?? '-',
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 1,
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.bold,
+                                              color: item.important == true
+                                                  ? themeItem.status2
+                                                  : (item.repeatType == 0
+                                                        ? themeItem.status1
+                                                        : themeItem
+                                                              .textPrimary),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
                       ),
                     ),
                   ),

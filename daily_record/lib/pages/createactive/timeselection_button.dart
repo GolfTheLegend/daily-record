@@ -5,26 +5,28 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class TimeSelectionButton extends StatefulWidget {
-  const TimeSelectionButton({super.key});
+  final Function(String)? onTimeSelected;
+  const TimeSelectionButton({super.key, this.onTimeSelected});
 
   @override
   State<TimeSelectionButton> createState() => _TimeSelectionButtonState();
 }
 
 class _TimeSelectionButtonState extends State<TimeSelectionButton> {
-  int _hours = 12;
+  int _hours = 0;
   int _minutes = 0;
 
   void _showTimePicker() {
     showDialog(
       context: context,
-      barrierColor: Colors.black.withValues(alpha:0.4),
+      barrierColor: Colors.black.withValues(alpha: 0.4),
       builder: (_) => Dialog(
         backgroundColor: Colors.transparent,
         insetPadding: const EdgeInsets.symmetric(horizontal: 24),
         child: _TimePickerModal(
           initialHour: _hours,
           initialMinute: _minutes,
+          onTimeSelected: widget.onTimeSelected,
           onSave: (h, m) => setState(() {
             _hours = h;
             _minutes = m;
@@ -34,7 +36,7 @@ class _TimeSelectionButtonState extends State<TimeSelectionButton> {
     );
   }
 
-  Widget _timeBox(ThemeItem themeItem,String value) {
+  Widget _timeBox(ThemeItem themeItem, String value) {
     return Container(
       width: 65,
       height: 65,
@@ -43,15 +45,12 @@ class _TimeSelectionButtonState extends State<TimeSelectionButton> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.2),
+            color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
         ],
-        border: Border.all(
-        color: themeItem.primary,
-        width: 2,
-      ),
+        border: Border.all(color: themeItem.primary, width: 2),
       ),
       alignment: Alignment.center,
       child: Text(
@@ -76,8 +75,8 @@ class _TimeSelectionButtonState extends State<TimeSelectionButton> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _timeBox(themeItem,hh),
-           Padding(
+          _timeBox(themeItem, hh),
+          Padding(
             padding: EdgeInsets.symmetric(horizontal: 8),
             child: Text(
               ':',
@@ -88,7 +87,7 @@ class _TimeSelectionButtonState extends State<TimeSelectionButton> {
               ),
             ),
           ),
-          _timeBox(themeItem,mm),
+          _timeBox(themeItem, mm),
         ],
       ),
     );
@@ -102,11 +101,13 @@ class _TimeSelectionButtonState extends State<TimeSelectionButton> {
 class _TimePickerModal extends StatefulWidget {
   final int initialHour;
   final int initialMinute;
+  final Function(String)? onTimeSelected;
   final void Function(int hour, int minute) onSave;
 
   const _TimePickerModal({
     required this.initialHour,
     required this.initialMinute,
+    required this.onTimeSelected,
     required this.onSave,
   });
 
@@ -179,7 +180,9 @@ class _TimePickerModalState extends State<_TimePickerModal> {
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.w700,
-                  color: isSelected ? themeItem.textPrimary : themeItem.textPrimary.withValues(alpha:0.3),
+                  color: isSelected
+                      ? themeItem.textPrimary
+                      : themeItem.textPrimary.withValues(alpha: 0.3),
                 ),
               ),
             );
@@ -215,7 +218,7 @@ class _TimePickerModalState extends State<_TimePickerModal> {
                 selectedValue: _selectedHour,
                 onChanged: (v) => setState(() => _selectedHour = v),
               ),
-               Padding(
+              Padding(
                 padding: EdgeInsets.symmetric(horizontal: 4),
                 child: Text(
                   ':',
@@ -255,6 +258,9 @@ class _TimePickerModalState extends State<_TimePickerModal> {
                 child: BorderButton(
                   onPressed: () {
                     widget.onSave(_selectedHour, _selectedMinute);
+                    widget.onTimeSelected?.call(
+                      '${_selectedHour.toString().padLeft(2, '0')}:${_selectedMinute.toString().padLeft(2, '0')}',
+                    );
                     Navigator.pop(context);
                   },
                   borderColor1: themeItem.background1,

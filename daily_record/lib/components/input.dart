@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class Input extends StatefulWidget {
+  final ValueChanged<String>? onChanged;
   final int maxLength; //จำนวนข้อความสูงสุดที่กรอกได้
   final String? hintText; //ตัวอักษรเมื่อไม่ได้กรอก
   final TextEditingController? controller;
@@ -14,6 +15,7 @@ class Input extends StatefulWidget {
 
   const Input({
     super.key,
+    this.onChanged,
     this.maxLength = 50,
     this.hintText,
     this.controller,
@@ -43,6 +45,7 @@ class _InputState extends State<Input> {
 
   void _onTextChanged() {
     setState(() {});
+    widget.onChanged?.call(_controller.text);
   }
 
   @override
@@ -67,7 +70,7 @@ class _InputState extends State<Input> {
       decoration: BoxDecoration(
         color: themeItem.background2,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: themeItem.primary, width: 4),
+        border: Border.all(color: themeItem.primary, width: 2),
       ),
       child: widget.isMultiline
           ? _buildMultiline(themeItem.text1, themeItem)

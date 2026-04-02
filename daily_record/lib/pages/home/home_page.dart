@@ -98,9 +98,12 @@ class _HomePageState extends State<HomePage> {
     final now = DateTime.now().toUtc().add(const Duration(hours: 7));
     final nowMin = now.hour * 60 + now.minute;
 
+    setState(() {
+      _isLoading = true;
+    });
+
     if (onRefresh) {
       setState(() {
-        _isLoading = true;
         _records = [];
         _currentRecords = [];
       });

@@ -13,8 +13,8 @@ class CalendarTable extends StatefulWidget {
 }
 
 class CalendarTableState extends State<CalendarTable> {
-  DateTime selectedMonth = DateTime.now(); // เดือนปจุบัน
-  int selectedDate = DateTime.now().day; // วันที่เลือก
+  DateTime _selectedMonth = DateTime.now(); // เดือนปจุบัน
+  int _selectedDate = DateTime.now().day; // วันที่เลือก
   final _service = GetDailyRecordService();
   bool _isLoading = false;
 
@@ -39,7 +39,7 @@ class CalendarTableState extends State<CalendarTable> {
   @override
   void initState() {
     super.initState();
-    _fetchStatus(selectedMonth.month, selectedMonth.year);
+    _fetchStatus(_selectedMonth.month, _selectedMonth.year);
   }
 
   // ฟังก์ชันสำหรับดึงจำนวนวันในเดือน
@@ -53,17 +53,25 @@ class CalendarTableState extends State<CalendarTable> {
   }
 
   void previousMonth() {
-    final lastMonth = DateTime(selectedMonth.year, selectedMonth.month - 1, 1);
+    final lastMonth = DateTime(
+      _selectedMonth.year,
+      _selectedMonth.month - 1,
+      1,
+    );
     setState(() {
-      selectedMonth = lastMonth;
+      _selectedMonth = lastMonth;
     });
     _fetchStatus(lastMonth.month, lastMonth.year);
   }
 
   void nextMonth() {
-    final nextMonth = DateTime(selectedMonth.year, selectedMonth.month + 1, 1);
+    final nextMonth = DateTime(
+      _selectedMonth.year,
+      _selectedMonth.month + 1,
+      1,
+    );
     setState(() {
-      selectedMonth = nextMonth;
+      _selectedMonth = nextMonth;
     });
     _fetchStatus(nextMonth.month, nextMonth.year);
   }
@@ -71,6 +79,9 @@ class CalendarTableState extends State<CalendarTable> {
   Future<void> _fetchStatus(int month, int year) async {
     setState(() {
       _isLoading = true;
+    });
+
+    setState(() {
       waitingDates = [];
       hasDayRecord = [];
     });
@@ -105,13 +116,13 @@ class CalendarTableState extends State<CalendarTable> {
   @override
   Widget build(BuildContext context) {
     final themeItem = context.watch<ThemeProvider>().currentThemeItem!;
-    int daysInMonth = getDaysInMonth(selectedMonth);
-    int firstDayOfWeek = getFirstDayOfMonth(selectedMonth);
+    int daysInMonth = getDaysInMonth(_selectedMonth);
+    int firstDayOfWeek = getFirstDayOfMonth(_selectedMonth);
     int totalItems = firstDayOfWeek + daysInMonth;
     int rowCount = (totalItems / 7).ceil();
     int itemCount = rowCount * 7;
-    String monthText = monthNameTH[selectedMonth.month - 1]; //แสดงชื่อเดือน
-    int buddhistYear = selectedMonth.year + 543; //แสดงเลขปี
+    String monthText = monthNameTH[_selectedMonth.month - 1]; //แสดงชื่อเดือน
+    int buddhistYear = _selectedMonth.year + 543; //แสดงเลขปี
 
     return Column(
       children: [
@@ -189,16 +200,18 @@ class CalendarTableState extends State<CalendarTable> {
               bool hasRecord = hasDayRecord.contains(dayNumber);
 
               String dateText =
-                  '${selectedMonth.year}-${selectedMonth.month.toString().padLeft(2, '0')}-${dayNumber.toString().padLeft(2, '0')}';
+                  '${_selectedMonth.year}-${_selectedMonth.month.toString().padLeft(2, '0')}-${dayNumber.toString().padLeft(2, '0')}';
 
               return GestureDetector(
                 onTap: () {
-                  setState(() => selectedDate = dayNumber);
+                  setState(() => _selectedDate = dayNumber);
                   widget.onDateSelected?.call(dateText);
                 },
                 child: Container(
                   decoration: BoxDecoration(
-                    color: selectedDate == dayNumber ? themeItem.secondary : themeItem.background2,
+                    color: _selectedDate == dayNumber
+                        ? themeItem.secondary
+                        : themeItem.background2,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: themeItem.primary, width: 4),
                     boxShadow: [
@@ -216,7 +229,9 @@ class CalendarTableState extends State<CalendarTable> {
                           '$dayNumber',
                           style: TextStyle(
                             fontSize: 16,
-                            color: selectedDate == dayNumber ? themeItem.background2 : themeItem.textPrimary,
+                            color: _selectedDate == dayNumber
+                                ? themeItem.background2
+                                : themeItem.textPrimary,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
