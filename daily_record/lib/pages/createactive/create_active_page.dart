@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:daily_record/components/background.dart';
 import 'package:daily_record/components/border_button.dart';
+import 'package:daily_record/components/calendar_modal.dart';
 import 'package:daily_record/components/checkbox_button.dart';
 import 'package:daily_record/components/dropdown_button.dart';
 import 'package:daily_record/components/press_scale.dart';
@@ -113,6 +114,21 @@ class _CreateActivePageState extends State<CreateActivePage> {
       'Header: $_header\n'
       'Detail: $_detail\n'
       'Dates: $_dates',
+    );
+  }
+
+  void _onSelectDate() {
+    showDialog(
+      context: context,
+      barrierColor: Colors.black.withValues(alpha: 0.4),
+      builder: (_) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+        child: CalendarModal(
+          initialDates: _dates,
+          onTimeSelected: (v) => setState(() => _dates = v),
+        ),
+      ),
     );
   }
 
@@ -284,7 +300,7 @@ class _CreateActivePageState extends State<CreateActivePage> {
                               ),
                             ),
                             PressScale(
-                              onTap: () => print('select date'),
+                              onTap: () => _onSelectDate(),
                               disabled: _repeatType != RepeatType.selectDay,
                               child: Container(
                                 width: 55,

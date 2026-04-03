@@ -1,3 +1,4 @@
+import 'package:daily_record/components/press_scale.dart';
 import 'package:daily_record/core/models/get_status_daily_record_request.dart';
 import 'package:daily_record/core/services/get_daily_record_service.dart';
 import 'package:daily_record/core/themes/theme_provider.dart';
@@ -14,7 +15,7 @@ class CalendarTable extends StatefulWidget {
 
 class CalendarTableState extends State<CalendarTable> {
   DateTime _selectedMonth = DateTime.now(); // เดือนปจุบัน
-  int _selectedDate = DateTime.now().day; // วันที่เลือก
+  DateTime? _selectedDate; // วันที่เลือก
   final _service = GetDailyRecordService();
   bool _isLoading = false;
 
@@ -202,14 +203,26 @@ class CalendarTableState extends State<CalendarTable> {
               String dateText =
                   '${_selectedMonth.year}-${_selectedMonth.month.toString().padLeft(2, '0')}-${dayNumber.toString().padLeft(2, '0')}';
 
-              return GestureDetector(
+              bool isSelected =
+                  _selectedDate != null &&
+                  _selectedDate!.day == dayNumber &&
+                  _selectedDate!.month == _selectedMonth.month &&
+                  _selectedDate!.year == _selectedMonth.year;
+
+              return PressScale(
                 onTap: () {
-                  setState(() => _selectedDate = dayNumber);
+                  setState(
+                    () => _selectedDate = DateTime(
+                      _selectedMonth.year,
+                      _selectedMonth.month,
+                      dayNumber,
+                    ),
+                  );
                   widget.onDateSelected?.call(dateText);
                 },
                 child: Container(
                   decoration: BoxDecoration(
-                    color: _selectedDate == dayNumber
+                    color: isSelected
                         ? themeItem.secondary
                         : themeItem.background2,
                     borderRadius: BorderRadius.circular(12),
@@ -229,7 +242,7 @@ class CalendarTableState extends State<CalendarTable> {
                           '$dayNumber',
                           style: TextStyle(
                             fontSize: 16,
-                            color: _selectedDate == dayNumber
+                            color: isSelected
                                 ? themeItem.background2
                                 : themeItem.textPrimary,
                             fontWeight: FontWeight.bold,
