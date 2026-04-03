@@ -40,6 +40,7 @@ class CalendarTableState extends State<CalendarTable> {
   @override
   void initState() {
     super.initState();
+    _selectedDate = DateTime.now();
     _fetchStatus(_selectedMonth.month, _selectedMonth.year);
   }
 

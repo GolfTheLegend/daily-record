@@ -283,8 +283,11 @@ class _CalendarPageState extends State<CalendarPage> {
                           borderColor2: themeItem.background2,
                           backgroundColor: themeItem.addButton,
                           text: '+ เพิ่ม',
-                          onPressed: () =>
-                              Navigator.pushNamed(context, '/create'),
+                          onPressed: () async {
+                            await Navigator.pushNamed(context, '/create');
+                            if (!mounted) return;
+                            _fetchRecords(_filteredDate, false);
+                          },
                         ),
                       ],
                     ),

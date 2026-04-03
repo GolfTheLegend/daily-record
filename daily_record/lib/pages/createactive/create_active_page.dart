@@ -7,6 +7,7 @@ import 'package:daily_record/components/calendar_modal.dart';
 import 'package:daily_record/components/checkbox_button.dart';
 import 'package:daily_record/components/dropdown_button.dart';
 import 'package:daily_record/components/press_scale.dart';
+import 'package:daily_record/core/models/create_daily_record_request.dart';
 import 'package:daily_record/core/services/create_daily_record_service.dart';
 import 'package:daily_record/core/themes/theme_provider.dart';
 import 'package:daily_record/pages/createactive/iconselection.dart';
@@ -89,44 +90,55 @@ class _CreateActivePageState extends State<CreateActivePage> {
     );
   }
 
-  // Future<void> _createRecords() async {
-  //   setState(() => _isLoading = true);
-
-  //   try {
-  //     final request = CreateDailyRecordsRequest(
-  //       iconId: 5,
-  //       startTime: '22:00',
-  //       endTime: '23:30',
-  //       repeatType: 0,
-  //       important: false,
-  //       activityHeader: 'ออกกำลังกาย',
-  //       activityDetail: 'วิ่ง + ยืดเส้น 30 นาที',
-  //       dates: ['2026-04-03', '2026-04-30'],
-  //     );
-  //     final response = await _service.createDailyRecords(request);
-  //     if (!mounted) return;
-  //     setState(() {});
-  //   } catch (e) {
-  //     debugPrint('Fetch error: $e');
-  //   } finally {
-  //     if (!mounted) return;
-  //     setState(() => _isLoading = false);
-  //   }
-  // }
-
   Future<void> _createRecords() async {
-    print(
-      'Creating record with: \n'
-      'Icon: $_iconSelect\n'
-      'Start Time: $_startTime\n'
-      'End Time: $_endTime\n'
-      'Repeat Type: ${_repeatType.value}\n'
-      'Important: $_isImportant\n'
-      'Header: $_header\n'
-      'Detail: $_detail\n'
-      'Dates: $_dates',
-    );
+    setState(() => _isLoading = true);
+    try {
+      final request = CreateDailyRecordsRequest(
+        iconId: _iconSelect!,
+        startTime: _startTime ?? '00:00',
+        endTime: _endTime ?? '00:00',
+        repeatType: _repeatType.value,
+        important: _isImportant,
+        activityHeader: _header ?? '',
+        activityDetail: _detail ?? '',
+        dates: _dates,
+      );
+      await _service.createDailyRecords(request);
+      if (!mounted) return;
+      AppAlert.show(
+        context,
+        title: 'สำเร็จ',
+        message: 'บันทึกสำเร็จ',
+        type: AlertType.success,
+        onConfirm: () => Navigator.pop(context),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      AppAlert.show(
+        context,
+        title: 'เกิดข้อผิดพลาด',
+        message: e.toString(),
+        type: AlertType.error,
+      );
+    } finally {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+    }
   }
+
+  // Future<void> _createRecords() async {
+  //   print(
+  //     'Creating record with: \n'
+  //     'Icon: $_iconSelect\n'
+  //     'Start Time: $_startTime\n'
+  //     'End Time: $_endTime\n'
+  //     'Repeat Type: ${_repeatType.value}\n'
+  //     'Important: $_isImportant\n'
+  //     'Header: $_header\n'
+  //     'Detail: $_detail\n'
+  //     'Dates: $_dates',
+  //   );
+  // }
 
   void _onSelectDate() {
     showDialog(
