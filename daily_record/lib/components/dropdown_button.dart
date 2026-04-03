@@ -35,6 +35,14 @@ class _DesignDropdownState<T> extends State<DesignDropdown<T>> {
       widget.entries.firstWhere((e) => e.value == _selectedValue).label;
 
   @override
+  void didUpdateWidget(DesignDropdown<T> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.initialValue != widget.initialValue) {
+      _selectedValue = widget.initialValue;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final boxSize = _buttonKey.currentContext?.findRenderObject() as RenderBox?;
     final themeItem = context.watch<ThemeProvider>().currentThemeItem!;
@@ -55,10 +63,7 @@ class _DesignDropdownState<T> extends State<DesignDropdown<T>> {
       onOpened: () => setState(() => _isDropdownOpen = true),
       onCanceled: () => setState(() => _isDropdownOpen = false),
       onSelected: (value) {
-        setState(() {
-          _selectedValue = value;
-          _isDropdownOpen = false;
-        });
+        setState(() => _isDropdownOpen = false);
         widget.onChanged(value);
       },
       color: themeItem.background2,

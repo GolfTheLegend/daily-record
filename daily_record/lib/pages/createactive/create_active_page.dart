@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:daily_record/components/app_alert.dart';
 import 'package:daily_record/components/background.dart';
 import 'package:daily_record/components/border_button.dart';
 import 'package:daily_record/components/calendar_modal.dart';
@@ -55,6 +56,16 @@ class _CreateActivePageState extends State<CreateActivePage> {
   String? _header; //header
   String? _detail; //detail
   List<String> _dates = []; //dates
+
+  bool get _hasChanges =>
+      _iconSelect != 0 ||
+      _startTime != null ||
+      _endTime != null ||
+      _repeatType != RepeatType.everyday ||
+      _isImportant != false ||
+      (_header != null && _header!.isNotEmpty) ||
+      (_detail != null && _detail!.isNotEmpty) ||
+      _dates.isNotEmpty;
 
   @override
   void initState() {
@@ -129,6 +140,38 @@ class _CreateActivePageState extends State<CreateActivePage> {
           onTimeSelected: (v) => setState(() => _dates = v),
         ),
       ),
+    );
+  }
+
+  void _onChangeRepeatType(RepeatType value) {
+    AppAlert.show(
+      context,
+      title: 'สำเร็จ',
+      message:
+          'เปลี่ยนเป็น "${value.label}" จะลบวันที่ที่เลือกไว้ทั้งหมด คุณต้องการดำเนินการต่อหรือไม่?',
+      type: AlertType.warning,
+      cancelText: 'ยกเลิก',
+      onConfirm: () {
+        setState(() {
+          _repeatType = value;
+          _dates = [];
+        });
+      },
+    );
+  }
+
+  void _onBack(BuildContext context) {
+    if (!_hasChanges) {
+      Navigator.pop(context);
+      return;
+    }
+    AppAlert.show(
+      context,
+      title: 'ยกเลิกการสร้างกิจกรรม',
+      message: 'ต้องการยกเลิกการสร้างกิจกรรมหรือไม่?',
+      type: AlertType.warning,
+      cancelText: 'ยกเลิก',
+      onConfirm: () => Navigator.pop(context),
     );
   }
 
@@ -294,7 +337,12 @@ class _CreateActivePageState extends State<CreateActivePage> {
                                   entries: RepeatType.entries,
                                   onChanged: (value) {
                                     if (value == null) return;
-                                    setState(() => _repeatType = value);
+                                    if (value == RepeatType.everyday &&
+                                        _dates.isNotEmpty) {
+                                      _onChangeRepeatType(value);
+                                    } else {
+                                      setState(() => _repeatType = value);
+                                    }
                                   },
                                 ),
                               ),
@@ -328,12 +376,16 @@ class _CreateActivePageState extends State<CreateActivePage> {
                                 ),
                                 child: Center(
                                   child: Icon(
-                                    Icons.calendar_month_rounded,
+                                    _dates.isNotEmpty
+                                        ? Icons.edit_calendar_rounded
+                                        : Icons.calendar_month_rounded,
                                     size: 35,
                                     color: _repeatType != RepeatType.selectDay
                                         ? themeItem.textPrimary.withValues(
                                             alpha: 0.2,
                                           )
+                                        : _dates.isNotEmpty
+                                        ? themeItem.status1
                                         : themeItem.textPrimary,
                                   ),
                                 ),
@@ -387,7 +439,7 @@ class _CreateActivePageState extends State<CreateActivePage> {
                           borderColor2: themeItem.primary,
                           backgroundColor: themeItem.background2,
                           text: 'กลับ',
-                          onPressed: () => Navigator.pop(context),
+                          onPressed: () => _onBack(context),
                         ),
                         BorderButton(
                           width: min(screenWidth * 0.4, 500),
