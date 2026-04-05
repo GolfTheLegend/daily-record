@@ -1,6 +1,7 @@
 import 'package:daily_record/pages/auth/auth_page.dart';
 import 'package:daily_record/pages/calendar/calendar_page.dart';
 import 'package:daily_record/pages/createactive/create_active_page.dart';
+import 'package:daily_record/pages/detail/detail_page.dart';
 import 'package:daily_record/pages/home/home_page.dart';
 import 'package:daily_record/pages/setting/setting_page.dart';
 import 'package:daily_record/core/themes/theme_provider.dart';
@@ -18,6 +19,9 @@ void main() async {
   );
 }
 
+final RouteObserver<ModalRoute<void>> routeObserver =
+    RouteObserver<ModalRoute<void>>();
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -26,12 +30,14 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: Provider.of<ThemeProvider>(context).themeData,
-      initialRoute: '/',
+      navigatorObservers: [routeObserver],
+      initialRoute: '/detail',
       routes: {
         '/': (context) => const AuthPage(),
         '/Home': (context) => const HomePage(),
         '/create': (context) => const CreateActivePage(),
         '/calendar': (context) => const CalendarPage(),
+        '/detail': (context) => const DetailPage(recordData: []),
         '/setting': (context) => const SettingPage(),
       },
     );

@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:daily_record/components/background.dart';
 import 'package:daily_record/components/border_button.dart';
-import 'package:daily_record/components/calendar_table.dart';
+import 'package:daily_record/pages/calendar/calendar_table.dart';
 import 'package:daily_record/core/models/get_daily_record_request.dart';
 import 'package:daily_record/core/models/get_daily_record_response.dart';
 import 'package:daily_record/core/services/get_daily_record_service.dart';

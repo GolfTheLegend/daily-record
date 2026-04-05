@@ -4,6 +4,7 @@ import 'package:daily_record/core/models/get_daily_record_request.dart';
 import 'package:daily_record/core/models/get_daily_record_response.dart';
 import 'package:daily_record/core/services/get_daily_record_service.dart';
 import 'package:daily_record/core/themes/theme_provider.dart';
+import 'package:daily_record/main.dart';
 import 'package:daily_record/pages/home/activity_card.dart';
 import 'package:daily_record/pages/home/activity_header.dart';
 import 'package:daily_record/components/background.dart';
@@ -18,7 +19,7 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with RouteAware {
   final _service = GetDailyRecordService();
   List<DailyRecordItem> _records = [];
   List<DailyRecordItem> _currentRecords = [];
@@ -37,10 +38,29 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context)!);
+  }
+
+  @override
   void dispose() {
+    routeObserver.unsubscribe(this);// ✅ unsubscribe
     _timer?.cancel();
     _scrollController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didPushNext() {
+    _timer?.cancel(); // ✅ หยุด polling
+  }
+
+  // กลับมาหน้านี้ (pop จากหน้าอื่น)
+  @override
+  void didPopNext() {
+    _fetchRecords(_selectedDate, false); // ✅ refresh ครั้งนึง
+    _startPolling(); // ✅ เริ่ม polling ใหม่
   }
 
   void _autoScroll() {
