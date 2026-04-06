@@ -1,0 +1,183 @@
+import 'package:daily_record/components/press_scale.dart';
+import 'package:daily_record/core/constants/constants.dart';
+import 'package:daily_record/core/models/get_daily_record_response.dart';
+import 'package:daily_record/core/themes/theme_provider.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+class DetailEditBox extends StatefulWidget {
+  final DailyRecordItem items;
+  const DetailEditBox({super.key, required this.items});
+
+  @override
+  State<DetailEditBox> createState() => _DetailEditBoxState();
+}
+
+class _DetailEditBoxState extends State<DetailEditBox> {
+  @override
+  Widget build(BuildContext context) {
+    final themeItem = context.watch<ThemeProvider>().currentThemeItem!;
+    final item = widget.items;
+
+    final Color textColor = statusList[item.repeatType!].key == 1
+        ? themeItem.status1
+        : statusList[item.repeatType!].key == 2
+        ? themeItem.status2
+        : themeItem.textPrimary;
+
+    return Column(
+      children: [
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: 10),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '${item.startTime} - ${item.endTime}',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              ),
+              const SizedBox(width: 10),
+              Text(
+                statusList[item.repeatType!].trailing,
+                style: TextStyle(
+                  color: textColor,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        Container(
+          padding: const EdgeInsets.all(5),
+          margin: const EdgeInsets.only(bottom: 20),
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: themeItem.background2,
+            border: Border.all(color: themeItem.primary, width: 1),
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.3),
+                blurRadius: 6,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Padding(
+            padding: EdgeInsets.all(2),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '${item.activityHeader}',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: textColor,
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        PressScale(
+                          child: Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: themeItem.background1,
+                              border: Border.all(
+                                color: themeItem.textPrimary,
+                                width: 1.5,
+                              ),
+                              borderRadius: BorderRadius.circular(10),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.3),
+                                  blurRadius: 6,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Icon(
+                              Icons.edit,
+                              size: 25,
+                              color: themeItem.textPrimary,
+                            ),
+                          ),
+                          onTap: () {},
+                        ),
+                        SizedBox(width: 10),
+                        PressScale(
+                          child: Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: themeItem.background1,
+                              border: Border.all(
+                                color: themeItem.status2,
+                                width: 1.5,
+                              ),
+                              borderRadius: BorderRadius.circular(10),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.3),
+                                  blurRadius: 6,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Icon(
+                              Icons.delete_rounded,
+                              size: 25,
+                              color: themeItem.status2,
+                            ),
+                          ),
+                          onTap: () {},
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 8),
+                if (item.activityDetail != null) ...[
+                  _Line(themeItem.secondary),
+                  Padding(
+                    padding: EdgeInsets.all(5),
+                    child: RichText(
+                      text: TextSpan(
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: themeItem.textPrimary,
+                        ),
+                        children: [
+                          WidgetSpan(child: SizedBox(width: 40)),
+                          TextSpan(text: item.activityDetail ?? ''),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+Widget _Line(Color color) {
+  return Container(
+    height: 2,
+    margin: const EdgeInsets.symmetric(vertical: 7, horizontal: 4),
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(15),
+      color: color,
+    ),
+  );
+}
