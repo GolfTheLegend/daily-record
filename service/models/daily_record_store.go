@@ -59,21 +59,6 @@ func (s *DailyRecordStore) CreateDailyRecord(r *DailyRecord, days []*DailyRecord
 }
 
 func (s *DailyRecordStore) GetDailyRecordsByUserID(userID uint, filter DailyRecordFilter) ([]*DailyRecordResponse, error) {
-	base := `
-		SELECT
-			r.id,
-			r.icon_id,
-			r.start_time,
-			r.end_time,
-			r.repeat_type,
-			r.important,
-			r.activity_header,
-			r.activity_detail,
-			d.record_date
-		FROM daily_records r
-		LEFT JOIN daily_record_days d ON r.id = d.record_id
-	`
-
 	args := []any{userID}
 	conditions := []string{"r.user_id = $1"}
 	i := 2
@@ -104,9 +89,33 @@ func (s *DailyRecordStore) GetDailyRecordsByUserID(userID uint, filter DailyReco
 		i++
 	}
 
-	query := base + " WHERE " + strings.Join(conditions, " AND ")
-	query += " ORDER BY r.id, d.record_date ASC"
-	query += fmt.Sprintf(" LIMIT $%d OFFSET $%d", i, i+1)
+	whereClause := strings.Join(conditions, " AND ")
+
+	// paginate ที่ระดับ record ก่อน แล้วค่อย join dates
+	query := fmt.Sprintf(`
+		SELECT
+			r.id,
+			r.icon_id,
+			r.start_time,
+			r.end_time,
+			r.repeat_type,
+			r.important,
+			r.activity_header,
+			r.activity_detail,
+			d.record_date
+		FROM (
+			SELECT DISTINCT r.id
+			FROM daily_records r
+			LEFT JOIN daily_record_days d ON r.id = d.record_id
+			WHERE %s
+			ORDER BY r.id ASC
+			LIMIT $%d OFFSET $%d
+		) paged
+		JOIN daily_records r ON r.id = paged.id
+		LEFT JOIN daily_record_days d ON r.id = d.record_id
+		ORDER BY r.id, d.record_date ASC
+	`, whereClause, i, i+1)
+
 	args = append(args, filter.Limit, filter.Offset)
 
 	rows, err := s.db.Query(query, args...)
