@@ -19,10 +19,11 @@ class _DetailEditBoxState extends State<DetailEditBox> {
     final themeItem = context.watch<ThemeProvider>().currentThemeItem!;
     final item = widget.items;
 
-    final Color textColor = statusList[item.repeatType!].key == 1
-        ? themeItem.status1
-        : statusList[item.repeatType!].key == 2
+    final int repeatType = item.repeatType ?? 0;
+    final Color textColor = item.important == true
         ? themeItem.status2
+        : (repeatType < statusList.length && statusList[repeatType].key == 0)
+        ? themeItem.status1
         : themeItem.textPrimary;
 
     return Column(
@@ -38,7 +39,9 @@ class _DetailEditBoxState extends State<DetailEditBox> {
               ),
               const SizedBox(width: 10),
               Text(
-                statusList[item.repeatType!].trailing,
+                repeatType < statusList.length
+                    ? statusList[repeatType].trailing
+                    : '',
                 style: TextStyle(
                   color: textColor,
                   fontSize: 18,

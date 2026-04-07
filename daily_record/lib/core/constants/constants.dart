@@ -7,7 +7,6 @@ class StatusItem {
 
 //สถานะ
 final List<StatusItem> statusList = [
-  const StatusItem(trailing: '', key: 0),
-  const StatusItem(trailing: 'ทุกวัน', key: 1),
-  const StatusItem(trailing: 'สำคัญ', key: 2),
+  const StatusItem(trailing: 'ทุกวัน', key: 0),
+  const StatusItem(trailing: 'เลือกวัน', key: 1),
 ];

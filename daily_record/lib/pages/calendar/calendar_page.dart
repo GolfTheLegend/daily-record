@@ -2,11 +2,14 @@ import 'dart:math';
 
 import 'package:daily_record/components/background.dart';
 import 'package:daily_record/components/border_button.dart';
+import 'package:daily_record/components/press_scale.dart';
+import 'package:daily_record/core/constants/constants.dart';
 import 'package:daily_record/pages/calendar/calendar_table.dart';
 import 'package:daily_record/core/models/get_daily_record_request.dart';
 import 'package:daily_record/core/models/get_daily_record_response.dart';
 import 'package:daily_record/core/services/get_daily_record_service.dart';
 import 'package:daily_record/core/themes/theme_provider.dart';
+import 'package:daily_record/pages/detail/detail_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -142,26 +145,37 @@ class _CalendarPageState extends State<CalendarPage> {
                             ],
                           ),
                           const SizedBox(width: 10),
-                          Container(
-                            padding: EdgeInsets.symmetric(horizontal: 20),
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: themeItem.primary,
-                                width: 4,
-                              ),
-                              borderRadius: BorderRadius.circular(10),
-                              color: themeItem.background2,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.3),
-                                  blurRadius: 6,
-                                  offset: const Offset(0, 2),
+                          PressScale(
+                            child: Container(
+                              padding: EdgeInsets.symmetric(horizontal: 20),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: themeItem.primary,
+                                  width: 4,
                                 ),
-                              ],
+                                borderRadius: BorderRadius.circular(10),
+                                color: themeItem.background2,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.3),
+                                    blurRadius: 6,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: const Text(
+                                'รายละเอียด',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
                             ),
-                            child: const Text(
-                              'รายละเอียด',
-                              style: TextStyle(fontWeight: FontWeight.bold),
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => DetailPage(
+                                  selectionDate: _filteredDate,
+                                  recordData: _recordData,
+                                ),
+                              ),
                             ),
                           ),
                           const SizedBox(width: 5),
@@ -202,6 +216,15 @@ class _CalendarPageState extends State<CalendarPage> {
                                 itemCount: _recordData.length,
                                 itemBuilder: (context, index) {
                                   final item = _recordData[index];
+
+                                  final int repeatType = item.repeatType ?? 0;
+                                  final Color textColor = item.important == true
+                                      ? themeItem.status2
+                                      : (repeatType < statusList.length &&
+                                            statusList[repeatType].key == 0)
+                                      ? themeItem.status1
+                                      : themeItem.textPrimary;
+
                                   return Padding(
                                     padding: const EdgeInsets.symmetric(
                                       vertical: 4,
@@ -212,11 +235,7 @@ class _CalendarPageState extends State<CalendarPage> {
                                           '${item.startTime ?? '00:00'} - ${item.endTime ?? '00:00'}',
                                           style: TextStyle(
                                             fontSize: 13,
-                                            color: item.important == true
-                                                ? themeItem.status2
-                                                : (item.repeatType == 0
-                                                      ? themeItem.status1
-                                                      : themeItem.textPrimary),
+                                            color: textColor,
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
@@ -237,12 +256,7 @@ class _CalendarPageState extends State<CalendarPage> {
                                             style: TextStyle(
                                               fontSize: 13,
                                               fontWeight: FontWeight.bold,
-                                              color: item.important == true
-                                                  ? themeItem.status2
-                                                  : (item.repeatType == 0
-                                                        ? themeItem.status1
-                                                        : themeItem
-                                                              .textPrimary),
+                                              color: textColor,
                                             ),
                                           ),
                                         ),

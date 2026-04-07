@@ -45,7 +45,7 @@ class _HomePageState extends State<HomePage> with RouteAware {
 
   @override
   void dispose() {
-    routeObserver.unsubscribe(this);// ✅ unsubscribe
+    routeObserver.unsubscribe(this); // ✅ unsubscribe
     _timer?.cancel();
     _scrollController.dispose();
     super.dispose();
@@ -225,6 +225,8 @@ class _HomePageState extends State<HomePage> with RouteAware {
                                             title: item.activityHeader ?? '-',
                                             time:
                                                 '${item.startTime} - ${item.endTime}',
+                                            important: item.important ?? false,
+                                            repeatType: item.repeatType,
                                           ),
                                         )
                                         .toList()
@@ -280,7 +282,8 @@ class _HomePageState extends State<HomePage> with RouteAware {
                               icon: Icons.description,
                               title: item.activityHeader ?? '-',
                               time: '${item.startTime} - ${item.endTime}',
-                              trailing: item.repeatType,
+                              repeatType: item.repeatType,
+                              important: item.important ?? false,
                               isDisable: isPast,
                             ),
                           ),

@@ -8,7 +8,8 @@ class ActivityCard extends StatefulWidget {
   final IconData icon;
   final String title;
   final String time;
-  final int? trailing;
+  final int? repeatType;
+  final bool important;
   final bool isDisable;
 
   const ActivityCard({
@@ -16,7 +17,8 @@ class ActivityCard extends StatefulWidget {
     required this.icon,
     required this.title,
     required this.time,
-    this.trailing,
+    required this.important,
+    this.repeatType,
     this.isDisable = false,
   });
 
@@ -32,17 +34,22 @@ class ActivityCardState extends State<ActivityCard> {
     String? trailingTitle;
     final themeItem = context.watch<ThemeProvider>().currentThemeItem!;
 
-    final Color textColor = widget.trailing == 1
-        ? themeItem.status1
-        : widget.trailing == 2
+    final Color textColor = widget.important == true
         ? themeItem.status2
+        : (widget.repeatType! < statusList.length &&
+              statusList[widget.repeatType!].key == 0)
+        ? themeItem.status1
         : themeItem.textPrimary;
 
-    if (widget.trailing != null) {
-      final result = statusList.where((items) => items.key == widget.trailing);
+    if (widget.repeatType != null) {
+      final result = widget.important == true
+          ? 'สำคัญ'
+          : widget.repeatType! == 0
+          ? 'ทุกวัน'
+          : '';
 
       if (result.isNotEmpty) {
-        trailingTitle = result.first.trailing;
+        trailingTitle = result;
       }
     }
 

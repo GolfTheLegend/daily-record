@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: Provider.of<ThemeProvider>(context).themeData,
       navigatorObservers: [routeObserver],
-      initialRoute: '/detail',
+      initialRoute: '/',
       routes: {
         '/': (context) => const AuthPage(),
         '/Home': (context) => const HomePage(),
