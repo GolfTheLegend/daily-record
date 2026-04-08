@@ -1,4 +1,4 @@
-class CreateDailyRecordsRequest {
+class DailyRecordsRequest {
   final int iconId;
   final String startTime;
   final String endTime;
@@ -8,7 +8,7 @@ class CreateDailyRecordsRequest {
   final String activityDetail;
   final List<String> dates;
 
-  CreateDailyRecordsRequest({
+  DailyRecordsRequest({
     required this.iconId,
     required this.startTime,
     required this.endTime,

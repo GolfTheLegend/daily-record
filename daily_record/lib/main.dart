@@ -1,6 +1,6 @@
 import 'package:daily_record/pages/auth/auth_page.dart';
 import 'package:daily_record/pages/calendar/calendar_page.dart';
-import 'package:daily_record/pages/createactive/create_active_page.dart';
+import 'package:daily_record/pages/create_active/create_active_page.dart';
 import 'package:daily_record/pages/detail/detail_page.dart';
 import 'package:daily_record/pages/home/home_page.dart';
 import 'package:daily_record/pages/setting/setting_page.dart';
@@ -35,7 +35,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => const AuthPage(),
         '/Home': (context) => const HomePage(),
-        '/create': (context) => const CreateActivePage(),
+        '/create': (context) => const CreateActivePage(mode: PageMode.create),
         '/calendar': (context) => const CalendarPage(),
         '/detail': (context) => const DetailPage(selectionDate: '',recordData: []),
         '/setting': (context) => const SettingPage(),

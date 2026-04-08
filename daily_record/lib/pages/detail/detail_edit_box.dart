@@ -2,6 +2,7 @@ import 'package:daily_record/components/press_scale.dart';
 import 'package:daily_record/core/constants/constants.dart';
 import 'package:daily_record/core/models/get_daily_record_response.dart';
 import 'package:daily_record/core/themes/theme_provider.dart';
+import 'package:daily_record/pages/create_active/create_active_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -111,7 +112,29 @@ class _DetailEditBoxState extends State<DetailEditBox> {
                               color: themeItem.textPrimary,
                             ),
                           ),
-                          onTap: () {},
+                          onTap: () => {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => CreateActivePage(
+                                  mode: PageMode.edit,
+                                  recordData: item,
+                                ),
+                              ),
+                            ),
+                            print('''
+                              Edit:
+                              id: ${item.id}
+                              iconId: ${item.iconId}
+                              startTime: ${item.startTime}
+                              endTime: ${item.endTime}
+                              repeatType: ${item.repeatType}
+                              important: ${item.important}
+                              activityHeader: ${item.activityHeader}
+                              activityDetail: ${item.activityDetail}
+                              dates: ${item.dates}
+                              '''),
+                          },
                         ),
                         SizedBox(width: 10),
                         PressScale(

@@ -120,7 +120,6 @@ class _DetailPageState extends State<DetailPage> {
   @override
   Widget build(BuildContext context) {
     final themeItem = context.watch<ThemeProvider>().currentThemeItem!;
-    final _firstItemKey = GlobalKey();
 
     return Background(
       child: Column(

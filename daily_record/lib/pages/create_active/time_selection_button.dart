@@ -5,8 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class TimeSelectionButton extends StatefulWidget {
+  final String? initialTime;
   final Function(String)? onTimeSelected;
-  const TimeSelectionButton({super.key, this.onTimeSelected});
+  const TimeSelectionButton({super.key, this.onTimeSelected, this.initialTime});
 
   @override
   State<TimeSelectionButton> createState() => _TimeSelectionButtonState();
@@ -15,6 +16,37 @@ class TimeSelectionButton extends StatefulWidget {
 class _TimeSelectionButtonState extends State<TimeSelectionButton> {
   int _hours = 0;
   int _minutes = 0;
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (widget.initialTime != null && widget.initialTime!.isNotEmpty) {
+      final parts = widget.initialTime!.split(':');
+
+      if (parts.length == 2) {
+        _hours = int.tryParse(parts[0]) ?? 0;
+        _minutes = int.tryParse(parts[1]) ?? 0;
+      }
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant TimeSelectionButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (widget.initialTime != oldWidget.initialTime &&
+        widget.initialTime != null) {
+      final parts = widget.initialTime!.split(':');
+
+      if (parts.length == 2) {
+        setState(() {
+          _hours = int.tryParse(parts[0]) ?? 0;
+          _minutes = int.tryParse(parts[1]) ?? 0;
+        });
+      }
+    }
+  }
 
   void _showTimePicker() {
     showDialog(
