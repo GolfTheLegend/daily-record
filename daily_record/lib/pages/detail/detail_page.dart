@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:daily_record/components/app_alert.dart';
 import 'package:daily_record/components/background.dart';
 import 'package:daily_record/components/border_button.dart';
 import 'package:daily_record/components/press_scale.dart';
@@ -6,6 +7,7 @@ import 'package:daily_record/core/models/get_daily_record_request.dart';
 import 'package:daily_record/core/models/get_daily_record_response.dart';
 import 'package:daily_record/core/services/get_daily_record_service.dart';
 import 'package:daily_record/core/themes/theme_provider.dart';
+import 'package:daily_record/pages/create_active/create_active_page.dart';
 import 'package:daily_record/pages/detail/detail_edit_box.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -110,7 +112,12 @@ class _DetailPageState extends State<DetailPage> {
         }
       });
     } catch (e) {
-      debugPrint('Fetch error: $e');
+      AppAlert.show(
+        context,
+        title: 'เกิดข้อผิดพลาด',
+        message: e.toString(),
+        type: AlertType.error,
+      );
     } finally {
       if (!mounted) return;
       setState(() => _isLoading = false);
@@ -256,7 +263,32 @@ class _DetailPageState extends State<DetailPage> {
                 }
 
                 final item = _records[index];
-                return DetailEditBox(items: item);
+                return DetailEditBox(
+                  items: item,
+                  onDelete: () => {
+                    if (_onSwitch == false)
+                      {_fetchRecords('', true)}
+                    else
+                      {_fetchRecords(widget.selectionDate, true)},
+                  },
+                  onEdit: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => CreateActivePage(
+                          mode: PageMode.edit,
+                          recordData: item,
+                        ),
+                      ),
+                    );
+                    if (!mounted) return;
+                    if (_onSwitch == false) {
+                      _fetchRecords('', true);
+                    } else {
+                      _fetchRecords(widget.selectionDate, true);
+                    }
+                  },
+                );
               },
             ),
           ),
@@ -286,6 +318,11 @@ class _DetailPageState extends State<DetailPage> {
                     onPressed: () async {
                       await Navigator.pushNamed(context, '/create');
                       if (!mounted) return;
+                      if (_onSwitch == false) {
+                        _fetchRecords('', true);
+                      } else {
+                        _fetchRecords(widget.selectionDate, true);
+                      }
                     },
                   ),
                 ],

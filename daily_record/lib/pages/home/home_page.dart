@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:daily_record/components/app_alert.dart';
 import 'package:daily_record/core/models/get_daily_record_request.dart';
 import 'package:daily_record/core/models/get_daily_record_response.dart';
 import 'package:daily_record/core/services/get_daily_record_service.dart';
@@ -23,6 +24,7 @@ class _HomePageState extends State<HomePage> with RouteAware {
   final _service = GetDailyRecordService();
   List<DailyRecordItem> _records = [];
   List<DailyRecordItem> _currentRecords = [];
+  bool _shouldRefreshOnPop = true;
   bool _isLoading = false;
   DateTime _selectedDate = DateTime.now();
   Timer? _timer;
@@ -59,7 +61,9 @@ class _HomePageState extends State<HomePage> with RouteAware {
   // กลับมาหน้านี้ (pop จากหน้าอื่น)
   @override
   void didPopNext() {
-    _fetchRecords(_selectedDate, false); // ✅ refresh ครั้งนึง
+    if (_shouldRefreshOnPop) {
+      _fetchRecords(_selectedDate, false); // ✅ refresh ครั้งนึง
+    }
     _startPolling(); // ✅ เริ่ม polling ใหม่
   }
 
@@ -171,7 +175,16 @@ class _HomePageState extends State<HomePage> with RouteAware {
 
       _autoScroll();
     } catch (e) {
-      debugPrint('Fetch error: $e');
+      _shouldRefreshOnPop = false;
+      AppAlert.show(
+        context,
+        title: 'เกิดข้อผิดพลาด',
+        message: e.toString(),
+        type: AlertType.error,
+        onConfirm: () {
+          _shouldRefreshOnPop = true; 
+        },
+      );
     } finally {
       if (!mounted) return;
       setState(() => _isLoading = false);
@@ -212,9 +225,7 @@ class _HomePageState extends State<HomePage> with RouteAware {
                       children: [
                         _sectionHeader(context, 'ขณะนี้'),
                         ConstrainedBox(
-                          constraints: const BoxConstraints(
-                            maxHeight: 120,
-                          ), // ความสูง ~2 cards
+                          constraints: const BoxConstraints(maxHeight: 180),
                           child: SingleChildScrollView(
                             child: Column(
                               children: _currentRecords.isNotEmpty

@@ -228,7 +228,10 @@ class _CreateActivePageState extends State<CreateActivePage> {
       );
 
       if (_isEditMode) {
-        await _updateService.updateDailyRecords(widget.recordData!.id!, request);
+        await _updateService.updateDailyRecords(
+          widget.recordData!.id!,
+          request,
+        );
       } else {
         await _createService.createDailyRecords(request);
       }
@@ -240,7 +243,7 @@ class _CreateActivePageState extends State<CreateActivePage> {
         title: 'สำเร็จ',
         message: 'บันทึกสำเร็จ',
         type: AlertType.success,
-        onConfirm: () => Navigator.pop(context),
+        onConfirm: () => Navigator.pop(context,true),
       );
     } catch (e) {
       if (!mounted) return;
@@ -294,7 +297,7 @@ class _CreateActivePageState extends State<CreateActivePage> {
 
   void _onBack() {
     if (!_hasChanges) {
-      Navigator.pop(context);
+      Navigator.pop(context,false);
       return;
     }
     AppAlert.show(
@@ -305,7 +308,7 @@ class _CreateActivePageState extends State<CreateActivePage> {
           : 'ต้องการยกเลิกการสร้างกิจกรรมหรือไม่?',
       type: AlertType.warning,
       cancelText: 'ยกเลิก',
-      onConfirm: () => Navigator.pop(context),
+      onConfirm: () => Navigator.pop(context,false),
     );
   }
 
@@ -663,9 +666,7 @@ class _FormSection extends StatelessWidget {
                   borderColor1: themeItem.background1,
                   borderColor2: themeItem.background2,
                   backgroundColor: themeItem.addButton,
-                  text: isLoading
-                      ? 'กำลังบันทึก...'
-                      : (isEditMode ? 'แก้ไข' : 'บันทึก'),
+                  text: (isEditMode ? 'แก้ไข' : 'บันทึก'),
                   onPressed: isLoading ? null : onSubmit,
                 ),
               ],

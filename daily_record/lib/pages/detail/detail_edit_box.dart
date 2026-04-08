@@ -1,20 +1,77 @@
+import 'package:daily_record/components/app_alert.dart';
 import 'package:daily_record/components/press_scale.dart';
 import 'package:daily_record/core/constants/constants.dart';
 import 'package:daily_record/core/models/get_daily_record_response.dart';
+import 'package:daily_record/core/services/delete_daily_record_service.dart';
 import 'package:daily_record/core/themes/theme_provider.dart';
-import 'package:daily_record/pages/create_active/create_active_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class DetailEditBox extends StatefulWidget {
   final DailyRecordItem items;
-  const DetailEditBox({super.key, required this.items});
+  final VoidCallback onDelete;
+  final VoidCallback onEdit;
+  const DetailEditBox({
+    super.key,
+    required this.items,
+    required this.onDelete,
+    required this.onEdit,
+  });
 
   @override
   State<DetailEditBox> createState() => _DetailEditBoxState();
 }
 
 class _DetailEditBoxState extends State<DetailEditBox> {
+  final _service = DeleteDailyRecordService();
+  bool _isLoading = false;
+
+  void _onDelete() {
+    AppAlert.show(
+      context,
+      title: '',
+      message: 'ต้องการลบ ${widget.items.activityHeader} ใช่หรือไม่',
+      confirmText: 'ลบ',
+      cancelText: 'ยกเลิก',
+      type: AlertType.warning,
+      onConfirm: () => _deleteRecord(),
+    );
+  }
+
+  Future<void> _deleteRecord() async {
+    if (_isLoading) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      await _service.deleteDailyRecords(widget.items.id!);
+
+      if (!mounted) return;
+      AppAlert.show(
+        context,
+        title: 'สำเร็จ',
+        message: 'ลบสำเร็จ',
+        type: AlertType.success,
+        onConfirm: () {
+          widget.onDelete();
+        },
+      );
+    } catch (e) {
+      AppAlert.show(
+        context,
+        title: 'เกิดข้อผิดพลาด',
+        message: e.toString(),
+        type: AlertType.error,
+      );
+      debugPrint('Fetch error: $e');
+    } finally {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final themeItem = context.watch<ThemeProvider>().currentThemeItem!;
@@ -112,29 +169,7 @@ class _DetailEditBoxState extends State<DetailEditBox> {
                               color: themeItem.textPrimary,
                             ),
                           ),
-                          onTap: () => {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => CreateActivePage(
-                                  mode: PageMode.edit,
-                                  recordData: item,
-                                ),
-                              ),
-                            ),
-                            print('''
-                              Edit:
-                              id: ${item.id}
-                              iconId: ${item.iconId}
-                              startTime: ${item.startTime}
-                              endTime: ${item.endTime}
-                              repeatType: ${item.repeatType}
-                              important: ${item.important}
-                              activityHeader: ${item.activityHeader}
-                              activityDetail: ${item.activityDetail}
-                              dates: ${item.dates}
-                              '''),
-                          },
+                          onTap: () => widget.onEdit()
                         ),
                         SizedBox(width: 10),
                         PressScale(
@@ -162,7 +197,7 @@ class _DetailEditBoxState extends State<DetailEditBox> {
                               color: themeItem.status2,
                             ),
                           ),
-                          onTap: () {},
+                          onTap: () => _onDelete(),
                         ),
                       ],
                     ),

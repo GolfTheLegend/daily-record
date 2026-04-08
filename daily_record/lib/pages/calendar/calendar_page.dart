@@ -168,15 +168,19 @@ class _CalendarPageState extends State<CalendarPage> {
                                 style: TextStyle(fontWeight: FontWeight.bold),
                               ),
                             ),
-                            onTap: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => DetailPage(
-                                  selectionDate: _filteredDate,
-                                  recordData: _recordData,
+                            onTap: () async {
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => DetailPage(
+                                    selectionDate: _filteredDate,
+                                    recordData: _recordData,
+                                  ),
                                 ),
-                              ),
-                            ),
+                              );
+                              if (!mounted) return;
+                              _fetchRecords(_filteredDate, false);
+                            },
                           ),
                           const SizedBox(width: 5),
                         ],
@@ -298,9 +302,14 @@ class _CalendarPageState extends State<CalendarPage> {
                           backgroundColor: themeItem.addButton,
                           text: '+ เพิ่ม',
                           onPressed: () async {
-                            await Navigator.pushNamed(context, '/create');
+                            final result = await Navigator.pushNamed(
+                              context,
+                              '/create',
+                            );
                             if (!mounted) return;
-                            _fetchRecords(_filteredDate, false);
+                            if (result == true) {
+                              _fetchRecords(_filteredDate, false);
+                            }
                           },
                         ),
                       ],
