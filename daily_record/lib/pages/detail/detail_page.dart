@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:math';
 import 'package:daily_record/components/background.dart';
 import 'package:daily_record/components/border_button.dart';
@@ -31,17 +30,35 @@ class _DetailPageState extends State<DetailPage> {
   List<DailyRecordItem> _records = [];
   bool _onSwitch = true;
   bool _isLoading = false;
+  int _offset = 0;
+  final int _limit = 10;
+  bool _hasMore = true;
+
+  void _loadMore() {
+    _offset += _limit;
+    _fetchRecords('', false);
+  }
 
   @override
   void initState() {
     super.initState();
+
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+              _scrollController.position.maxScrollExtent - 100 &&
+          !_isLoading &&
+          _hasMore &&
+          !_onSwitch // เฉพาะ tab "ทั้งหมด"
+          ) {
+        _loadMore();
+      }
+    });
+
     if (_onSwitch) {
       if (widget.recordData.isEmpty) {
         _fetchRecords(widget.selectionDate, false);
       } else {
-        setState(() {
-          _records = widget.recordData;
-        });
+        _records = widget.recordData;
       }
     }
   }
@@ -50,6 +67,7 @@ class _DetailPageState extends State<DetailPage> {
     setState(() {
       _onSwitch = !_onSwitch;
     });
+
     if (_onSwitch == false) {
       _fetchRecords('', true);
     } else {
@@ -58,39 +76,39 @@ class _DetailPageState extends State<DetailPage> {
   }
 
   Future<void> _fetchRecords(String date, bool onChangeData) async {
+    if (_isLoading) return;
+
     setState(() {
       _isLoading = true;
     });
 
     if (onChangeData) {
-      setState(() {
-        _records = [];
-      });
+      _offset = 0;
+      _hasMore = true;
+      _records = [];
     }
 
     try {
       final request = _onSwitch
           ? GetDailyRecordsRequest(dateFrom: date, dateTo: date)
-          : GetDailyRecordsRequest(limit: 10, offset: 0);
-
-      print(
-        'request: '
-        'dateFrom=${request.dateFrom}, '
-        'dateTo=${request.dateTo}, '
-        'limit=${request.limit}, '
-        'offset=${request.offset}',
-      );
+          : GetDailyRecordsRequest(limit: _limit, offset: _offset);
 
       final response = await _service.getDailyRecords(request);
 
       if (!mounted) return;
 
       setState(() {
-        _records = response.data;
+        if (_offset == 0) {
+          _records = response.data;
+        } else {
+          _records.addAll(response.data); // ✅ append
+        }
+
+        // ถ้าได้ข้อมูลน้อยกว่า limit แปลว่าไม่มีต่อแล้ว
+        if (response.data.length < _limit) {
+          _hasMore = false;
+        }
       });
-      for (var item in response.data) {
-        print(item.toMap());
-      }
     } catch (e) {
       debugPrint('Fetch error: $e');
     } finally {
@@ -231,18 +249,15 @@ class _DetailPageState extends State<DetailPage> {
             child: ListView.separated(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
               controller: _scrollController,
-              itemCount: _records.length,
+              itemCount: _records.length + (_isLoading ? 1 : 0),
               separatorBuilder: (_, __) => const SizedBox(height: 0),
               itemBuilder: (context, index) {
-                final item = _records[index];
+                if (index >= _records.length) {
+                  return Center(child: CircularProgressIndicator());
+                }
 
-                return KeyedSubtree(
-                  key: index == 0 ? _firstItemKey : null,
-                  child: Opacity(
-                    opacity: 1.0,
-                    child: DetailEditBox(items: item),
-                  ),
-                );
+                final item = _records[index];
+                return DetailEditBox(items: item);
               },
             ),
           ),
