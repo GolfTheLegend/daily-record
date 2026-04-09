@@ -1,3 +1,4 @@
+import 'package:daily_record/core/network/dio_client.dart';
 import 'package:daily_record/pages/auth/auth_page.dart';
 import 'package:daily_record/pages/calendar/calendar_page.dart';
 import 'package:daily_record/pages/create_active/create_active_page.dart';
@@ -28,6 +29,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: DioClient.navigatorKey,
       debugShowCheckedModeBanner: false,
       theme: Provider.of<ThemeProvider>(context).themeData,
       navigatorObservers: [routeObserver],

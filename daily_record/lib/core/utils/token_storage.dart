@@ -33,6 +33,21 @@ class TokenStorage {
     return DateTime.now().millisecondsSinceEpoch >= expiresAt;
   }
 
+  //update
+  static Future<void> updateTokens({
+    required String accessToken,
+    required String refreshToken,
+    required int expiresIn,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final expiresAt = DateTime.now()
+        .add(Duration(seconds: expiresIn))
+        .millisecondsSinceEpoch;
+    await prefs.setString(_accessTokenKey, accessToken);
+    await prefs.setString(_refreshTokenKey, refreshToken);
+    await prefs.setInt(_expiresAtKey, expiresAt);
+  }
+
   // Clear ตอน logout
   static Future<void> clearTokens() async {
     final prefs = await SharedPreferences.getInstance();
