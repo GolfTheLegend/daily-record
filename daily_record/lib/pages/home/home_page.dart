@@ -182,7 +182,7 @@ class _HomePageState extends State<HomePage> with RouteAware {
         message: e.toString(),
         type: AlertType.error,
         onConfirm: () {
-          _shouldRefreshOnPop = true; 
+          _shouldRefreshOnPop = true;
         },
       );
     } finally {
@@ -196,117 +196,125 @@ class _HomePageState extends State<HomePage> with RouteAware {
     final themeItem = context.watch<ThemeProvider>().currentThemeItem!;
     final upcoming = _records.sublist(0);
 
-    return Background(
-      floatingActionButton: _floatingButton(context),
-      child: Column(
-        children: [
-          Expanded(
-            flex: 1,
-            child: Container(
-              width: double.infinity,
-              child: ActivityHeader(
-                onDateSelected: (DateTime date) {
-                  setState(() => _selectedDate = date);
-                  _fetchRecords(date, true);
-                },
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        // ไม่ทำอะไร = ออกจาก App ตามปกติเมื่อกด back ที่ Android
+        // (canPop: false จะ block การ pop route แต่ยังให้ระบบจัดการ back button ได้)
+      },
+      child: Background(
+        floatingActionButton: _floatingButton(context),
+        child: Column(
+          children: [
+            Expanded(
+              flex: 1,
+              child: Container(
+                width: double.infinity,
+                child: ActivityHeader(
+                  onDateSelected: (DateTime date) {
+                    setState(() => _selectedDate = date);
+                    _fetchRecords(date, true);
+                  },
+                ),
               ),
             ),
-          ),
-          Expanded(
-            flex: 2,
-            child: Container(
-              margin: const EdgeInsets.only(bottom: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: Column(
-                      children: [
-                        _sectionHeader(context, 'ขณะนี้'),
-                        ConstrainedBox(
-                          constraints: const BoxConstraints(maxHeight: 180),
-                          child: SingleChildScrollView(
-                            child: Column(
-                              children: _currentRecords.isNotEmpty
-                                  ? _currentRecords
-                                        .map(
-                                          (item) => ActivityCard(
-                                            icon: Icons.directions_run,
-                                            title: item.activityHeader ?? '-',
-                                            time:
-                                                '${item.startTime} - ${item.endTime}',
-                                            important: item.important ?? false,
-                                            repeatType: item.repeatType,
+            Expanded(
+              flex: 2,
+              child: Container(
+                margin: const EdgeInsets.only(bottom: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Column(
+                        children: [
+                          _sectionHeader(context, 'ขณะนี้'),
+                          ConstrainedBox(
+                            constraints: const BoxConstraints(maxHeight: 180),
+                            child: SingleChildScrollView(
+                              child: Column(
+                                children: _currentRecords.isNotEmpty
+                                    ? _currentRecords
+                                          .map(
+                                            (item) => ActivityCard(
+                                              icon: Icons.directions_run,
+                                              title: item.activityHeader ?? '-',
+                                              time:
+                                                  '${item.startTime} - ${item.endTime}',
+                                              important:
+                                                  item.important ?? false,
+                                              repeatType: item.repeatType,
+                                            ),
+                                          )
+                                          .toList()
+                                    : [
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 8,
                                           ),
-                                        )
-                                        .toList()
-                                  : [
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          vertical: 8,
-                                        ),
-                                        child: Text(
-                                          'ไม่มีรายการ',
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            color: themeItem.textPrimary
-                                                .withValues(alpha: 0.5),
+                                          child: Text(
+                                            'ไม่มีรายการ',
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              color: themeItem.textPrimary
+                                                  .withValues(alpha: 0.5),
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                    ],
+                                      ],
+                              ),
                             ),
                           ),
-                        ),
-                        _sectionHeader(context, 'รายการถัดไป'),
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    child: ListView.separated(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 10,
+                          _sectionHeader(context, 'รายการถัดไป'),
+                        ],
                       ),
-                      controller: _scrollController,
-                      itemCount: upcoming.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 0),
-                      itemBuilder: (context, index) {
-                        final item = upcoming[index];
-                        final now = DateTime.now().toUtc().add(
-                          const Duration(hours: 7),
-                        );
-                        final nowMin = now.hour * 60 + now.minute;
-                        final endMin = item.endTime != null
-                            ? _toMinutes(item.endTime!)
-                            : null;
-                        final isPast = endMin != null && nowMin > endMin;
-
-                        return KeyedSubtree(
-                          key: index == 0
-                              ? _firstItemKey
-                              : null, // 👈 วัดแค่ item แรก
-                          child: Opacity(
-                            opacity: isPast ? 0.35 : 1.0,
-                            child: ActivityCard(
-                              icon: Icons.description,
-                              title: item.activityHeader ?? '-',
-                              time: '${item.startTime} - ${item.endTime}',
-                              repeatType: item.repeatType,
-                              important: item.important ?? false,
-                              isDisable: isPast,
-                            ),
-                          ),
-                        );
-                      },
                     ),
-                  ),
-                ],
+                    Expanded(
+                      child: ListView.separated(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 10,
+                        ),
+                        controller: _scrollController,
+                        itemCount: upcoming.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 0),
+                        itemBuilder: (context, index) {
+                          final item = upcoming[index];
+                          final now = DateTime.now().toUtc().add(
+                            const Duration(hours: 7),
+                          );
+                          final nowMin = now.hour * 60 + now.minute;
+                          final endMin = item.endTime != null
+                              ? _toMinutes(item.endTime!)
+                              : null;
+                          final isPast = endMin != null && nowMin > endMin;
+
+                          return KeyedSubtree(
+                            key: index == 0
+                                ? _firstItemKey
+                                : null, // 👈 วัดแค่ item แรก
+                            child: Opacity(
+                              opacity: isPast ? 0.35 : 1.0,
+                              child: ActivityCard(
+                                icon: Icons.description,
+                                title: item.activityHeader ?? '-',
+                                time: '${item.startTime} - ${item.endTime}',
+                                repeatType: item.repeatType,
+                                important: item.important ?? false,
+                                isDisable: isPast,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

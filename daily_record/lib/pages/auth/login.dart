@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:daily_record/components/app_alert.dart';
 import 'package:daily_record/components/border_button.dart';
+import 'package:daily_record/components/checkbox_button.dart';
 import 'package:daily_record/components/input.dart';
 import 'package:daily_record/core/themes/theme_provider.dart';
 import 'package:daily_record/core/models/login_request.dart';
@@ -22,6 +23,7 @@ class _LoginState extends State<Login> {
   late TextEditingController _passwordController;
   bool _isLoading = false;
   final LoginService _loginService = LoginService();
+  bool _autoLogin = false;
 
   @override
   void initState() {
@@ -56,7 +58,11 @@ class _LoginState extends State<Login> {
           title: 'สำเร็จ',
           message: 'เข้าสู่ระบบสำเร็จ',
           type: AlertType.success,
-          onConfirm: () => Navigator.pushNamed(context, '/Home'),
+          onConfirm: () => Navigator.pushNamedAndRemoveUntil(
+            context,
+            '/Home',
+            (route) => false,
+          ),
         );
       }
     } catch (e) {
@@ -135,7 +141,32 @@ class _LoginState extends State<Login> {
                 ),
               ],
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 10),
+            Container(
+              width: screenWidth * 0.8,
+              child: Row(
+                children: [
+                  CheckboxButton(
+                    value: _autoLogin,
+                    onChanged: (v) => {
+                      setState(() {
+                        _autoLogin = v;
+                      }),
+                    },
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    'จดจำรหัสผ่าน',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: themeItem.textPrimary,
+                      fontSize: 17,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 10),
             Center(
               child: BorderButton(
                 width: min(MediaQuery.of(context).size.width * 0.8, 500),
