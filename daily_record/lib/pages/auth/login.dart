@@ -50,7 +50,7 @@ class _LoginState extends State<Login> {
         password: _passwordController.text,
       );
 
-      await _loginService.login(request);
+      await _loginService.login(request, autoLogin: _autoLogin);
 
       if (mounted) {
         AppAlert.show(

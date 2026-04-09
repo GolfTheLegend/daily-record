@@ -1,5 +1,6 @@
 import 'package:daily_record/components/action_background.dart';
 import 'package:daily_record/components/switch_button.dart';
+import 'package:daily_record/core/utils/token_storage.dart';
 import 'package:daily_record/pages/auth/login.dart';
 import 'package:daily_record/pages/auth/register.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +13,17 @@ class AuthPage extends StatefulWidget {
 }
 
 class _AuthPageState extends State<AuthPage> {
+  bool _isCheckingAuth = true;
   bool isLogin = true;
+
+  @override
+  void initState() {
+    super.initState();
+    // ✅ รอให้ first frame build เสร็จก่อนค่อย navigate
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkAutoLogin();
+    });
+  }
 
   void _onSwitch(value) {
     setState(() {
@@ -20,9 +31,32 @@ class _AuthPageState extends State<AuthPage> {
     });
   }
 
+  Future<void> _checkAutoLogin() async {
+    final autoLogin = await TokenStorage.getAutoLogin();
+
+    if (autoLogin) {
+      final isExpired = await TokenStorage.isAccessTokenExpired();
+      if (!isExpired) {
+        // ✅ token ยังใช้ได้ → ไป Home เลย
+        if (mounted) {
+          Navigator.pushNamedAndRemoveUntil(context, '/Home', (route) => false);
+          return;
+        }
+      }
+      // token หมดอายุ → ล้างแล้วไป login
+      await TokenStorage.clearTokens();
+    }
+
+    if (mounted) setState(() => _isCheckingAuth = false);
+  }
+
   @override
   Widget build(BuildContext context) {
     final header = _TextHeader(isLogin);
+
+    if (_isCheckingAuth) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
 
     return ActionBackground(
       header: header,

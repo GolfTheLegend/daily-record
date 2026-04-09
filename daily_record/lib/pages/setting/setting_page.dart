@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:daily_record/components/background.dart';
 import 'package:daily_record/components/border_button.dart';
 import 'package:daily_record/core/themes/theme_provider.dart';
+import 'package:daily_record/core/utils/token_storage.dart';
 import 'package:daily_record/pages/setting/themeselection.dart';
 import 'package:daily_record/core/configs/configs.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +18,6 @@ class SettingPage extends StatefulWidget {
 }
 
 class _SettingPageState extends State<SettingPage> {
-
   @override
   void initState() {
     super.initState();
@@ -92,7 +92,7 @@ class _SettingPageState extends State<SettingPage> {
                               borderRadius: BorderRadius.circular(15),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withValues(alpha:0.3),
+                                  color: Colors.black.withValues(alpha: 0.3),
                                   blurRadius: 6,
                                   offset: const Offset(0, 2),
                                 ),
@@ -102,7 +102,7 @@ class _SettingPageState extends State<SettingPage> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                 SizedBox(
+                                SizedBox(
                                   child: Row(
                                     children: [
                                       Icon(
@@ -150,7 +150,7 @@ class _SettingPageState extends State<SettingPage> {
                               borderRadius: BorderRadius.circular(15),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withValues(alpha:0.3),
+                                  color: Colors.black.withValues(alpha: 0.3),
                                   blurRadius: 6,
                                   offset: const Offset(0, 2),
                                 ),
@@ -169,13 +169,13 @@ class _SettingPageState extends State<SettingPage> {
                                         'assets/icons/language.svg',
                                         width: 20,
                                         height: 20,
-                                        colorFilter:  ColorFilter.mode(
+                                        colorFilter: ColorFilter.mode(
                                           themeItem.textPrimary,
                                           BlendMode.srcIn,
                                         ),
                                       ),
                                       const SizedBox(width: 10),
-                                       Text(
+                                      Text(
                                         'ภาษา',
                                         style: TextStyle(
                                           fontSize: 20,
@@ -188,7 +188,7 @@ class _SettingPageState extends State<SettingPage> {
                                 ),
                                 ThemeColor(
                                   themeItem.background2,
-                                  child:  Icon(
+                                  child: Icon(
                                     Icons.language,
                                     color: themeItem.textPrimary,
                                     size: 20,
@@ -207,7 +207,7 @@ class _SettingPageState extends State<SettingPage> {
                             borderRadius: BorderRadius.circular(15),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withValues(alpha:0.3),
+                                color: Colors.black.withValues(alpha: 0.3),
                                 blurRadius: 6,
                                 offset: const Offset(0, 2),
                               ),
@@ -218,7 +218,7 @@ class _SettingPageState extends State<SettingPage> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               SizedBox(
-                                child:  Text(
+                                child: Text(
                                   'Version',
                                   style: TextStyle(
                                     fontSize: 20,
@@ -247,12 +247,15 @@ class _SettingPageState extends State<SettingPage> {
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               backgroundColor: themeItem.status2, // สีพื้นหลัง
-                              foregroundColor: themeItem.background2, // สีตัวอักษร
+                              foregroundColor:
+                                  themeItem.background2, // สีตัวอักษร
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(15),
                               ),
                             ),
-                            onPressed: () => {print('ออกจากระบบ')},
+                            onPressed: () async {
+                              await TokenStorage.clearTokens();
+                            },
                             child: const Text(
                               'ออกจากระบบ',
                               style: TextStyle(
@@ -277,7 +280,7 @@ class _SettingPageState extends State<SettingPage> {
                 width: min(MediaQuery.of(context).size.width * 0.8, 500),
                 borderColor1: themeItem.secondary,
                 borderColor2: themeItem.primary,
-                backgroundColor:themeItem.background2,
+                backgroundColor: themeItem.background2,
                 text: 'กลับ',
                 onPressed: () => Navigator.pop(context),
               ),

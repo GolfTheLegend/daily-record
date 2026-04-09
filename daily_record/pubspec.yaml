@@ -2,7 +2,7 @@ name: daily_record
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -39,6 +39,7 @@ dependencies:
   provider: ^6.1.5+1
   flutter_svg: ^2.2.3
   dio: ^5.4.0
+  flutter_secure_storage: ^9.0.0
 
 dev_dependencies:
   flutter_test:
@@ -60,11 +61,11 @@ flutter:
     - assets/icons/
     - assets/fonts/
   fonts:
-  - family: Inter
-    fonts:
-      - asset: assets/fonts/Inter_28pt-Regular.ttf
-      - asset: assets/fonts/Inter_28pt-Bold.ttf
-        weight: 700
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter_28pt-Regular.ttf
+        - asset: assets/fonts/Inter_28pt-Bold.ttf
+          weight: 700
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
