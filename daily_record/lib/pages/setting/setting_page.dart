@@ -1,7 +1,11 @@
 import 'dart:math';
 
+import 'package:daily_record/components/app_alert.dart';
 import 'package:daily_record/components/background.dart';
 import 'package:daily_record/components/border_button.dart';
+import 'package:daily_record/components/press_scale.dart';
+import 'package:daily_record/core/models/logout_request.dart';
+import 'package:daily_record/core/services/logout_service.dart';
 import 'package:daily_record/core/themes/theme_provider.dart';
 import 'package:daily_record/core/utils/token_storage.dart';
 import 'package:daily_record/pages/setting/themeselection.dart';
@@ -18,6 +22,9 @@ class SettingPage extends StatefulWidget {
 }
 
 class _SettingPageState extends State<SettingPage> {
+  final _service = LogoutService();
+  bool _isLoading = false;
+
   @override
   void initState() {
     super.initState();
@@ -41,6 +48,40 @@ class _SettingPageState extends State<SettingPage> {
         ),
       ),
     );
+  }
+
+  Future<void> _logOut() async {
+    if (_isLoading) return;
+    setState(() => _isLoading = true);
+
+    try {
+      final refreshToken = await TokenStorage.getRefreshToken();
+
+      if (refreshToken != null) {
+        await _service.logout(LogoutRequest(refreshToken: refreshToken));
+      }
+    } catch (e) {
+      AppAlert.show(
+        context,
+        title: 'เกิดข้อผิดพลาด',
+        message: e.toString(),
+        type: AlertType.error,
+      );
+    } finally {
+      await TokenStorage.clearTokens();
+
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+      AppAlert.show(
+        context,
+        title: 'ออกจากระบบสำเร็จ',
+        message: '',
+        type: AlertType.success,
+        onConfirm: () {
+          Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+        },
+      );
+    }
   }
 
   @override
@@ -82,7 +123,7 @@ class _SettingPageState extends State<SettingPage> {
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
-                      GestureDetector(
+                      PressScale(
                         onTap: _selectTheme,
                         child: Padding(
                           padding: const EdgeInsets.all(10),
@@ -140,7 +181,7 @@ class _SettingPageState extends State<SettingPage> {
                           ),
                         ),
                       ),
-                      GestureDetector(
+                      PressScale(
                         onTap: () => (print('tap')),
                         child: Padding(
                           padding: const EdgeInsets.all(10),
@@ -242,27 +283,26 @@ class _SettingPageState extends State<SettingPage> {
                       Padding(
                         padding: const EdgeInsets.all(10),
                         child: SizedBox(
-                          width: double.infinity, // เต็มความกว้าง
+                          width: double.infinity,
                           height: 50,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: themeItem.status2, // สีพื้นหลัง
-                              foregroundColor:
-                                  themeItem.background2, // สีตัวอักษร
-                              shape: RoundedRectangleBorder(
+                          child: PressScale(
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: themeItem.status2,
                                 borderRadius: BorderRadius.circular(15),
                               ),
-                            ),
-                            onPressed: () async {
-                              await TokenStorage.clearTokens();
-                            },
-                            child: const Text(
-                              'ออกจากระบบ',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
+                              child: Center(
+                                child: Text(
+                                  'ออกจากระบบ',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: themeItem.background2,
+                                  ),
+                                ),
                               ),
                             ),
+                            onTap: () => _isLoading ? null : _logOut,
                           ),
                         ),
                       ),
