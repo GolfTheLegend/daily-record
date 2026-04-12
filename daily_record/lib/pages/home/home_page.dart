@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:daily_record/components/app_alert.dart';
+import 'package:daily_record/components/loading.dart';
 import 'package:daily_record/core/models/get_daily_record_request.dart';
 import 'package:daily_record/core/models/get_daily_record_response.dart';
 import 'package:daily_record/core/services/get_daily_record_service.dart';
@@ -122,12 +123,9 @@ class _HomePageState extends State<HomePage> with RouteAware {
     final now = DateTime.now().toUtc().add(const Duration(hours: 7));
     final nowMin = now.hour * 60 + now.minute;
 
-    setState(() {
-      _isLoading = true;
-    });
-
     if (onRefresh) {
       setState(() {
+        _isLoading = true;
         _records = [];
         _currentRecords = [];
       });
@@ -234,35 +232,40 @@ class _HomePageState extends State<HomePage> with RouteAware {
                             constraints: const BoxConstraints(maxHeight: 180),
                             child: SingleChildScrollView(
                               child: Column(
-                                children: _currentRecords.isNotEmpty
-                                    ? _currentRecords
-                                          .map(
-                                            (item) => ActivityCard(
-                                              icon: Icons.directions_run,
-                                              title: item.activityHeader ?? '-',
-                                              time:
-                                                  '${item.startTime} - ${item.endTime}',
-                                              important:
-                                                  item.important ?? false,
-                                              repeatType: item.repeatType,
-                                            ),
-                                          )
-                                          .toList()
-                                    : [
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                            vertical: 8,
-                                          ),
-                                          child: Text(
-                                            'ไม่มีรายการ',
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              color: themeItem.textPrimary
-                                                  .withValues(alpha: 0.5),
-                                            ),
-                                          ),
+                                children: [
+                                  if (_isLoading)
+                                    const Center(
+                                      child: LoadingAnimation(
+                                        width: 20,
+                                        height: 20,
+                                      ),
+                                    )
+                                  else if (_currentRecords.isNotEmpty)
+                                    ..._currentRecords.map(
+                                      (item) => ActivityCard(
+                                        icon: Icons.directions_run,
+                                        title: item.activityHeader ?? '-',
+                                        time:
+                                            '${item.startTime} - ${item.endTime}',
+                                        important: item.important ?? false,
+                                        repeatType: item.repeatType,
+                                      ),
+                                    )
+                                  else
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 8,
+                                      ),
+                                      child: Text(
+                                        'ไม่มีรายการ',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: themeItem.textPrimary
+                                              .withValues(alpha: 0.5),
                                         ),
-                                      ],
+                                      ),
+                                    ),
+                                ],
                               ),
                             ),
                           ),
@@ -271,43 +274,48 @@ class _HomePageState extends State<HomePage> with RouteAware {
                       ),
                     ),
                     Expanded(
-                      child: ListView.separated(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 10,
-                        ),
-                        controller: _scrollController,
-                        itemCount: upcoming.length,
-                        separatorBuilder: (_, __) => const SizedBox(height: 0),
-                        itemBuilder: (context, index) {
-                          final item = upcoming[index];
-                          final now = DateTime.now().toUtc().add(
-                            const Duration(hours: 7),
-                          );
-                          final nowMin = now.hour * 60 + now.minute;
-                          final endMin = item.endTime != null
-                              ? _toMinutes(item.endTime!)
-                              : null;
-                          final isPast = endMin != null && nowMin > endMin;
-
-                          return KeyedSubtree(
-                            key: index == 0
-                                ? _firstItemKey
-                                : null, // 👈 วัดแค่ item แรก
-                            child: Opacity(
-                              opacity: isPast ? 0.35 : 1.0,
-                              child: ActivityCard(
-                                icon: Icons.description,
-                                title: item.activityHeader ?? '-',
-                                time: '${item.startTime} - ${item.endTime}',
-                                repeatType: item.repeatType,
-                                important: item.important ?? false,
-                                isDisable: isPast,
+                      child: _isLoading
+                          ? const Center(
+                              child: LoadingAnimation(width: 50, height: 50),
+                            )
+                          : ListView.separated(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 10,
                               ),
+                              controller: _scrollController,
+                              itemCount: upcoming.length,
+                              separatorBuilder: (_, __) =>
+                                  const SizedBox(height: 0),
+                              itemBuilder: (context, index) {
+                                final item = upcoming[index];
+                                final now = DateTime.now().toUtc().add(
+                                  const Duration(hours: 7),
+                                );
+                                final nowMin = now.hour * 60 + now.minute;
+                                final endMin = item.endTime != null
+                                    ? _toMinutes(item.endTime!)
+                                    : null;
+                                final isPast =
+                                    endMin != null && nowMin > endMin;
+
+                                return KeyedSubtree(
+                                  key: index == 0 ? _firstItemKey : null,
+                                  child: Opacity(
+                                    opacity: isPast ? 0.35 : 1.0,
+                                    child: ActivityCard(
+                                      icon: Icons.description,
+                                      title: item.activityHeader ?? '-',
+                                      time:
+                                          '${item.startTime} - ${item.endTime}',
+                                      repeatType: item.repeatType,
+                                      important: item.important ?? false,
+                                      isDisable: isPast,
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
-                          );
-                        },
-                      ),
                     ),
                   ],
                 ),
