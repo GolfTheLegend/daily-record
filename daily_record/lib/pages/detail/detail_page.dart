@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:daily_record/components/app_alert.dart';
 import 'package:daily_record/components/background.dart';
 import 'package:daily_record/components/border_button.dart';
+import 'package:daily_record/components/loading.dart';
 import 'package:daily_record/components/press_scale.dart';
 import 'package:daily_record/core/models/get_daily_record_request.dart';
 import 'package:daily_record/core/models/get_daily_record_response.dart';
@@ -252,45 +253,50 @@ class _DetailPageState extends State<DetailPage> {
           ),
           Expanded(
             flex: 8,
-            child: ListView.separated(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-              controller: _scrollController,
-              itemCount: _records.length + (_isLoading ? 1 : 0),
-              separatorBuilder: (_, __) => const SizedBox(height: 0),
-              itemBuilder: (context, index) {
-                if (index >= _records.length) {
-                  return Center(child: CircularProgressIndicator());
-                }
+            child: _isLoading
+                ? const Center(child: LoadingAnimation(width: 50, height: 50))
+                : ListView.separated(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 10,
+                    ),
+                    controller: _scrollController,
+                    itemCount: _records.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 0),
+                    itemBuilder: (context, index) {
+                      if (index >= _records.length) {
+                        return Center(child: CircularProgressIndicator());
+                      }
 
-                final item = _records[index];
-                return DetailEditBox(
-                  items: item,
-                  onDelete: () => {
-                    if (_onSwitch == false)
-                      {_fetchRecords('', true)}
-                    else
-                      {_fetchRecords(widget.selectionDate, true)},
-                  },
-                  onEdit: () async {
-                    await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => CreateActivePage(
-                          mode: PageMode.edit,
-                          recordData: item,
-                        ),
-                      ),
-                    );
-                    if (!mounted) return;
-                    if (_onSwitch == false) {
-                      _fetchRecords('', true);
-                    } else {
-                      _fetchRecords(widget.selectionDate, true);
-                    }
-                  },
-                );
-              },
-            ),
+                      final item = _records[index];
+                      return DetailEditBox(
+                        items: item,
+                        onDelete: () => {
+                          if (_onSwitch == false)
+                            {_fetchRecords('', true)}
+                          else
+                            {_fetchRecords(widget.selectionDate, true)},
+                        },
+                        onEdit: () async {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => CreateActivePage(
+                                mode: PageMode.edit,
+                                recordData: item,
+                              ),
+                            ),
+                          );
+                          if (!mounted) return;
+                          if (_onSwitch == false) {
+                            _fetchRecords('', true);
+                          } else {
+                            _fetchRecords(widget.selectionDate, true);
+                          }
+                        },
+                      );
+                    },
+                  ),
           ),
           _Line(themeItem.textPrimary),
           Expanded(

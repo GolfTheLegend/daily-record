@@ -51,7 +51,6 @@ class _SettingPageState extends State<SettingPage> {
   }
 
   Future<void> _logOut() async {
-    if (_isLoading) return;
     setState(() => _isLoading = true);
 
     try {
@@ -302,7 +301,7 @@ class _SettingPageState extends State<SettingPage> {
                                 ),
                               ),
                             ),
-                            onTap: () => _isLoading ? null : _logOut,
+                            onTap: () => _isLoading ? null : _logOut(),
                           ),
                         ),
                       ),

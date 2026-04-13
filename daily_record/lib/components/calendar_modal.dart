@@ -21,6 +21,7 @@ class CalendarModal extends StatefulWidget {
 class CalendarModalState extends State<CalendarModal> {
   DateTime _selectedMonth = DateTime.now();
   List<DateTime> _selectedDates = [];
+  int _slideDirection = 1;
 
   @override
   void initState() {
@@ -76,6 +77,7 @@ class CalendarModalState extends State<CalendarModal> {
 
   void _previousMonth() {
     setState(() {
+      _slideDirection = -1;
       _selectedMonth = DateTime(
         _selectedMonth.year,
         _selectedMonth.month - 1,
@@ -86,6 +88,7 @@ class CalendarModalState extends State<CalendarModal> {
 
   void _nextMonth() {
     setState(() {
+      _slideDirection = 1;
       _selectedMonth = DateTime(
         _selectedMonth.year,
         _selectedMonth.month + 1,
@@ -233,62 +236,102 @@ class CalendarModalState extends State<CalendarModal> {
 
             _Line(themeItem.textPrimary),
 
-            // Grid วันที่
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 4),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 7,
-                childAspectRatio: 1,
-                crossAxisSpacing: 4,
-                mainAxisSpacing: 4,
-              ),
-              itemCount: itemCount,
-              itemBuilder: (context, index) {
-                final int dayNumber = index - firstDayOfWeek + 1;
-                if (dayNumber < 1 || dayNumber > daysInMonth) {
-                  return const SizedBox();
-                }
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 350),
+              transitionBuilder: (child, animation) {
+                final isEntering = child.key == ValueKey(_selectedMonth);
+                final offsetX = isEntering
+                    ? _slideDirection * 1.0
+                    : _slideDirection * -1.0;
 
-                final bool isPast = _isPastDate(dayNumber);
-                final bool isSelected = _isSelected(dayNumber);
+                final slideAnim =
+                    Tween<Offset>(
+                      begin: Offset(offsetX, 0),
+                      end: Offset.zero,
+                    ).animate(
+                      CurvedAnimation(
+                        parent: animation,
+                        curve: Curves.easeOutCubic,
+                      ),
+                    );
 
-                return Opacity(
-                  opacity: isPast ? 0.4 : 1.0,
-                  child: PressScale(
-                    onTap: isPast ? () {} : () => _toggleDate(dayNumber),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? themeItem.secondary
-                            : themeItem.background2,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: themeItem.primary, width: 3),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.2),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Center(
-                        child: Text(
-                          '$dayNumber',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold,
-                            color: isSelected
-                                ? themeItem.background2
-                                : themeItem.textPrimary,
-                          ),
-                        ),
-                      ),
-                    ),
+                return ClipRect(
+                  child: SlideTransition(
+                    position: slideAnim,
+                    child: FadeTransition(opacity: animation, child: child),
                   ),
                 );
               },
+              child: KeyedSubtree(
+                key: ValueKey(_selectedMonth),
+                child:
+                    // Grid วันที่
+                    GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 2,
+                        vertical: 4,
+                      ),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 7,
+                            childAspectRatio: 1,
+                            crossAxisSpacing: 4,
+                            mainAxisSpacing: 4,
+                          ),
+                      itemCount: itemCount,
+                      itemBuilder: (context, index) {
+                        final int dayNumber = index - firstDayOfWeek + 1;
+                        if (dayNumber < 1 || dayNumber > daysInMonth) {
+                          return const SizedBox();
+                        }
+
+                        final bool isPast = _isPastDate(dayNumber);
+                        final bool isSelected = _isSelected(dayNumber);
+
+                        return Opacity(
+                          opacity: isPast ? 0.4 : 1.0,
+                          child: PressScale(
+                            onTap: isPast
+                                ? () {}
+                                : () => _toggleDate(dayNumber),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? themeItem.secondary
+                                    : themeItem.background2,
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(
+                                  color: themeItem.primary,
+                                  width: 3,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.2),
+                                    blurRadius: 4,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Center(
+                                child: Text(
+                                  '$dayNumber',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold,
+                                    color: isSelected
+                                        ? themeItem.background2
+                                        : themeItem.textPrimary,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+              ),
             ),
 
             _Line(themeItem.textPrimary),
