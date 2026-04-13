@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:daily_record/components/background.dart';
 import 'package:daily_record/components/border_button.dart';
+import 'package:daily_record/components/loading.dart';
 import 'package:daily_record/components/press_scale.dart';
 import 'package:daily_record/core/constants/constants.dart';
 import 'package:daily_record/pages/calendar/calendar_table.dart';
@@ -207,7 +208,11 @@ class _CalendarPageState extends State<CalendarPage> {
                       ),
                       child: Padding(
                         padding: EdgeInsetsGeometry.all(10),
-                        child: _recordData.isEmpty
+                        child: _isLoading
+                            ? const Center(
+                                child: LoadingAnimation(width: 50, height: 50),
+                              )
+                            : _recordData.isEmpty
                             ? Text(
                                 'ไม่มีรายการ',
                                 style: TextStyle(

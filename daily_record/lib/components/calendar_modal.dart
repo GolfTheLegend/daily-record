@@ -164,20 +164,28 @@ class CalendarModalState extends State<CalendarModal> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                ElevatedButton(
-                  onPressed: _previousMonth,
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(40, 40),
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    shape: RoundedRectangleBorder(
+                PressScale(
+                  onTap: () => _previousMonth(),
+                  child: Container(
+                    padding: const EdgeInsets.fromLTRB(5, 5, 5, 5),
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: themeItem.secondary,
                       borderRadius: BorderRadius.circular(15),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          blurRadius: 6,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
                     ),
-                    backgroundColor: themeItem.secondary,
-                  ),
-                  child: Icon(
-                    Icons.arrow_back_ios_new_outlined,
-                    color: themeItem.background2,
-                    size: 18,
+                    child: Icon(
+                      Icons.arrow_back_ios_new_outlined,
+                      color: themeItem.background2,
+                      size: 18,
+                    ),
                   ),
                 ),
                 Text(
@@ -187,20 +195,28 @@ class CalendarModalState extends State<CalendarModal> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                ElevatedButton(
-                  onPressed: _nextMonth,
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(40, 40),
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    shape: RoundedRectangleBorder(
+                PressScale(
+                  onTap: () => _nextMonth(),
+                  child: Container(
+                    padding: const EdgeInsets.fromLTRB(5, 5, 5, 5),
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: themeItem.secondary,
                       borderRadius: BorderRadius.circular(15),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          blurRadius: 6,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
                     ),
-                    backgroundColor: themeItem.secondary,
-                  ),
-                  child: Icon(
-                    Icons.arrow_forward_ios_outlined,
-                    color: themeItem.background2,
-                    size: 18,
+                    child: Icon(
+                      Icons.arrow_forward_ios_outlined,
+                      color: themeItem.background2,
+                      size: 18,
+                    ),
                   ),
                 ),
               ],
@@ -351,7 +367,7 @@ class CalendarModalState extends State<CalendarModal> {
                   ),
 
                   // ---- ปุ่มถังขยะ ----
-                  GestureDetector(
+                  PressScale(
                     onTap: () => setState(() => _selectedDates.clear()),
                     child: Container(
                       width: 44,

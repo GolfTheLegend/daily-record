@@ -1,3 +1,4 @@
+import 'package:daily_record/components/press_scale.dart';
 import 'package:daily_record/core/themes/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -27,42 +28,47 @@ class _BorderButtonState extends State<BorderButton> {
   @override
   Widget build(BuildContext context) {
     final themeItem = context.watch<ThemeProvider>().currentThemeItem!;
-    
+
     return Padding(
       padding: const EdgeInsets.all(10),
-      child: SizedBox(
-        width: widget.width ?? null,
-        height: 55,
-        child: Container(
-          padding: const EdgeInsets.all(5), // ความหนาขอบนอก
-          decoration: BoxDecoration(
-            color: widget.borderColor1, // ชั้นนอกสุด
-            borderRadius: BorderRadius.circular(15),
-          ),
+      child: PressScale(
+        child: SizedBox(
+          width: widget.width ?? null,
+          height: 55,
           child: Container(
-            padding: const EdgeInsets.all(5), // ความหนาขอบใน
+            padding: const EdgeInsets.all(5), // ความหนาขอบนอก
             decoration: BoxDecoration(
-              color: widget.borderColor2, // ชั้นใน
+              color: widget.borderColor1, // ชั้นนอกสุด
               borderRadius: BorderRadius.circular(15),
             ),
-            child: OutlinedButton(
-              style: OutlinedButton.styleFrom(
-                backgroundColor: widget.backgroundColor,
-                side: BorderSide.none,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
+            child: Container(
+              padding: const EdgeInsets.all(5), // ความหนาขอบใน
+              decoration: BoxDecoration(
+                color: widget.borderColor2, // ชั้นใน
+                borderRadius: BorderRadius.circular(15),
               ),
-              onPressed: () {
-                widget.onPressed?.call();
-              },
-              child: Text(
-                widget.text,
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600,color: themeItem.textPrimary),
+              child: Material(
+                color: Colors.transparent,
+                child: Container(
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: widget.backgroundColor,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    widget.text,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: themeItem.textPrimary,
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
         ),
+        onTap: () => widget.onPressed?.call(),
       ),
     );
   }

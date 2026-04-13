@@ -21,11 +21,22 @@ class _LoadingAnimationState extends State<LoadingAnimation>
   @override
   Widget build(BuildContext context) {
     final themeItem = context.watch<ThemeProvider>().currentThemeItem!;
+    final double duration = 3000;
     return Center(
       child: Stack(
         children: [
-          Box1(width: widget.width, height: widget.height, theme: themeItem),
-          Box2(width: widget.width, height: widget.height, theme: themeItem),
+          Box1(
+            width: widget.width,
+            height: widget.height,
+            theme: themeItem,
+            duration: duration,
+          ),
+          Box2(
+            width: widget.width,
+            height: widget.height,
+            theme: themeItem,
+            duration: duration,
+          ),
         ],
       ),
     );
@@ -36,11 +47,13 @@ class Box1 extends StatefulWidget {
   final double width;
   final double height;
   final ThemeItem theme;
+  final double duration;
   const Box1({
     super.key,
     required this.width,
     required this.height,
     required this.theme,
+    required this.duration,
   });
 
   @override
@@ -59,7 +72,7 @@ class _Box1State extends State<Box1> with SingleTickerProviderStateMixin {
 
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 4000),
+      duration: Duration(milliseconds: widget.duration.toInt()),
     )..repeat();
 
     // Alignment ต้องเปลี่ยนตาม step:
@@ -227,11 +240,13 @@ class Box2 extends StatefulWidget {
   final double width;
   final double height;
   final ThemeItem theme;
+  final double duration;
   const Box2({
     super.key,
     required this.width,
     required this.height,
     required this.theme,
+    required this.duration,
   });
 
   @override
@@ -250,7 +265,7 @@ class _Box2State extends State<Box2> with SingleTickerProviderStateMixin {
 
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 4000),
+      duration: Duration(milliseconds: widget.duration.toInt()),
     )..repeat();
 
     alignmentAnim = TweenSequence<Alignment>([

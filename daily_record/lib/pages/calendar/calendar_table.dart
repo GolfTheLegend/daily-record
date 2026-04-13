@@ -1,3 +1,4 @@
+import 'package:daily_record/components/loading.dart';
 import 'package:daily_record/components/press_scale.dart';
 import 'package:daily_record/core/models/get_status_daily_record_request.dart';
 import 'package:daily_record/core/services/get_daily_record_service.dart';
@@ -136,34 +137,52 @@ class CalendarTableState extends State<CalendarTable> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                ElevatedButton(
-                  onPressed: previousMonth,
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
+                PressScale(
+                  onTap: () => previousMonth(),
+                  child: Container(
+                    padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
+                    decoration: BoxDecoration(
+                      color: themeItem.secondary,
                       borderRadius: BorderRadius.circular(15),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          blurRadius: 6,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
                     ),
-                    backgroundColor: themeItem.secondary,
-                  ),
-                  child: Icon(
-                    Icons.arrow_back_ios_new_outlined,
-                    color: themeItem.background2,
+                    child: Icon(
+                      Icons.arrow_back_ios_new_outlined,
+                      color: themeItem.background2,
+                      size: 18,
+                    ),
                   ),
                 ),
                 Text(
                   '$monthText $buddhistYear',
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
-                ElevatedButton(
-                  onPressed: nextMonth,
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
+                PressScale(
+                  onTap: () => nextMonth(),
+                  child: Container(
+                    padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
+                    decoration: BoxDecoration(
+                      color: themeItem.secondary,
                       borderRadius: BorderRadius.circular(15),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          blurRadius: 6,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
                     ),
-                    backgroundColor: themeItem.secondary,
-                  ),
-                  child: Icon(
-                    Icons.arrow_forward_ios_outlined,
-                    color: themeItem.background2,
+                    child: Icon(
+                      Icons.arrow_forward_ios_outlined,
+                      color: themeItem.background2,
+                      size: 18,
+                    ),
                   ),
                 ),
               ],
@@ -182,106 +201,111 @@ class CalendarTableState extends State<CalendarTable> {
         _Line(themeItem.textPrimary),
         Expanded(
           flex: 6,
-          child: GridView.builder(
-            // shrinkWrap: true,
-            // physics: const NeverScrollableScrollPhysics(),
-            padding: const EdgeInsets.all(5),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 7,
-              childAspectRatio: 1,
-              crossAxisSpacing: 8,
-              mainAxisSpacing: 8,
-            ),
-            itemCount: itemCount, // 6 แถว x 7 วัน
-            itemBuilder: (context, index) {
-              int dayNumber = index - firstDayOfWeek + 1;
-              if (dayNumber < 1 || dayNumber > daysInMonth) {
-                return SizedBox(); // ช่องว่าง
-              }
-              bool isWaiting = waitingDates.contains(dayNumber);
-              bool hasRecord = hasDayRecord.contains(dayNumber);
-
-              String dateText =
-                  '${_selectedMonth.year}-${_selectedMonth.month.toString().padLeft(2, '0')}-${dayNumber.toString().padLeft(2, '0')}';
-
-              bool isSelected =
-                  _selectedDate != null &&
-                  _selectedDate!.day == dayNumber &&
-                  _selectedDate!.month == _selectedMonth.month &&
-                  _selectedDate!.year == _selectedMonth.year;
-
-              return PressScale(
-                onTap: () {
-                  setState(
-                    () => _selectedDate = DateTime(
-                      _selectedMonth.year,
-                      _selectedMonth.month,
-                      dayNumber,
-                    ),
-                  );
-                  widget.onDateSelected?.call(dateText);
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: isSelected
-                        ? themeItem.secondary
-                        : themeItem.background2,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: themeItem.primary, width: 4),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.3),
-                        blurRadius: 5,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
+          child: _isLoading
+              ? const Center(child: LoadingAnimation(width: 50, height: 50))
+              : GridView.builder(
+                  // shrinkWrap: true,
+                  // physics: const NeverScrollableScrollPhysics(),
+                  padding: const EdgeInsets.all(5),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 7,
+                    childAspectRatio: 1,
+                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 8,
                   ),
-                  child: Stack(
-                    children: [
-                      Center(
-                        child: Text(
-                          '$dayNumber',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: isSelected
-                                ? themeItem.background2
-                                : themeItem.textPrimary,
-                            fontWeight: FontWeight.bold,
+                  itemCount: itemCount, // 6 แถว x 7 วัน
+                  itemBuilder: (context, index) {
+                    int dayNumber = index - firstDayOfWeek + 1;
+                    if (dayNumber < 1 || dayNumber > daysInMonth) {
+                      return SizedBox(); // ช่องว่าง
+                    }
+                    bool isWaiting = waitingDates.contains(dayNumber);
+                    bool hasRecord = hasDayRecord.contains(dayNumber);
+
+                    String dateText =
+                        '${_selectedMonth.year}-${_selectedMonth.month.toString().padLeft(2, '0')}-${dayNumber.toString().padLeft(2, '0')}';
+
+                    bool isSelected =
+                        _selectedDate != null &&
+                        _selectedDate!.day == dayNumber &&
+                        _selectedDate!.month == _selectedMonth.month &&
+                        _selectedDate!.year == _selectedMonth.year;
+
+                    return PressScale(
+                      onTap: () {
+                        setState(
+                          () => _selectedDate = DateTime(
+                            _selectedMonth.year,
+                            _selectedMonth.month,
+                            dayNumber,
                           ),
+                        );
+                        widget.onDateSelected?.call(dateText);
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? themeItem.secondary
+                              : themeItem.background2,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: themeItem.primary,
+                            width: 4,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.3),
+                              blurRadius: 5,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Stack(
+                          children: [
+                            Center(
+                              child: Text(
+                                '$dayNumber',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: isSelected
+                                      ? themeItem.background2
+                                      : themeItem.textPrimary,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            if (isWaiting)
+                              Positioned(
+                                top: 4,
+                                right: 4,
+                                child: Container(
+                                  width: 8,
+                                  height: 8,
+                                  decoration: BoxDecoration(
+                                    color: themeItem.status2,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                              ),
+                            if (hasRecord)
+                              Positioned(
+                                top: 4,
+                                left: 4,
+                                child: Container(
+                                  width: 8,
+                                  height: 8,
+                                  decoration: BoxDecoration(
+                                    color: themeItem.status1,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
                       ),
-                      if (isWaiting)
-                        Positioned(
-                          top: 4,
-                          right: 4,
-                          child: Container(
-                            width: 8,
-                            height: 8,
-                            decoration: BoxDecoration(
-                              color: themeItem.status2,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                        ),
-                      if (hasRecord)
-                        Positioned(
-                          top: 4,
-                          left: 4,
-                          child: Container(
-                            width: 8,
-                            height: 8,
-                            decoration: BoxDecoration(
-                              color: themeItem.status1,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
+                    );
+                  },
                 ),
-              );
-            },
-          ),
         ),
         _Line(themeItem.textPrimary),
       ],

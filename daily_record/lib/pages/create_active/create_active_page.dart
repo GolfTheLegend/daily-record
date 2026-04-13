@@ -261,6 +261,7 @@ class _CreateActivePageState extends State<CreateActivePage> {
   void _showDatePicker() {
     showDialog(
       context: context,
+      barrierDismissible: false,
       barrierColor: Colors.black.withValues(alpha: 0.4),
       builder: (_) => Dialog(
         backgroundColor: Colors.transparent,
