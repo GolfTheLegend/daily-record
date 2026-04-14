@@ -63,6 +63,7 @@ class _ActionBackgroundState extends State<ActionBackground> {
       bottomNavigationBar: widget.bottomNavigationBar,
 
       body: SafeArea(
+        bottom: false,
         child: Column(
           children: [
             Expanded(
