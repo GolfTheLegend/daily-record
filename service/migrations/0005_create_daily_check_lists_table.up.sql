@@ -6,7 +6,7 @@ CREATE TABLE daily_check_lists (
     check_status BOOLEAN NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
-    CONSTRAINT fk_record
+    CONSTRAINT fk_daily_check_lists_record
         FOREIGN KEY (main_record_id)
         REFERENCES daily_records(id)
         ON DELETE CASCADE
