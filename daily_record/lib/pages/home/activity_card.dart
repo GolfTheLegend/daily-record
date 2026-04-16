@@ -44,7 +44,7 @@ class ActivityCardState extends State<ActivityCard> {
     if (widget.repeatType != null) {
       final result = widget.important == true
           ? 'สำคัญ'
-          : widget.repeatType! == 0
+          : statusList[widget.repeatType!].key == 0
           ? 'ทุกวัน'
           : '';
 

@@ -453,3 +453,45 @@ func (s *DailyRecordStore) GetDaysByRecordID(recordID uint) ([]*DailyRecordDay, 
 
 	return days, nil
 }
+
+// create checklist
+func (s *DailyRecordStore) CreateDailyCheckList(r *DailyCheckList, userID uint) error {
+	query := `
+		INSERT INTO daily_check_lists (
+			main_record_id,
+			day_check,
+			check_status,
+			created_at
+		)
+		SELECT $1, $2, $3, $4
+		WHERE EXISTS (
+			SELECT 1 FROM daily_records
+			WHERE id = $1 AND user_id = $5
+		)
+		RETURNING id
+	`
+
+	err := s.db.QueryRow(
+		query,
+		r.MainRecordID,
+		r.DayCheck,
+		r.CheckStatus,
+		r.CreatedAt,
+		userID,
+	).Scan(&r.ID)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return fmt.Errorf("forbidden: record not found or not owned by user")
+		}
+
+		// 🔥 handle unique constraint
+		if strings.Contains(err.Error(), "unique_record_day") {
+			return fmt.Errorf("checklist already exists for this day")
+		}
+
+		return fmt.Errorf("insert daily checklist: %w", err)
+	}
+
+	return nil
+}

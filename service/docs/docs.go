@@ -406,6 +406,88 @@ const docTemplate = `{
                 }
             }
         },
+        "/daily-records/check-list/{id}": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create a new daily check list",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Daily Check Lists"
+                ],
+                "summary": "Create Daily Check List",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Daily Record ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Daily check list details",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CreateDailyCheckListRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "data": {
+                                    "$ref": "#/definitions/models.DailyCheckList"
+                                },
+                                "success": {
+                                    "type": "boolean"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "error": {
+                                    "type": "string"
+                                },
+                                "success": {
+                                    "type": "boolean"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "error": {
+                                    "type": "string"
+                                },
+                                "success": {
+                                    "type": "boolean"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/daily-records/status": {
             "get": {
                 "security": [
@@ -716,6 +798,42 @@ const docTemplate = `{
             "properties": {
                 "refresh_token": {
                     "type": "string"
+                }
+            }
+        },
+        "models.CreateDailyCheckListRequest": {
+            "type": "object",
+            "properties": {
+                "check_status": {
+                    "description": "optional",
+                    "type": "boolean"
+                },
+                "day_check": {
+                    "description": "format: YYYY-MM-DD",
+                    "type": "string"
+                },
+                "main_record_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.DailyCheckList": {
+            "type": "object",
+            "properties": {
+                "check_status": {
+                    "type": "boolean"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "day_check": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "main_record_id": {
+                    "type": "integer"
                 }
             }
         },

@@ -38,15 +38,15 @@ class _ActionBackgroundState extends State<ActionBackground> {
       if (mounted) setState(() => layer1 = true);
     });
 
-    Future.delayed(const Duration(milliseconds: 2000), () {
+    Future.delayed(const Duration(milliseconds: 1500), () {
       if (mounted) setState(() => layer2 = true);
     });
 
-    Future.delayed(const Duration(milliseconds: 3000), () {
+    Future.delayed(const Duration(milliseconds: 2000), () {
       if (mounted) setState(() => layer3 = true);
     });
 
-    Future.delayed(const Duration(milliseconds: 3500), () {
+    Future.delayed(const Duration(milliseconds: 2500), () {
       if (mounted) setState(() => layer4 = true);
     });
   }

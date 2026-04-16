@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v3"
@@ -361,4 +362,83 @@ func (h *DailyRecordHandler) DeleteDailyRecord(c fiber.Ctx) error {
 	}
 
 	return c.JSON(models.ErrorResponse{Success: true})
+}
+
+// @Summary Create Daily Check List
+// @Description Create a new daily check list
+// @Tags Daily Check Lists
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id path int true "Daily Record ID"
+// @Param request body models.CreateDailyCheckListRequest true "Daily check list details"
+// @Success 201 {object} object{success=bool,data=models.DailyCheckList}
+// @Failure 400 {object} object{success=bool,error=string}
+// @Failure 500 {object} object{success=bool,error=string}
+// @Router /daily-records/check-list/{id} [post]
+func (h *DailyRecordHandler) CreateDailyCheckList(c fiber.Ctx) error {
+	var req models.CreateDailyCheckListRequest
+
+	claims, ok := c.Locals("claims").(*AccessClaims)
+	if !ok {
+		return c.Status(401).JSON(models.ErrorResponse{
+			Success: false,
+			Error:   "unauthorized",
+		})
+	}
+
+	recordID, err := strconv.ParseUint(c.Params("id"), 10, 64)
+	if err != nil {
+		return c.Status(400).JSON(models.ErrorResponse{
+			Success: false,
+			Error:   "invalid record id",
+		})
+	}
+
+	if err := c.Bind().JSON(&req); err != nil {
+		return c.Status(400).JSON(models.ErrorResponse{
+			Success: false,
+			Error:   "invalid request",
+		})
+	}
+
+	dayCheck, err := time.Parse("2006-01-02", req.DayCheck)
+	if err != nil {
+		return c.Status(400).JSON(models.ErrorResponse{
+			Success: false,
+			Error:   "invalid day_check format, use YYYY-MM-DD",
+		})
+	}
+
+	checkStatus := false
+	if req.CheckStatus != nil {
+		checkStatus = *req.CheckStatus
+	}
+
+	checkList := models.DailyCheckList{
+		MainRecordID: uint(recordID),
+		DayCheck:     dayCheck,
+		CheckStatus:  checkStatus,
+		CreatedAt:    time.Now(),
+	}
+
+	err = h.store.CreateDailyCheckList(&checkList, claims.UserID)
+	if err != nil {
+		if strings.Contains(err.Error(), "forbidden") {
+			return c.Status(403).JSON(models.ErrorResponse{
+				Success: false,
+				Error:   err.Error(),
+			})
+		}
+
+		return c.Status(500).JSON(models.ErrorResponse{
+			Success: false,
+			Error:   err.Error(),
+		})
+	}
+
+	return c.Status(201).JSON(fiber.Map{
+		"success": true,
+		"data":    checkList,
+	})
 }

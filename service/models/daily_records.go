@@ -46,6 +46,19 @@ type UpdateDailyRecordRequest struct {
 	Dates          []string `json:"dates"` // "YYYY-MM-DD"
 }
 
+type CreateDailyCheckListRequest struct {
+	DayCheck    string `json:"day_check"`    // format: YYYY-MM-DD
+	CheckStatus *bool  `json:"check_status"` // optional
+}
+
+type DailyCheckList struct {
+	ID           uint      `json:"id"`
+	MainRecordID uint      `json:"main_record_id"`
+	DayCheck     time.Time `json:"day_check"`
+	CheckStatus  bool      `json:"check_status"`
+	CreatedAt    time.Time `json:"created_at"`
+}
+
 type DailyRecordResponse struct {
 	ID             uint     `json:"id"`
 	IconID         uint     `json:"icon_id"`

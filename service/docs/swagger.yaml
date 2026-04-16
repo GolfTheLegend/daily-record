@@ -39,6 +39,30 @@ definitions:
       refresh_token:
         type: string
     type: object
+  models.CreateDailyCheckListRequest:
+    properties:
+      check_status:
+        description: optional
+        type: boolean
+      day_check:
+        description: 'format: YYYY-MM-DD'
+        type: string
+      main_record_id:
+        type: integer
+    type: object
+  models.DailyCheckList:
+    properties:
+      check_status:
+        type: boolean
+      created_at:
+        type: string
+      day_check:
+        type: string
+      id:
+        type: integer
+      main_record_id:
+        type: integer
+    type: object
   models.DailyRecordDetailResponse:
     properties:
       data:
@@ -493,6 +517,58 @@ paths:
       summary: Update Daily Record
       tags:
       - Daily Records
+  /daily-records/check-list/{id}:
+    post:
+      consumes:
+      - application/json
+      description: Create a new daily check list
+      parameters:
+      - description: Daily Record ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Daily check list details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateDailyCheckListRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            properties:
+              data:
+                $ref: '#/definitions/models.DailyCheckList'
+              success:
+                type: boolean
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            properties:
+              error:
+                type: string
+              success:
+                type: boolean
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            properties:
+              error:
+                type: string
+              success:
+                type: boolean
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create Daily Check List
+      tags:
+      - Daily Check Lists
   /daily-records/status:
     get:
       consumes:
