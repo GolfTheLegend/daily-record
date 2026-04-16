@@ -41,13 +41,16 @@ func (s *DailyRecordStore) CreateDailyRecord(r *DailyRecord, days []*DailyRecord
 		return 0, fmt.Errorf("insert daily record: %w", err)
 	}
 
-	for _, d := range days {
-		_, err := tx.Exec(`
-			INSERT INTO daily_record_days (record_id, record_date, created_at)
-			VALUES ($1,$2,$3)
-		`, recordID, d.RecordDate, d.CreatedAt)
-		if err != nil {
-			return 0, fmt.Errorf("insert daily record day: %w", err)
+	// ถ้า RepeatType == 0 ให้ข้ามการ insert days ทั้งหมด
+	if r.RepeatType != 0 {
+		for _, d := range days {
+			_, err := tx.Exec(`
+				INSERT INTO daily_record_days (record_id, record_date, created_at)
+				VALUES ($1,$2,$3)
+			`, recordID, d.RecordDate, d.CreatedAt)
+			if err != nil {
+				return 0, fmt.Errorf("insert daily record day: %w", err)
+			}
 		}
 	}
 
@@ -376,18 +379,22 @@ func (s *DailyRecordStore) UpdateDailyRecord(r *DailyRecord, dates []time.Time, 
 		return sql.ErrNoRows
 	}
 
+	// ลบ record_days ทั้งหมดเสมอ
 	_, err = tx.Exec(`DELETE FROM daily_record_days WHERE record_id = $1`, r.ID)
 	if err != nil {
 		return fmt.Errorf("delete daily record days: %w", err)
 	}
 
-	for _, date := range dates {
-		_, err = tx.Exec(
-			`INSERT INTO daily_record_days (record_id, record_date) VALUES ($1, $2)`,
-			r.ID, date,
-		)
-		if err != nil {
-			return fmt.Errorf("insert daily record day: %w", err)
+	// ถ้า RepeatType != 0 ค่อย insert dates ใหม่
+	if r.RepeatType != 0 {
+		for _, date := range dates {
+			_, err = tx.Exec(
+				`INSERT INTO daily_record_days (record_id, record_date) VALUES ($1, $2)`,
+				r.ID, date,
+			)
+			if err != nil {
+				return fmt.Errorf("insert daily record day: %w", err)
+			}
 		}
 	}
 
