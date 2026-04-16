@@ -811,9 +811,6 @@ const docTemplate = `{
                 "day_check": {
                     "description": "format: YYYY-MM-DD",
                     "type": "string"
-                },
-                "main_record_id": {
-                    "type": "integer"
                 }
             }
         },
