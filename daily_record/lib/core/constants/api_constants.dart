@@ -14,5 +14,6 @@ class ApiConstants {
   static const String dailyRecords = '/daily-records';
   static const String dailyRecordsStatus = '/daily-records/status';
   static const String createDailyRecord = '/daily-records';
+  static String checkListRecord(int id) => '/daily-records/check-list/$id';
   static String dailyRecordById(int id) => '/daily-records/$id';
 }

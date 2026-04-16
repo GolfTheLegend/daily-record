@@ -1,25 +1,32 @@
+import 'package:daily_record/components/app_alert.dart';
 import 'package:daily_record/components/press_scale.dart';
 import 'package:daily_record/core/constants/constants.dart';
+import 'package:daily_record/core/models/check_list_request.dart';
+import 'package:daily_record/core/services/create_check_list_service.dart';
 import 'package:daily_record/core/themes/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class ActivityCard extends StatefulWidget {
+  final int id;
   final IconData icon;
   final String title;
   final String time;
   final int? repeatType;
   final bool important;
   final bool isDisable;
+  final Function(bool) loading;
 
   const ActivityCard({
     super.key,
+    required this.id,
     required this.icon,
     required this.title,
     required this.time,
     required this.important,
     this.repeatType,
     this.isDisable = false,
+    required this.loading,
   });
 
   @override
@@ -27,7 +34,41 @@ class ActivityCard extends StatefulWidget {
 }
 
 class ActivityCardState extends State<ActivityCard> {
+  final _service = UpdateCheckListService();
   bool _showActions = false;
+
+  Future<void> _saveCheckList(bool onCheck) async {
+    widget.loading(true);
+
+    try {
+      final request = CheckListRequest(
+        checkStatus: onCheck,
+        dayCheck: DateTime.now().toIso8601String(),
+      );
+
+      await _service.updateCheckLists(widget.id, request);
+      if (!mounted) return;
+      AppAlert.show(
+        context,
+        title: 'สำเร็จ',
+        message: 'บันทึกสำเร็จ',
+        type: AlertType.success,
+        onConfirm: () => Navigator.pop(context, true),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      AppAlert.show(
+        context,
+        title: 'เกิดข้อผิดพลาด',
+        message: e.toString(),
+        type: AlertType.error,
+        onConfirm: () {},
+      );
+    } finally {
+      if (!mounted) return;
+      widget.loading(false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -159,9 +200,7 @@ class ActivityCardState extends State<ActivityCard> {
                         children: [
                           ButtonBox(
                             title: 'สำเร็จ',
-                            onPressed: () {
-                              print('สำเร็จ');
-                            },
+                            onPressed: () => _saveCheckList(true),
                             textColor: const Color.fromARGB(255, 7, 68, 9),
                             color1: Colors.green,
                             color2: const Color.fromARGB(255, 7, 68, 9),
@@ -169,9 +208,7 @@ class ActivityCardState extends State<ActivityCard> {
                           const SizedBox(width: 8),
                           ButtonBox(
                             title: 'ไม่สำเร็จ',
-                            onPressed: () {
-                              print('ไม่สำเร็จ');
-                            },
+                            onPressed: () => _saveCheckList(false),
                             textColor: const Color.fromARGB(255, 102, 12, 6),
                             color1: const Color.fromARGB(255, 252, 95, 83),
                             color2: const Color.fromARGB(255, 102, 12, 6),

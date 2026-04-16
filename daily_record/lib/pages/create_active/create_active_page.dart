@@ -6,6 +6,7 @@ import 'package:daily_record/components/border_button.dart';
 import 'package:daily_record/components/calendar_modal.dart';
 import 'package:daily_record/components/checkbox_button.dart';
 import 'package:daily_record/components/dropdown_button.dart';
+import 'package:daily_record/components/loading.dart';
 import 'package:daily_record/components/press_scale.dart';
 import 'package:daily_record/core/models/daily_record_request.dart';
 import 'package:daily_record/core/models/get_daily_record_response.dart';
@@ -243,7 +244,7 @@ class _CreateActivePageState extends State<CreateActivePage> {
         title: 'สำเร็จ',
         message: 'บันทึกสำเร็จ',
         type: AlertType.success,
-        onConfirm: () => Navigator.pop(context,true),
+        onConfirm: () => Navigator.pop(context, true),
       );
     } catch (e) {
       if (!mounted) return;
@@ -298,7 +299,7 @@ class _CreateActivePageState extends State<CreateActivePage> {
 
   void _onBack() {
     if (!_hasChanges) {
-      Navigator.pop(context,false);
+      Navigator.pop(context, false);
       return;
     }
     AppAlert.show(
@@ -309,7 +310,7 @@ class _CreateActivePageState extends State<CreateActivePage> {
           : 'ต้องการยกเลิกการสร้างกิจกรรมหรือไม่?',
       type: AlertType.warning,
       cancelText: 'ยกเลิก',
-      onConfirm: () => Navigator.pop(context,false),
+      onConfirm: () => Navigator.pop(context, false),
     );
   }
 
@@ -323,38 +324,55 @@ class _CreateActivePageState extends State<CreateActivePage> {
     ).width; // ใช้ sizeOf แทน size.width (ไม่ rebuild ทั้งหน้า)
 
     return Background(
-      child: Column(
+      child: Stack(
         children: [
-          _HeaderSection(
-            themeItem: themeItem,
-            formattedDate: _formattedDate,
-            iconSelect: _iconSelect,
-            onIconTap: _showIconPicker,
+          Column(
+            children: [
+              _HeaderSection(
+                themeItem: themeItem,
+                formattedDate: _formattedDate,
+                iconSelect: _iconSelect,
+                onIconTap: _showIconPicker,
+              ),
+              _TimeSection(
+                startTime: _startTime,
+                endTime: _endTime,
+                themeItem: themeItem,
+                onStartTimeSelected: (v) => setState(() => _startTime = v),
+                onEndTimeSelected: (v) => setState(() => _endTime = v),
+              ),
+              Expanded(
+                flex: 4,
+                child: _FormSection(
+                  themeItem: themeItem,
+                  screenWidth: screenWidth,
+                  headerController: _headerController,
+                  detailController: _detailController,
+                  isImportant: _isImportant,
+                  repeatType: _repeatType,
+                  dates: _dates,
+                  isLoading: _isLoading,
+                  isEditMode: _isEditMode,
+                  onImportantChanged: (v) => setState(() => _isImportant = v),
+                  onRepeatTypeChanged: _onRepeatTypeChanged,
+                  onSelectDate: _showDatePicker,
+                  onBack: _onBack,
+                  onSubmit: _submit,
+                ),
+              ),
+            ],
           ),
-          _TimeSection(
-            startTime: _startTime,
-            endTime: _endTime,
-            themeItem: themeItem,
-            onStartTimeSelected: (v) => setState(() => _startTime = v),
-            onEndTimeSelected: (v) => setState(() => _endTime = v),
-          ),
-          Expanded(
-            flex: 4,
-            child: _FormSection(
-              themeItem: themeItem,
-              screenWidth: screenWidth,
-              headerController: _headerController,
-              detailController: _detailController,
-              isImportant: _isImportant,
-              repeatType: _repeatType,
-              dates: _dates,
-              isLoading: _isLoading,
-              isEditMode: _isEditMode,
-              onImportantChanged: (v) => setState(() => _isImportant = v),
-              onRepeatTypeChanged: _onRepeatTypeChanged,
-              onSelectDate: _showDatePicker,
-              onBack: _onBack,
-              onSubmit: _submit,
+          AnimatedOpacity(
+            opacity: _isLoading ? 1.0 : 0.0,
+            duration: const Duration(milliseconds: 200),
+            child: IgnorePointer(
+              ignoring: !_isLoading,
+              child: Container(
+                color: themeItem.background2.withValues(alpha: 0.6),
+                child: const Center(
+                  child: LoadingAnimation(width: 50, height: 50),
+                ),
+              ),
             ),
           ),
         ],

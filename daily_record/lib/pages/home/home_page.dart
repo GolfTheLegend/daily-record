@@ -27,6 +27,7 @@ class _HomePageState extends State<HomePage> with RouteAware {
   List<DailyRecordItem> _currentRecords = [];
   bool _shouldRefreshOnPop = true;
   bool _isLoading = false;
+  bool _checkListLoading = false;
   DateTime _selectedDate = DateTime.now();
   Timer? _timer;
   final ScrollController _scrollController = ScrollController();
@@ -171,8 +172,12 @@ class _HomePageState extends State<HomePage> with RouteAware {
         _records = record;
       });
 
-      _autoScroll();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _autoScroll();
+      });
     } catch (e) {
+      if (!mounted) return;
       _shouldRefreshOnPop = false;
       AppAlert.show(
         context,
@@ -202,122 +207,157 @@ class _HomePageState extends State<HomePage> with RouteAware {
       },
       child: Background(
         floatingActionButton: _floatingButton(context),
-        child: Column(
+        child: Stack(
           children: [
-            Expanded(
-              flex: 1,
-              child: Container(
-                width: double.infinity,
-                child: ActivityHeader(
-                  onDateSelected: (DateTime date) {
-                    setState(() => _selectedDate = date);
-                    _fetchRecords(date, true);
-                  },
+            Column(
+              children: [
+                Expanded(
+                  flex: 1,
+                  child: Container(
+                    width: double.infinity,
+                    child: ActivityHeader(
+                      onDateSelected: (DateTime date) {
+                        setState(() => _selectedDate = date);
+                        _fetchRecords(date, true);
+                      },
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            Expanded(
-              flex: 2,
-              child: Container(
-                margin: const EdgeInsets.only(bottom: 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: Column(
-                        children: [
-                          _sectionHeader(context, 'ขณะนี้'),
-                          ConstrainedBox(
-                            constraints: const BoxConstraints(maxHeight: 180),
-                            child: SingleChildScrollView(
-                              child: Column(
-                                children: [
-                                  if (_isLoading)
-                                    const Center(
-                                      child: LoadingAnimation(
-                                        width: 20,
-                                        height: 20,
-                                      ),
-                                    )
-                                  else if (_currentRecords.isNotEmpty)
-                                    ..._currentRecords.map(
-                                      (item) => ActivityCard(
-                                        icon: Icons.directions_run,
-                                        title: item.activityHeader ?? '-',
-                                        time:
-                                            '${item.startTime} - ${item.endTime}',
-                                        important: item.important ?? false,
-                                        repeatType: item.repeatType,
-                                      ),
-                                    )
-                                  else
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 8,
-                                      ),
-                                      child: Text(
-                                        'ไม่มีรายการ',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: themeItem.textPrimary
-                                              .withValues(alpha: 0.5),
+                Expanded(
+                  flex: 2,
+                  child: Container(
+                    margin: const EdgeInsets.only(bottom: 20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: Column(
+                            children: [
+                              _sectionHeader(context, 'ขณะนี้'),
+                              ConstrainedBox(
+                                constraints: const BoxConstraints(
+                                  maxHeight: 180,
+                                ),
+                                child: SingleChildScrollView(
+                                  child: Column(
+                                    children: [
+                                      if (_isLoading)
+                                        const Center(
+                                          child: LoadingAnimation(
+                                            width: 20,
+                                            height: 20,
+                                          ),
+                                        )
+                                      else if (_currentRecords.isNotEmpty)
+                                        ..._currentRecords.map(
+                                          (item) => ActivityCard(
+                                            id: item.id!,
+                                            icon: Icons.directions_run,
+                                            title: item.activityHeader ?? '-',
+                                            time:
+                                                '${item.startTime} - ${item.endTime}',
+                                            important: item.important ?? false,
+                                            repeatType: item.repeatType,
+                                            loading: (v) {
+                                              setState(
+                                                () => _checkListLoading = v,
+                                              );
+                                            },
+                                          ),
+                                        )
+                                      else
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 8,
+                                          ),
+                                          child: Text(
+                                            'ไม่มีรายการ',
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              color: themeItem.textPrimary
+                                                  .withValues(alpha: 0.5),
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              _sectionHeader(context, 'รายการถัดไป'),
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          child: _isLoading
+                              ? const Center(
+                                  child: LoadingAnimation(
+                                    width: 50,
+                                    height: 50,
+                                  ),
+                                )
+                              : ListView.separated(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 10,
+                                  ),
+                                  controller: _scrollController,
+                                  itemCount: upcoming.length,
+                                  separatorBuilder: (_, __) =>
+                                      const SizedBox(height: 0),
+                                  itemBuilder: (context, index) {
+                                    final item = upcoming[index];
+                                    final now = DateTime.now().toUtc().add(
+                                      const Duration(hours: 7),
+                                    );
+                                    final nowMin = now.hour * 60 + now.minute;
+                                    final endMin = item.endTime != null
+                                        ? _toMinutes(item.endTime!)
+                                        : null;
+                                    final isPast =
+                                        endMin != null && nowMin > endMin;
+
+                                    return KeyedSubtree(
+                                      key: index == 0 ? _firstItemKey : null,
+                                      child: Opacity(
+                                        opacity: isPast ? 0.35 : 1.0,
+                                        child: ActivityCard(
+                                          id: item.id!,
+                                          icon: Icons.description,
+                                          title: item.activityHeader ?? '-',
+                                          time:
+                                              '${item.startTime} - ${item.endTime}',
+                                          repeatType: item.repeatType,
+                                          important: item.important ?? false,
+                                          isDisable: isPast,
+                                          loading: (v) {
+                                            setState(
+                                              () => _checkListLoading = v,
+                                            );
+                                          },
                                         ),
                                       ),
-                                    ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          _sectionHeader(context, 'รายการถัดไป'),
-                        ],
-                      ),
+                                    );
+                                  },
+                                ),
+                        ),
+                      ],
                     ),
-                    Expanded(
-                      child: _isLoading
-                          ? const Center(
-                              child: LoadingAnimation(width: 50, height: 50),
-                            )
-                          : ListView.separated(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 10,
-                              ),
-                              controller: _scrollController,
-                              itemCount: upcoming.length,
-                              separatorBuilder: (_, __) =>
-                                  const SizedBox(height: 0),
-                              itemBuilder: (context, index) {
-                                final item = upcoming[index];
-                                final now = DateTime.now().toUtc().add(
-                                  const Duration(hours: 7),
-                                );
-                                final nowMin = now.hour * 60 + now.minute;
-                                final endMin = item.endTime != null
-                                    ? _toMinutes(item.endTime!)
-                                    : null;
-                                final isPast =
-                                    endMin != null && nowMin > endMin;
+                  ),
+                ),
+              ],
+            ),
 
-                                return KeyedSubtree(
-                                  key: index == 0 ? _firstItemKey : null,
-                                  child: Opacity(
-                                    opacity: isPast ? 0.35 : 1.0,
-                                    child: ActivityCard(
-                                      icon: Icons.description,
-                                      title: item.activityHeader ?? '-',
-                                      time:
-                                          '${item.startTime} - ${item.endTime}',
-                                      repeatType: item.repeatType,
-                                      important: item.important ?? false,
-                                      isDisable: isPast,
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                    ),
-                  ],
+            AnimatedOpacity(
+              opacity: _checkListLoading ? 0.5 : 0.0,
+              duration: const Duration(milliseconds: 200),
+              child: IgnorePointer(
+                ignoring: !_checkListLoading,
+                child: Container(
+                  color: themeItem.background2.withValues(alpha: 0.6),
+                  child: const Center(
+                    child: LoadingAnimation(width: 50, height: 50),
+                  ),
                 ),
               ),
             ),

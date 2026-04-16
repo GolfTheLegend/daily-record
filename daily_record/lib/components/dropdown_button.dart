@@ -24,11 +24,19 @@ class _DesignDropdownState<T> extends State<DesignDropdown<T>> {
   final GlobalKey _buttonKey = GlobalKey();
   late T _selectedValue;
   bool _isDropdownOpen = false;
+  double? _buttonWidth;
 
   @override
   void initState() {
     super.initState();
     _selectedValue = widget.initialValue;
+    // ดึงขนาดหลัง frame แรก render เสร็จ
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final box = _buttonKey.currentContext?.findRenderObject() as RenderBox?;
+      if (box != null && mounted) {
+        setState(() => _buttonWidth = box.size.width);
+      }
+    });
   }
 
   String get _selectedLabel =>
@@ -54,11 +62,13 @@ class _DesignDropdownState<T> extends State<DesignDropdown<T>> {
       fontSize: 17,
     );
 
+    final double width = _buttonWidth ?? boxSize?.size.width ?? 0;
+
     return PopupMenuButton<T>(
       offset: Offset(0, (boxSize)?.size.height ?? 48),
       constraints: BoxConstraints(
-        minWidth: (boxSize)?.size.width ?? 0,
-        maxWidth: (boxSize)?.size.width ?? double.infinity,
+        minWidth: width,
+        maxWidth: width > 0 ? width : double.infinity,
       ),
       onOpened: () => setState(() => _isDropdownOpen = true),
       onCanceled: () => setState(() => _isDropdownOpen = false),
