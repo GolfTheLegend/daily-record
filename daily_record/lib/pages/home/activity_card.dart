@@ -18,6 +18,7 @@ class ActivityCard extends StatefulWidget {
   final bool important;
   final bool isDisable;
   final bool? checkStatus;
+  final int? checkListId;
   final Function(bool) loading;
 
   const ActivityCard({
@@ -31,6 +32,7 @@ class ActivityCard extends StatefulWidget {
     this.isDisable = false,
     required this.loading,
     this.checkStatus,
+    this.checkListId,
   });
 
   @override
@@ -53,8 +55,8 @@ class ActivityCardState extends State<ActivityCard> {
 
       final updateRequest = EditCheckListRequest(checkStatus: onCheck);
 
-      if (widget.checkStatus != null) {
-        await _updateService.updateCheckLists(widget.id, updateRequest);
+      if (widget.checkListId != null) {
+        await _updateService.updateCheckLists(widget.checkListId!, updateRequest);
       } else {
         await _createService.createCheckLists(widget.id, createRequest);
       }

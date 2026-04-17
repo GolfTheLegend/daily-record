@@ -256,6 +256,7 @@ class _HomePageState extends State<HomePage> with RouteAware {
                                             icon: Icons.directions_run,
                                             title: item.activityHeader ?? '-',
                                             checkStatus: item.checkStatus,
+                                            checkListId: item.checkListId,
                                             time:
                                                 '${item.startTime} - ${item.endTime}',
                                             important: item.important ?? false,
@@ -327,6 +328,7 @@ class _HomePageState extends State<HomePage> with RouteAware {
                                           icon: Icons.description,
                                           title: item.activityHeader ?? '-',
                                           checkStatus: item.checkStatus,
+                                          checkListId: item.checkListId,
                                           time:
                                               '${item.startTime} - ${item.endTime}',
                                           repeatType: item.repeatType,

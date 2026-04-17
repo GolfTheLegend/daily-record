@@ -10,6 +10,7 @@ class DailyRecordItem {
   final int? repeatType;
   final String? startTime;
   final bool? checkStatus;
+  final int? checkListId;
 
   DailyRecordItem({
     this.activityDetail,
@@ -22,6 +23,7 @@ class DailyRecordItem {
     this.repeatType,
     this.startTime,
     this.checkStatus,
+    this.checkListId,
   });
 
   factory DailyRecordItem.fromMap(Map<String, dynamic> map) {
@@ -36,6 +38,7 @@ class DailyRecordItem {
       repeatType: map['repeat_type'],
       startTime: map['start_time'],
       checkStatus: map['check_status'],
+      checkListId: map['check_list_id'],
     );
   }
 
@@ -51,6 +54,7 @@ class DailyRecordItem {
       'repeat_type': repeatType,
       'start_time': startTime,
       'check_status': checkStatus,
+      'check_list_id': checkListId,
     };
   }
 }
