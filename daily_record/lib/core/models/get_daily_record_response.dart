@@ -9,6 +9,7 @@ class DailyRecordItem {
   final bool? important;
   final int? repeatType;
   final String? startTime;
+  final bool? checkStatus;
 
   DailyRecordItem({
     this.activityDetail,
@@ -20,6 +21,7 @@ class DailyRecordItem {
     this.important,
     this.repeatType,
     this.startTime,
+    this.checkStatus,
   });
 
   factory DailyRecordItem.fromMap(Map<String, dynamic> map) {
@@ -33,6 +35,7 @@ class DailyRecordItem {
       important: map['important'],
       repeatType: map['repeat_type'],
       startTime: map['start_time'],
+      checkStatus: map['check_status'],
     );
   }
 
@@ -47,6 +50,7 @@ class DailyRecordItem {
       'important': important,
       'repeat_type': repeatType,
       'start_time': startTime,
+      'check_status': checkStatus,
     };
   }
 }

@@ -2,7 +2,9 @@ import 'package:daily_record/components/app_alert.dart';
 import 'package:daily_record/components/press_scale.dart';
 import 'package:daily_record/core/constants/constants.dart';
 import 'package:daily_record/core/models/check_list_request.dart';
+import 'package:daily_record/core/models/edit_check_list_request.dart';
 import 'package:daily_record/core/services/create_check_list_service.dart';
+import 'package:daily_record/core/services/edit_check_list_service.dart';
 import 'package:daily_record/core/themes/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -15,6 +17,7 @@ class ActivityCard extends StatefulWidget {
   final int? repeatType;
   final bool important;
   final bool isDisable;
+  final bool? checkStatus;
   final Function(bool) loading;
 
   const ActivityCard({
@@ -27,6 +30,7 @@ class ActivityCard extends StatefulWidget {
     this.repeatType,
     this.isDisable = false,
     required this.loading,
+    this.checkStatus,
   });
 
   @override
@@ -34,19 +38,26 @@ class ActivityCard extends StatefulWidget {
 }
 
 class ActivityCardState extends State<ActivityCard> {
-  final _service = UpdateCheckListService();
+  final _createService = CreateCheckListService();
+  final _updateService = UpdateCheckListService();
   bool _showActions = false;
 
   Future<void> _saveCheckList(bool onCheck) async {
     widget.loading(true);
 
     try {
-      final request = CheckListRequest(
+      final createRequest = CheckListRequest(
         checkStatus: onCheck,
         dayCheck: DateTime.now().toIso8601String(),
       );
 
-      await _service.updateCheckLists(widget.id, request);
+      final updateRequest = EditCheckListRequest(checkStatus: onCheck);
+
+      if (widget.checkStatus != null) {
+        await _updateService.updateCheckLists(widget.id, updateRequest);
+      } else {
+        await _createService.createCheckLists(widget.id, createRequest);
+      }
       if (!mounted) return;
       AppAlert.show(
         context,
