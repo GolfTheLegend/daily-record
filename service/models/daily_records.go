@@ -74,6 +74,7 @@ type DailyRecordResponse struct {
 	ActivityHeader string   `json:"activity_header"`
 	ActivityDetail string   `json:"activity_detail"`
 	Dates          []string `json:"dates"`
+	CheckStatus    *bool    `json:"check_status,omitempty"`
 }
 
 type DailyRecordStatusFilter struct {

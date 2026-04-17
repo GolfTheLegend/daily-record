@@ -94,7 +94,20 @@ func (s *DailyRecordStore) GetDailyRecordsByUserID(userID uint, filter DailyReco
 
 	whereClause := strings.Join(conditions, " AND ")
 
-	// paginate ที่ระดับ record ก่อน แล้วค่อย join dates
+	// checkJoin และ checkSelect จะถูกใส่เฉพาะเมื่อมี DateFrom
+	checkSelect := "NULL::boolean"
+	checkJoin := ""
+	if filter.DateFrom != nil {
+		checkSelect = "cl.check_status"
+		checkJoin = fmt.Sprintf(`
+			LEFT JOIN daily_check_lists cl 
+				ON cl.main_record_id = r.id 
+				AND cl.day_check = $%d
+		`, i)
+		args = append(args, *filter.DateFrom)
+		i++
+	}
+
 	query := fmt.Sprintf(`
 		SELECT
 			r.id,
@@ -105,7 +118,8 @@ func (s *DailyRecordStore) GetDailyRecordsByUserID(userID uint, filter DailyReco
 			r.important,
 			r.activity_header,
 			r.activity_detail,
-			d.record_date
+			d.record_date,
+			%s AS check_status
 		FROM (
 			SELECT DISTINCT r.id
 			FROM daily_records r
@@ -116,8 +130,9 @@ func (s *DailyRecordStore) GetDailyRecordsByUserID(userID uint, filter DailyReco
 		) paged
 		JOIN daily_records r ON r.id = paged.id
 		LEFT JOIN daily_record_days d ON r.id = d.record_id
+		%s
 		ORDER BY r.id, d.record_date ASC
-	`, whereClause, i, i+1)
+	`, checkSelect, whereClause, i, i+1, checkJoin)
 
 	args = append(args, filter.Limit, filter.Offset)
 
@@ -134,17 +149,22 @@ func (s *DailyRecordStore) GetDailyRecordsByUserID(userID uint, filter DailyReco
 
 	for rows.Next() {
 		var (
-			id, iconID uint
-			startTime  time.Time
-			endTime    time.Time
-			repeatType uint
-			important  bool
-			header     string
-			detail     string
-			recordDate *time.Time
+			id, iconID  uint
+			startTime   time.Time
+			endTime     time.Time
+			repeatType  uint
+			important   bool
+			header      string
+			detail      string
+			recordDate  *time.Time
+			checkStatus *bool // NULL ถ้าไม่มี DateFrom หรือไม่มี check list ของวันนั้น
 		)
 
-		if err := rows.Scan(&id, &iconID, &startTime, &endTime, &repeatType, &important, &header, &detail, &recordDate); err != nil {
+		if err := rows.Scan(
+			&id, &iconID, &startTime, &endTime,
+			&repeatType, &important, &header, &detail,
+			&recordDate, &checkStatus,
+		); err != nil {
 			return nil, fmt.Errorf("scan daily record: %w", err)
 		}
 
@@ -160,6 +180,7 @@ func (s *DailyRecordStore) GetDailyRecordsByUserID(userID uint, filter DailyReco
 				ActivityHeader: header,
 				ActivityDetail: detail,
 				Dates:          []string{},
+				CheckStatus:    checkStatus, // *bool → nil ถ้าไม่มี
 			}
 		}
 

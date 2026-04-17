@@ -951,6 +951,9 @@ const docTemplate = `{
                 "activity_header": {
                     "type": "string"
                 },
+                "check_status": {
+                    "type": "boolean"
+                },
                 "dates": {
                     "type": "array",
                     "items": {
