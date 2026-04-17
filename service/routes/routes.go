@@ -44,6 +44,7 @@ func Setup(app *fiber.App, store *models.Store, cfg *config.Config) {
 	protected.Delete("/daily-records/:id", dailyHandler.DeleteDailyRecord)
 
 	protected.Post("/daily-records/check-list/:id", dailyHandler.CreateDailyCheckList)
+	protected.Put("/daily-records/check-list/:id", dailyHandler.UpdateDailyCheckList)
 
 	// ── Admin Routes ──────────────────────────────────────────────────────────
 	admin := api.Group("/admin",

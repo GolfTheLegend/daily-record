@@ -5,6 +5,7 @@ CREATE TABLE daily_check_lists (
     day_check DATE NOT NULL,
     check_status BOOLEAN NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
     CONSTRAINT fk_daily_check_lists_record
         FOREIGN KEY (main_record_id)

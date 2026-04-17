@@ -57,6 +57,11 @@ type DailyCheckList struct {
 	DayCheck     time.Time `json:"day_check"`
 	CheckStatus  bool      `json:"check_status"`
 	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
+}
+
+type UpdateCheckListRequest struct {
+	CheckStatus *bool `json:"check_status"`
 }
 
 type DailyRecordResponse struct {

@@ -442,3 +442,70 @@ func (h *DailyRecordHandler) CreateDailyCheckList(c fiber.Ctx) error {
 		"data":    checkList,
 	})
 }
+
+// @Summary Update Daily Check List
+// @Description Update an existing daily check list
+// @Tags Daily Check Lists
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id path int true "Daily Record ID"
+// @Param request body models.UpdateCheckListRequest true "Daily check list details"
+// @Success 200 {object} object{success=bool,data=models.DailyCheckList}
+// @Success 201 {object} object{success=bool,data=models.DailyCheckList}
+// @Failure 400 {object} object{success=bool,error=string}
+// @Failure 500 {object} object{success=bool,error=string}
+// @Router /daily-records/check-list/{id} [put]
+func (h *DailyRecordHandler) UpdateDailyCheckList(c fiber.Ctx) error {
+	claims, ok := c.Locals("claims").(*AccessClaims)
+	if !ok {
+		return c.Status(401).JSON(models.ErrorResponse{
+			Success: false,
+			Error:   "unauthorized",
+		})
+	}
+
+	id, err := strconv.ParseUint(c.Params("id"), 10, 64)
+	if err != nil {
+		return c.Status(400).JSON(models.ErrorResponse{
+			Success: false,
+			Error:   "invalid record id",
+		})
+	}
+
+	var req models.UpdateCheckListRequest
+	if err := c.Bind().JSON(&req); err != nil {
+		return c.Status(400).JSON(models.ErrorResponse{
+			Success: false,
+			Error:   "invalid request",
+		})
+	}
+
+	checkStatus := false
+	if req.CheckStatus != nil {
+		checkStatus = *req.CheckStatus
+	}
+
+	checkList := models.DailyCheckList{
+		ID:          uint(id),
+		CheckStatus: checkStatus,
+	}
+
+	if err := h.store.UpdateCheckList(&checkList, claims.UserID); err != nil {
+		if strings.Contains(err.Error(), "forbidden") {
+			return c.Status(403).JSON(models.ErrorResponse{
+				Success: false,
+				Error:   err.Error(),
+			})
+		}
+		return c.Status(500).JSON(models.ErrorResponse{
+			Success: false,
+			Error:   err.Error(),
+		})
+	}
+
+	return c.Status(200).JSON(fiber.Map{
+		"success": true,
+		"data":    checkList,
+	})
+}

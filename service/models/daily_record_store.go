@@ -502,3 +502,44 @@ func (s *DailyRecordStore) CreateDailyCheckList(r *DailyCheckList, userID uint) 
 
 	return nil
 }
+
+// แก้ไข CheckList
+func (s *DailyRecordStore) UpdateCheckList(r *DailyCheckList, userID uint) error {
+	tx, err := s.db.Begin()
+	if err != nil {
+		return fmt.Errorf("begin transaction: %w", err)
+	}
+	defer tx.Rollback()
+
+	const updateQuery = `
+		UPDATE daily_check_lists
+		SET
+			check_status = $1,
+			updated_at   = NOW()
+		WHERE id = $2
+		AND EXISTS (
+			SELECT 1 FROM daily_records
+			WHERE daily_records.id = daily_check_lists.record_id
+			AND daily_records.user_id = $3
+		)
+	`
+
+	result, err := tx.Exec(updateQuery, r.CheckStatus, r.ID, userID)
+	if err != nil {
+		return fmt.Errorf("update check list: %w", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("rows affected check list: %w", err)
+	}
+	if rowsAffected == 0 {
+		return fmt.Errorf("forbidden: you do not have permission to update this record")
+	}
+
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("commit transaction: %w", err)
+	}
+
+	return nil
+}
