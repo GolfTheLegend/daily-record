@@ -74,6 +74,7 @@ type DailyRecordResponse struct {
 	ActivityHeader string   `json:"activity_header"`
 	ActivityDetail string   `json:"activity_detail"`
 	Dates          []string `json:"dates"`
+	CheckListId    *uint    `json:"check_list_id,omitempty"`
 	CheckStatus    *bool    `json:"check_status,omitempty"`
 }
 

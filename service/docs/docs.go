@@ -951,6 +951,9 @@ const docTemplate = `{
                 "activity_header": {
                     "type": "string"
                 },
+                "check_list_id": {
+                    "type": "integer"
+                },
                 "check_status": {
                     "type": "boolean"
                 },
