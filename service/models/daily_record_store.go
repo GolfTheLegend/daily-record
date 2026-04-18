@@ -572,7 +572,7 @@ func (s *DailyRecordStore) UpdateCheckList(r *DailyCheckList, userID uint) error
 		WHERE id = $2
 		AND EXISTS (
 			SELECT 1 FROM daily_records
-			WHERE daily_records.id = daily_check_lists.record_id
+			WHERE daily_records.id = daily_check_lists.id
 			AND daily_records.user_id = $3
 		)
 	`
