@@ -257,16 +257,39 @@ class _CalendarPageState extends State<CalendarPage> {
                                           ),
                                         ),
                                         const SizedBox(width: 6),
+
+                                        // ✅ ครอบตรงนี้แทน
                                         Expanded(
-                                          child: Text(
-                                            item.activityHeader ?? '-',
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 1,
-                                            style: TextStyle(
-                                              fontSize: 13,
-                                              fontWeight: FontWeight.bold,
-                                              color: textColor,
-                                            ),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Expanded(
+                                                child: Text(
+                                                  item.activityHeader ?? '-',
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  maxLines: 1,
+                                                  style: TextStyle(
+                                                    fontSize: 13,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: textColor,
+                                                  ),
+                                                ),
+                                              ),
+
+                                              if (item.checkStatus != null)
+                                                Icon(
+                                                  item.checkStatus == true
+                                                      ? Icons.check
+                                                      : Icons.close,
+                                                  size: 20, 
+                                                  color:
+                                                      item.checkStatus == true
+                                                      ? themeItem.succress
+                                                      : themeItem.fail,
+                                                ),
+                                            ],
                                           ),
                                         ),
                                       ],
