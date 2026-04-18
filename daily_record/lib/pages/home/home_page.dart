@@ -266,6 +266,7 @@ class _HomePageState extends State<HomePage> with RouteAware {
                                                 () => _checkListLoading = v,
                                               );
                                             },
+                                            onSuccress: () => _fetchRecords(_selectedDate, false),
                                           ),
                                         )
                                       else
@@ -339,6 +340,7 @@ class _HomePageState extends State<HomePage> with RouteAware {
                                               () => _checkListLoading = v,
                                             );
                                           },
+                                          onSuccress: () => _fetchRecords(_selectedDate, false),
                                         ),
                                       ),
                                     );

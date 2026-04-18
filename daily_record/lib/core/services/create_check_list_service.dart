@@ -18,7 +18,8 @@ class CreateCheckListService {
         ApiConstants.checkListRecord(id),
         data: request.toMap(),
       );
-      return CheckListResponse.fromMap(response.data);
+
+      return CheckListResponse.fromMap(response.data['data']);
     } on DioException catch (e) {
       throw DioErrorHandler.handle(e);
     }

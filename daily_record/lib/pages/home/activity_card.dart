@@ -8,6 +8,7 @@ import 'package:daily_record/core/services/edit_check_list_service.dart';
 import 'package:daily_record/core/themes/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'dart:math';
 
 class ActivityCard extends StatefulWidget {
   final int id;
@@ -20,6 +21,7 @@ class ActivityCard extends StatefulWidget {
   final bool? checkStatus;
   final int? checkListId;
   final Function(bool) loading;
+  final Function() onSuccress;
 
   const ActivityCard({
     super.key,
@@ -33,30 +35,98 @@ class ActivityCard extends StatefulWidget {
     required this.loading,
     this.checkStatus,
     this.checkListId,
+    required this.onSuccress,
   });
 
   @override
   State<ActivityCard> createState() => ActivityCardState();
 }
 
-class ActivityCardState extends State<ActivityCard> {
+class ActivityCardState extends State<ActivityCard>
+    with SingleTickerProviderStateMixin {
   final _createService = CreateCheckListService();
   final _updateService = UpdateCheckListService();
   bool _showActions = false;
+  late AnimationController _controller;
+  late Animation<double> _scaleAnim;
+  late Animation<double> _flipAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+
+    // ช่วงแรก 0.0→0.35 = scale up, ช่วงหลัง 0.35→1.0 = scale กลับปกติ
+    _scaleAnim = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween(
+          begin: 1.0,
+          end: 1.22,
+        ).chain(CurveTween(curve: Curves.easeOut)),
+        weight: 35,
+      ),
+      TweenSequenceItem(
+        tween: Tween(
+          begin: 1.22,
+          end: 1.0,
+        ).chain(CurveTween(curve: Curves.elasticOut)),
+        weight: 65,
+      ),
+    ]).animate(_controller);
+
+    // flip เริ่มหลังจาก scale ขึ้นแล้ว (เริ่มที่ 35%)
+    _flipAnim = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: ConstantTween(0.0), // รอให้ scale ขึ้นก่อน
+        weight: 35,
+      ),
+      TweenSequenceItem(
+        tween: Tween(
+          begin: 0.0,
+          end: 1.0,
+        ).chain(CurveTween(curve: Curves.easeInOut)),
+        weight: 65,
+      ),
+    ]).animate(_controller);
+
+    if (widget.checkStatus != null) {
+      _controller.forward();
+    }
+  }
+
+  @override
+  void didUpdateWidget(ActivityCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.checkStatus != oldWidget.checkStatus) {
+      if (widget.checkStatus != null) {
+        _controller.forward(from: 0);
+      } else {
+        _controller.reverse();
+      }
+    }
+  }
 
   Future<void> _saveCheckList(bool onCheck) async {
+    final now = DateTime.now();
+    final formattedDate = now.toIso8601String().split('T').first;
     widget.loading(true);
 
     try {
       final createRequest = CheckListRequest(
         checkStatus: onCheck,
-        dayCheck: DateTime.now().toIso8601String(),
+        dayCheck: formattedDate,
       );
 
       final updateRequest = EditCheckListRequest(checkStatus: onCheck);
 
       if (widget.checkListId != null) {
-        await _updateService.updateCheckLists(widget.checkListId!, updateRequest);
+        await _updateService.updateCheckLists(
+          widget.checkListId!,
+          updateRequest,
+        );
       } else {
         await _createService.createCheckLists(widget.id, createRequest);
       }
@@ -66,7 +136,10 @@ class ActivityCardState extends State<ActivityCard> {
         title: 'สำเร็จ',
         message: 'บันทึกสำเร็จ',
         type: AlertType.success,
-        onConfirm: () => Navigator.pop(context, true),
+        onConfirm: () {
+          widget.onSuccress(); 
+          setState(() => _showActions = false);
+        },
       );
     } catch (e) {
       if (!mounted) return;
@@ -75,7 +148,7 @@ class ActivityCardState extends State<ActivityCard> {
         title: 'เกิดข้อผิดพลาด',
         message: e.toString(),
         type: AlertType.error,
-        onConfirm: () {},
+        onConfirm: () => {},
       );
     } finally {
       if (!mounted) return;
@@ -145,22 +218,63 @@ class ActivityCardState extends State<ActivityCard> {
                 ),
                 child: Row(
                   children: [
-                    Container(
-                      width: 60,
-                      height: 60,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: themeItem.background1,
-                        border: Border.all(
-                          color: themeItem.secondary,
-                          width: 4,
-                        ),
-                      ),
-                      child: Icon(
-                        widget.icon,
-                        size: 40,
-                        color: themeItem.primary,
-                      ),
+                    AnimatedBuilder(
+                      animation: _controller,
+                      builder: (context, _) {
+                        final isBack = _flipAnim.value >= 0.5;
+                        final angle = isBack
+                            ? (1.0 - _flipAnim.value) * pi
+                            : _flipAnim.value * pi;
+
+                        final borderColor = isBack
+                            ? (widget.checkStatus == true
+                                  ? themeItem.status1
+                                  : themeItem.status2)
+                            : themeItem.secondary;
+                        final bgColor = isBack
+                            ? (widget.checkStatus == true
+                                  ? themeItem.status1.withValues(alpha: 0.3)
+                                  : themeItem.status2.withValues(alpha: 0.3))
+                            : themeItem.background1;
+                        final iconWidget = isBack
+                            ? Icon(
+                                widget.checkStatus == true
+                                    ? Icons.check
+                                    : Icons.close,
+                                size: 40,
+                                color: widget.checkStatus == true
+                                    ? themeItem.status1
+                                    : themeItem.status2,
+                              )
+                            : Icon(
+                                widget.icon,
+                                size: 40,
+                                color: themeItem.primary,
+                              );
+
+                        return Transform.scale(
+                          scale: _scaleAnim.value,
+                          child: Transform(
+                            alignment: Alignment.center,
+                            transform: Matrix4.identity()
+                              ..setEntry(3, 2, 0.002)
+                              ..rotateY(angle),
+                            child: Container(
+                              width: 60,
+                              height: 60,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: bgColor,
+                                border: Border.all(
+                                  color: borderColor,
+                                  width: 4,
+                                ),
+                              ),
+                              child: iconWidget,
+                            ),
+                          ),
+                        );
+                      },
                     ),
                     const SizedBox(width: 12),
                     Expanded(

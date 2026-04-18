@@ -17,9 +17,13 @@ class CheckListResponse {
     return CheckListResponse(
       id: map['id'] ?? 0,
       mainRecordId: map['main_record_id'] ?? 0,
-      dayCheck: DateTime.parse(map['day_check']),
+      dayCheck: DateTime.parse(
+        map['day_check'] ?? DateTime.now().toIso8601String(),
+      ),
       checkStatus: map['check_status'] ?? false,
-      createdAt: DateTime.parse(map['created_at']),
+      createdAt: DateTime.parse(
+        map['created_at'] ?? DateTime.now().toIso8601String(),
+      ),
     );
   }
 }
