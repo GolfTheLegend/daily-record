@@ -14,6 +14,8 @@ class ThemeItem {
   final Color status2; //สถานะ สำคัญ
   final Color addButton; //สีปุ่มเพิ่ม
   final Color backButton; //สีปุ่มยกเลิก-ย้อนกลับ
+  final Color succress; //สำร็จ หรือยืนยัน
+  final Color fail; //ล้มเหลว หรือยกเลิก
 
   const ThemeItem({
     required this.key,
@@ -29,6 +31,8 @@ class ThemeItem {
     required this.status2,
     required this.addButton,
     required this.backButton,
+    required this.succress,
+    required this.fail,
   });
 }
 
@@ -48,6 +52,8 @@ const List<ThemeItem> themeDataList = [
     status2: const Color(0xFFE53935),
     addButton: const Color(0xFFFF6FD8),
     backButton: const Color(0xFFFFFFFF),
+    succress: const Color(0xFF43A047),
+    fail: const Color(0xFFE53935),
   ),
   //blue
   ThemeItem(
@@ -64,6 +70,8 @@ const List<ThemeItem> themeDataList = [
     status2: const Color(0xFFE53935),
     addButton: const Color(0xFF6EC6FF),
     backButton: const Color(0xFFFFFFFF),
+    succress: const Color(0xFF4CAF50),
+    fail: const Color(0xFFE53935),
   ),
   //dark theme
   ThemeItem(
@@ -80,5 +88,7 @@ const List<ThemeItem> themeDataList = [
     status2: const Color(0xFFFF6B6B),
     addButton: const Color(0xFFD4AF37),
     backButton: const Color(0xFF2A2A2A),
+    succress: Color.fromARGB(255, 50, 199, 99),
+    fail: const Color(0xFFFF6B6B),
   ),
 ];

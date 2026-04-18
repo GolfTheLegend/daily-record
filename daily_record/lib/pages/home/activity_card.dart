@@ -228,13 +228,13 @@ class ActivityCardState extends State<ActivityCard>
 
                         final borderColor = isBack
                             ? (widget.checkStatus == true
-                                  ? themeItem.status1
-                                  : themeItem.status2)
+                                  ? themeItem.succress
+                                  : themeItem.fail)
                             : themeItem.secondary;
                         final bgColor = isBack
                             ? (widget.checkStatus == true
-                                  ? themeItem.status1.withValues(alpha: 0.3)
-                                  : themeItem.status2.withValues(alpha: 0.3))
+                                  ? themeItem.succress.withValues(alpha: 0.3)
+                                  : themeItem.fail.withValues(alpha: 0.3))
                             : themeItem.background1;
                         final iconWidget = isBack
                             ? Icon(
@@ -243,8 +243,8 @@ class ActivityCardState extends State<ActivityCard>
                                     : Icons.close,
                                 size: 40,
                                 color: widget.checkStatus == true
-                                    ? themeItem.status1
-                                    : themeItem.status2,
+                                    ? themeItem.succress
+                                    : themeItem.fail,
                               )
                             : Icon(
                                 widget.icon,
