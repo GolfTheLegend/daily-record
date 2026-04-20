@@ -8,6 +8,7 @@ class Background extends StatelessWidget {
   final Widget? floatingActionButton;
   final Widget? drawer;
   final Widget? bottomNavigationBar;
+  final bool? resizeToAvoidBottomInset;
 
   const Background({
     super.key,
@@ -16,14 +17,19 @@ class Background extends StatelessWidget {
     this.floatingActionButton,
     this.drawer,
     this.bottomNavigationBar,
+    this.resizeToAvoidBottomInset,
   });
   @override
   Widget build(BuildContext context) {
     final themeItem = context.watch<ThemeProvider>().currentThemeItem!;
+    final screenWidth = MediaQuery.sizeOf(context).width;
+
+    // ถ้าจอกว้างกว่า 600px ให้มี padding ซ้ายขวารวม 20%
+    final horizontalPadding = screenWidth > 700 ? screenWidth * 0.1 : 0.0;
 
     return Scaffold(
       backgroundColor: themeItem.background1,
-
+      resizeToAvoidBottomInset: resizeToAvoidBottomInset ?? true,
       appBar: appBar,
       floatingActionButton: floatingActionButton,
       drawer: drawer,
@@ -35,7 +41,12 @@ class Background extends StatelessWidget {
           _BackGroundLayer(color: themeItem.primary, vMargin: 15),
           _BackGroundLayer(color: themeItem.background2, vMargin: 25),
 
-          SafeArea(child: child),
+          SafeArea(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+              child: child,
+            ),
+          ),
         ],
       ),
     );

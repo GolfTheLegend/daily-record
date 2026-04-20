@@ -324,6 +324,7 @@ class _CreateActivePageState extends State<CreateActivePage> {
     ).width; // ใช้ sizeOf แทน size.width (ไม่ rebuild ทั้งหน้า)
 
     return Background(
+      resizeToAvoidBottomInset: false,
       child: Stack(
         children: [
           Column(

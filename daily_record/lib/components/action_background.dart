@@ -79,20 +79,20 @@ class _ActionBackgroundState extends State<ActionBackground> {
                 children: [
                   _BackGroundLayer(
                     color: themeItem.secondary,
-                    vMargin: layer1 ? 5 : 700,
+                    vMargin: layer1 ? 5 : 4000,
                   ),
                   _BackGroundLayer(
                     color: themeItem.primary,
-                    vMargin: layer2 ? 20 : 700,
+                    vMargin: layer2 ? 20 : 4000,
                   ),
                   _BackGroundLayer(
                     color: themeItem.background2,
-                    vMargin: layer3 ? 30 : 700,
+                    vMargin: layer3 ? 30 : 4000,
                   ),
                   AnimatedPositioned(
-                    duration: const Duration(milliseconds: 500),
+                    duration: const Duration(milliseconds: 1000),
                     curve: Curves.easeOutCubic,
-                    top: layer4 ? 5 : 700,
+                    top: layer4 ? 5 : 4000,
                     left: 0,
                     right: 0,
                     bottom: 0,
@@ -109,7 +109,7 @@ class _ActionBackgroundState extends State<ActionBackground> {
 
   Widget _BackGroundLayer({required Color color, double vMargin = 0}) {
     return AnimatedPositioned(
-      duration: const Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 1000),
       curve: Curves.easeOutCubic,
       top: vMargin,
       left: 0,

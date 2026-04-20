@@ -87,8 +87,8 @@ class _AuthPageState extends State<AuthPage> {
                     duration: const Duration(milliseconds: 600),
                     curve: Curves.easeOutCubic,
                     top: 0,
-                    left: isLogin ? 0 : -500,
-                    right: isLogin ? 0 : 500,
+                    left: isLogin ? 0 : -4000,
+                    right: isLogin ? 0 : 4000,
                     bottom: 0,
                     child: Login(),
                   ),
@@ -97,8 +97,8 @@ class _AuthPageState extends State<AuthPage> {
                     duration: const Duration(milliseconds: 600),
                     curve: Curves.easeOutCubic,
                     top: 0,
-                    left: isLogin ? 500 : 0,
-                    right: isLogin ? -500 : 0,
+                    left: isLogin ? 4000 : 0,
+                    right: isLogin ? -4000 : 0,
                     bottom: 0,
                     child: Register(
                       onRegisterSuccess: (success) {
@@ -126,8 +126,8 @@ class _AuthPageState extends State<AuthPage> {
           duration: const Duration(milliseconds: 600),
           curve: Curves.easeOutCubic,
           top: 0,
-          left: isLogin ? 0 : -500,
-          right: isLogin ? 0 : 500,
+          left: isLogin ? 0 : -4000,
+          right: isLogin ? 0 : 4000,
           bottom: 0,
           child: Center(
             child: Text(
@@ -145,8 +145,8 @@ class _AuthPageState extends State<AuthPage> {
           duration: const Duration(milliseconds: 600),
           curve: Curves.easeOutCubic,
           top: 0,
-          left: isLogin ? 500 : 0,
-          right: isLogin ? -500 : 0,
+          left: isLogin ? 4000 : 0,
+          right: isLogin ? -4000 : 0,
           bottom: 0,
           child: Center(
             child: Text(

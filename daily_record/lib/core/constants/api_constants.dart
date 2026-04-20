@@ -1,6 +1,6 @@
 class ApiConstants {
-  static const String baseUrl =
-      'https://luca-nonbacterial-regenia.ngrok-free.dev/api/v1';
+  static const String baseUrl ='https://luca-nonbacterial-regenia.ngrok-free.dev/api/v1';   //test
+  // static const String baseUrl ='https://daily-record-service.onrender.com/api/v1';   //deploy
 
   // Auth endpoints
   static const String login = '/auth/login';
