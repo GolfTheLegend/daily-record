@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:daily_record/components/app_alert.dart';
 import 'package:daily_record/components/background.dart';
 import 'package:daily_record/components/border_button.dart';
 import 'package:daily_record/components/loading.dart';
@@ -26,16 +27,17 @@ class _CalendarPageState extends State<CalendarPage> {
   late String _defaultDate;
   late String _filteredDate;
   bool _isLoading = false;
+  final _calendarKey = GlobalKey<CalendarTableState>();
   List<DailyRecordItem> _recordData = [];
 
   @override
-  void initState() {
+  void initState() async{
     super.initState();
     final now = DateTime.now();
     _defaultDate =
         '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
     _filteredDate = _defaultDate;
-    _fetchRecords(_filteredDate, true);
+    await _fetchRecords(_filteredDate, true);
   }
 
   Future<void> _fetchRecords(String date, bool onRefresh) async {
@@ -46,13 +48,21 @@ class _CalendarPageState extends State<CalendarPage> {
     }
     try {
       final request = GetDailyRecordsRequest(dateFrom: date, dateTo: date);
+      print(request.toMap());
       final response = await _service.getDailyRecords(request);
       if (!mounted) return;
       setState(() {
         _recordData = response.data;
       });
     } catch (e) {
-      debugPrint('Fetch error: $e');
+      if (mounted) {
+        AppAlert.show(
+          context,
+          title: 'เกิดข้อผิดพลาด',
+          message: e.toString(),
+          type: AlertType.error,
+        );
+      }
     } finally {
       if (!mounted) return;
       setState(() => _isLoading = false);
@@ -94,11 +104,12 @@ class _CalendarPageState extends State<CalendarPage> {
           Expanded(
             flex: 5,
             child: CalendarTable(
-              onDateSelected: (String date) {
+              key: _calendarKey,
+              onDateSelected: (String date) async{
                 setState(() {
                   _filteredDate = date; // อัปเดตวันที่ที่ถูกเลือก
                 });
-                _fetchRecords(date, false);
+                await _fetchRecords(date, false);
               },
             ),
           ),
@@ -180,7 +191,8 @@ class _CalendarPageState extends State<CalendarPage> {
                                 ),
                               );
                               if (!mounted) return;
-                              _fetchRecords(_filteredDate, false);
+                              await _calendarKey.currentState?.refresh();
+                              await _fetchRecords(_filteredDate, false);
                             },
                           ),
                           const SizedBox(width: 5),
@@ -283,7 +295,7 @@ class _CalendarPageState extends State<CalendarPage> {
                                                   item.checkStatus == true
                                                       ? Icons.check
                                                       : Icons.close,
-                                                  size: 20, 
+                                                  size: 20,
                                                   color:
                                                       item.checkStatus == true
                                                       ? themeItem.succress
@@ -336,7 +348,8 @@ class _CalendarPageState extends State<CalendarPage> {
                             );
                             if (!mounted) return;
                             if (result == true) {
-                              _fetchRecords(_filteredDate, false);
+                              await _calendarKey.currentState?.refresh();
+                              await _fetchRecords(_filteredDate, false);
                             }
                           },
                         ),

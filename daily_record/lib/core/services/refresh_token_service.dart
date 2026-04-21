@@ -3,11 +3,14 @@ import 'package:daily_record/core/models/refresh_token_response.dart';
 import 'package:daily_record/core/utils/error_handler.dart';
 import 'package:dio/dio.dart';
 import 'package:daily_record/core/constants/api_constants.dart';
-import 'package:daily_record/core/network/dio_client.dart';
 import 'package:daily_record/core/utils/token_storage.dart';
 
 class RefreshTokenService {
-  final Dio _dio = DioClient.getInstance();
+  final Dio _dio;
+
+  // ✅ รับ Dio จากภายนอก ไม่สร้างเอง
+  RefreshTokenService({Dio? dio})
+    : _dio = dio ?? Dio(BaseOptions(baseUrl: ApiConstants.baseUrl));
 
   Future<RefreshTokenResponse> refreshToken(RefreshTokenRequest request) async {
     try {

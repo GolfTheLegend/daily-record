@@ -37,9 +37,26 @@ class ThemeItem {
 }
 
 const List<ThemeItem> themeDataList = [
-  //Default
+  //dark theme
   ThemeItem(
     key: 1,
+    primary: const Color(0xFFD4AF37),
+    secondary: const Color(0xFF8E8E8E),
+    shadowPrimary: const Color(0x66000000),
+    background1: const Color(0xFF0F0F10),
+    background2: const Color(0xFF1A1A1C),
+    textPrimary: const Color(0xFFFFFFFF),
+    text1: const Color(0xFFEAEAEA),
+    text2: const Color(0xFFB5B5B5),
+    status1: const Color(0xFFD4AF37),
+    status2: const Color(0xFFFF6B6B),
+    addButton: const Color(0xFFD4AF37),
+    backButton: const Color(0xFF2A2A2A),
+    succress: Color.fromARGB(255, 50, 199, 99),
+    fail: const Color(0xFFFF6B6B),
+  ),
+  ThemeItem(
+    key: 2,
     primary: const Color(0xFFFF6FD8),
     secondary: const Color(0xFFFFB3EC),
     shadowPrimary: Color.fromARGB(255, 255, 146, 228),
@@ -72,23 +89,5 @@ const List<ThemeItem> themeDataList = [
     backButton: const Color(0xFFFFFFFF),
     succress: const Color(0xFF4CAF50),
     fail: const Color(0xFFE53935),
-  ),
-  //dark theme
-  ThemeItem(
-    key: 3,
-    primary: const Color(0xFFD4AF37),
-    secondary: const Color(0xFF8E8E8E),
-    shadowPrimary: const Color(0x66000000),
-    background1: const Color(0xFF0F0F10),
-    background2: const Color(0xFF1A1A1C),
-    textPrimary: const Color(0xFFFFFFFF),
-    text1: const Color(0xFFEAEAEA),
-    text2: const Color(0xFFB5B5B5),
-    status1: const Color(0xFFD4AF37),
-    status2: const Color(0xFFFF6B6B),
-    addButton: const Color(0xFFD4AF37),
-    backButton: const Color(0xFF2A2A2A),
-    succress: Color.fromARGB(255, 50, 199, 99),
-    fail: const Color(0xFFFF6B6B),
   ),
 ];

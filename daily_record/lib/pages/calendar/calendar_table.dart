@@ -1,3 +1,4 @@
+import 'package:daily_record/components/app_alert.dart';
 import 'package:daily_record/components/loading.dart';
 import 'package:daily_record/components/press_scale.dart';
 import 'package:daily_record/core/models/get_status_daily_record_request.dart';
@@ -8,7 +9,7 @@ import 'package:provider/provider.dart';
 
 class CalendarTable extends StatefulWidget {
   final Function(String)? onDateSelected;
-  const CalendarTable({this.onDateSelected});
+  const CalendarTable({super.key, this.onDateSelected});
 
   @override
   State<CalendarTable> createState() => CalendarTableState();
@@ -20,6 +21,10 @@ class CalendarTableState extends State<CalendarTable> {
   final _service = GetDailyRecordService();
   bool _isLoading = false;
   int _slideDirection = 1;
+
+  Future<void> refresh() async {
+    await _fetchStatus(_selectedMonth.month, _selectedMonth.year);
+  }
 
   List<String> monthNameTH = [
     'มกราคม',
@@ -94,6 +99,7 @@ class CalendarTableState extends State<CalendarTable> {
 
     try {
       final request = GetStatusDailyRecordsRequest(month: month, year: year);
+      print(request.toMap());
 
       final response = await _service.getStatusDailyRecords(request);
 
@@ -112,7 +118,14 @@ class CalendarTableState extends State<CalendarTable> {
         hasDayRecord = record;
       });
     } catch (e) {
-      debugPrint('Fetch error: $e');
+      if (mounted) {
+        AppAlert.show(
+          context,
+          title: 'เกิดข้อผิดพลาด',
+          message: e.toString(),
+          type: AlertType.error,
+        );
+      }
     } finally {
       if (!mounted) return;
       setState(() => _isLoading = false);

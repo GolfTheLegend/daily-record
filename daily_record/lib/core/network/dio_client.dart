@@ -6,12 +6,28 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
 class DioClient {
-  static final _refreshService = RefreshTokenService();
+  // ✅ Singleton — สร้างครั้งเดียว
+  static Dio? _instance;
+  
+  // ✅ Dio แยกต่างหากสำหรับ refresh (ไม่มี interceptor)
+  static final Dio _refreshDio = Dio(BaseOptions(baseUrl: ApiConstants.baseUrl));
+  
+  static late final RefreshTokenService _refreshService =
+      RefreshTokenService(dio: _refreshDio); // inject dio แยก
 
-  // ✅ navigatorKey สำหรับ redirect ไป login โดยไม่ต้องมี context
-  static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  static final GlobalKey<NavigatorState> navigatorKey =
+      GlobalKey<NavigatorState>();
+
+  // ✅ ป้องกัน refresh ซ้อนกัน
+  static bool _isRefreshing = false;
+  static Future<bool>? _refreshFuture;
 
   static Dio getInstance() {
+    _instance ??= _createDio();
+    return _instance!;
+  }
+
+  static Dio _createDio() {
     final dio = Dio(BaseOptions(baseUrl: ApiConstants.baseUrl));
 
     dio.interceptors.add(
@@ -25,24 +41,28 @@ class DioClient {
         },
 
         onError: (error, handler) async {
-          // ✅ ดักตอน 401 Unauthorized
           if (error.response?.statusCode == 401) {
-            final refreshed = await _tryRefresh();
+            // ✅ ถ้ากำลัง refresh อยู่แล้ว รอผลเดิม (ไม่ refresh ซ้ำ)
+            if (_isRefreshing) {
+              _refreshFuture ??= Future.value(false);
+              final refreshed = await _refreshFuture!;
+              if (refreshed) {
+                return _retryRequest(dio, error, handler);
+              }
+              await _forceLogout();
+              return handler.next(error);
+            }
+
+            _isRefreshing = true;
+            _refreshFuture = _tryRefresh();
+
+            final refreshed = await _refreshFuture!;
+            _isRefreshing = false;
+            _refreshFuture = null;
 
             if (refreshed) {
-              // ✅ refresh สำเร็จ → retry request เดิมด้วย token ใหม่
-              final newToken = await TokenStorage.getAccessToken();
-              final opts = error.requestOptions;
-              opts.headers['Authorization'] = 'Bearer $newToken';
-
-              try {
-                final retryResponse = await dio.fetch(opts);
-                return handler.resolve(retryResponse);
-              } catch (e) {
-                return handler.next(error);
-              }
+              return _retryRequest(dio, error, handler);
             } else {
-              // ✅ refresh ล้มเหลว → logout → ไปหน้า Login
               await _forceLogout();
               return handler.next(error);
             }
@@ -56,7 +76,22 @@ class DioClient {
     return dio;
   }
 
-  // พยายาม refresh token
+  static Future<void> _retryRequest(
+    Dio dio,
+    DioException error,
+    ErrorInterceptorHandler handler,
+  ) async {
+    try {
+      final newToken = await TokenStorage.getAccessToken();
+      final opts = error.requestOptions;
+      opts.headers['Authorization'] = 'Bearer $newToken';
+      final retryResponse = await dio.fetch(opts);
+      return handler.resolve(retryResponse);
+    } catch (e) {
+      return handler.next(error);
+    }
+  }
+
   static Future<bool> _tryRefresh() async {
     try {
       final refreshToken = await TokenStorage.getRefreshToken();
@@ -71,7 +106,6 @@ class DioClient {
     }
   }
 
-  // ล้าง token แล้วไปหน้า Login
   static Future<void> _forceLogout() async {
     await TokenStorage.clearTokens();
     navigatorKey.currentState?.pushNamedAndRemoveUntil('/', (route) => false);

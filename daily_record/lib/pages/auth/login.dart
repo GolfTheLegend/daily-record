@@ -12,7 +12,9 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
 class Login extends StatefulWidget {
-  const Login({super.key});
+  final bool isLoading;
+  final Function(bool)? setLoading;
+  const Login({super.key, this.setLoading, this.isLoading = false});
 
   @override
   State<Login> createState() => _LoginState();
@@ -21,7 +23,6 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> {
   late TextEditingController _usernameController;
   late TextEditingController _passwordController;
-  bool _isLoading = false;
   final LoginService _loginService = LoginService();
   bool _autoLogin = false;
 
@@ -40,9 +41,7 @@ class _LoginState extends State<Login> {
   }
 
   Future<void> _handleLogin() async {
-    setState(() {
-      _isLoading = true;
-    });
+    widget.setLoading?.call(true);
 
     try {
       final request = LoginRequest(
@@ -77,7 +76,7 @@ class _LoginState extends State<Login> {
     } finally {
       if (mounted) {
         setState(() {
-          _isLoading = false;
+          widget.setLoading?.call(false);
         });
       }
     }
@@ -173,8 +172,8 @@ class _LoginState extends State<Login> {
                 borderColor1: themeItem.secondary,
                 borderColor2: themeItem.primary,
                 backgroundColor: themeItem.background2,
-                text: _isLoading ? 'Loading...' : 'Login',
-                onPressed: _isLoading ? null : _handleLogin,
+                text: widget.isLoading ? 'Loading...' : 'Login',
+                onPressed: widget.isLoading ? null : _handleLogin,
               ),
             ),
             const SizedBox(height: 20),

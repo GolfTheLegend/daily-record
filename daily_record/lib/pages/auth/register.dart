@@ -11,8 +11,15 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
 class Register extends StatefulWidget {
+  final bool isLoading;
+  final Function(bool)? setLoading;
   final ValueChanged<bool> onRegisterSuccess;
-  const Register({super.key, required this.onRegisterSuccess});
+  const Register({
+    super.key,
+    required this.onRegisterSuccess,
+    this.setLoading,
+    this.isLoading = false,
+  });
 
   @override
   State<Register> createState() => _RegisterState();
@@ -22,7 +29,6 @@ class _RegisterState extends State<Register> {
   late TextEditingController _usernameController;
   late TextEditingController _emailController;
   late TextEditingController _passwordController;
-  bool _isLoading = false;
   final RegisterService _registerService = RegisterService();
 
   @override
@@ -42,9 +48,7 @@ class _RegisterState extends State<Register> {
   }
 
   Future<void> _handleRegister() async {
-    setState(() {
-      _isLoading = true;
-    });
+    widget.setLoading?.call(true);
 
     try {
       final request = RegisterRequest(
@@ -81,7 +85,7 @@ class _RegisterState extends State<Register> {
     } finally {
       if (mounted) {
         setState(() {
-          _isLoading = false;
+          widget.setLoading?.call(false);
         });
       }
     }
@@ -176,8 +180,8 @@ class _RegisterState extends State<Register> {
                 borderColor1: themeItem.secondary,
                 borderColor2: themeItem.primary,
                 backgroundColor: themeItem.background2,
-                text: _isLoading ? 'Loading...' : 'Register',
-                onPressed: _isLoading ? null : _handleRegister,
+                text: widget.isLoading ? 'Loading...' : 'Register',
+                onPressed: widget.isLoading ? null : _handleRegister,
               ),
             ),
             const SizedBox(height: 20),
