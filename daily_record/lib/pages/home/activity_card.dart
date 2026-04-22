@@ -137,7 +137,7 @@ class ActivityCardState extends State<ActivityCard>
         message: 'บันทึกสำเร็จ',
         type: AlertType.success,
         onConfirm: () {
-          widget.onSuccress(); 
+          widget.onSuccress();
           setState(() => _showActions = false);
         },
       );

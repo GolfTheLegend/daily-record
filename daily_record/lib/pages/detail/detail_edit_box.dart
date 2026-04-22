@@ -11,11 +11,15 @@ class DetailEditBox extends StatefulWidget {
   final DailyRecordItem items;
   final VoidCallback onDelete;
   final VoidCallback onEdit;
+  final bool isLoading;
+  final Function(bool)? setLoading;
   const DetailEditBox({
     super.key,
     required this.items,
     required this.onDelete,
     required this.onEdit,
+    this.setLoading,
+    this.isLoading = false,
   });
 
   @override
@@ -24,9 +28,8 @@ class DetailEditBox extends StatefulWidget {
 
 class _DetailEditBoxState extends State<DetailEditBox> {
   final _service = DeleteDailyRecordService();
-  bool _isLoading = false;
 
-  void _onDelete() {
+  void _onConfirmDelete() {
     AppAlert.show(
       context,
       title: '',
@@ -34,19 +37,20 @@ class _DetailEditBoxState extends State<DetailEditBox> {
       confirmText: 'ลบ',
       cancelText: 'ยกเลิก',
       type: AlertType.warning,
-      onConfirm: () => _deleteRecord(),
+      onConfirm: _deleteRecord,
     );
   }
 
   Future<void> _deleteRecord() async {
-    if (_isLoading) return;
+    if (widget.isLoading) return;
 
-    setState(() {
-      _isLoading = true;
-    });
+    widget.setLoading?.call(true);
 
     try {
-      await _service.deleteDailyRecords(widget.items.id!);
+      final id = widget.items.id;
+      if (id == null) return;
+
+      await _service.deleteDailyRecords(id);
 
       if (!mounted) return;
       AppAlert.show(
@@ -65,10 +69,9 @@ class _DetailEditBoxState extends State<DetailEditBox> {
         message: e.toString(),
         type: AlertType.error,
       );
-      debugPrint('Fetch error: $e');
     } finally {
       if (!mounted) return;
-      setState(() => _isLoading = false);
+      widget.setLoading?.call(false);
     }
   }
 
@@ -169,7 +172,7 @@ class _DetailEditBoxState extends State<DetailEditBox> {
                               color: themeItem.textPrimary,
                             ),
                           ),
-                          onTap: () => widget.onEdit()
+                          onTap: () => widget.onEdit(),
                         ),
                         SizedBox(width: 10),
                         PressScale(
@@ -197,7 +200,7 @@ class _DetailEditBoxState extends State<DetailEditBox> {
                               color: themeItem.status2,
                             ),
                           ),
-                          onTap: () => _onDelete(),
+                          onTap: () => _onConfirmDelete(),
                         ),
                       ],
                     ),

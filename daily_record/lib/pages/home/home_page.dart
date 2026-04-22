@@ -109,6 +109,7 @@ class _HomePageState extends State<HomePage> with RouteAware {
   }
 
   void _startPolling() {
+    _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 30), (_) {
       if (!mounted) return;
       _fetchRecords(_selectedDate, false);
@@ -121,6 +122,7 @@ class _HomePageState extends State<HomePage> with RouteAware {
   }
 
   Future<void> _fetchRecords(DateTime date, bool onRefresh) async {
+    if (_isLoading) return;
     final now = DateTime.now().toUtc().add(const Duration(hours: 7));
     final nowMin = now.hour * 60 + now.minute;
 
@@ -197,7 +199,7 @@ class _HomePageState extends State<HomePage> with RouteAware {
   @override
   Widget build(BuildContext context) {
     final themeItem = context.watch<ThemeProvider>().currentThemeItem!;
-    final upcoming = _records.sublist(0);
+    final upcoming = _records;
 
     return PopScope(
       canPop: false,
@@ -266,7 +268,10 @@ class _HomePageState extends State<HomePage> with RouteAware {
                                                 () => _checkListLoading = v,
                                               );
                                             },
-                                            onSuccress: () => _fetchRecords(_selectedDate, false),
+                                            onSuccress: () => _fetchRecords(
+                                              _selectedDate,
+                                              false,
+                                            ),
                                           ),
                                         )
                                       else
@@ -340,7 +345,10 @@ class _HomePageState extends State<HomePage> with RouteAware {
                                               () => _checkListLoading = v,
                                             );
                                           },
-                                          onSuccress: () => _fetchRecords(_selectedDate, false),
+                                          onSuccress: () => _fetchRecords(
+                                            _selectedDate,
+                                            false,
+                                          ),
                                         ),
                                       ),
                                     );

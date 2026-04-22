@@ -9,7 +9,7 @@ class BorderButton extends StatefulWidget {
   final Color borderColor2;
   final Color backgroundColor;
   final String text;
-  final Function()? onPressed;
+  final VoidCallback? onPressed;
   const BorderButton({
     super.key,
     this.width,

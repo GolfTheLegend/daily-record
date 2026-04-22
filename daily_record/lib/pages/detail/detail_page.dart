@@ -37,44 +37,50 @@ class _DetailPageState extends State<DetailPage> {
   final int _limit = 10;
   bool _hasMore = true;
 
-  void _loadMore() {
+  void _loadMore() async {
     _offset += _limit;
-    _fetchRecords('', false);
+    await _fetchRecords('', false);
   }
 
   @override
   void initState() {
     super.initState();
+    _scrollController.addListener(_onScroll);
+    _initLoad();
+  }
 
-    _scrollController.addListener(() {
-      if (_scrollController.position.pixels >=
-              _scrollController.position.maxScrollExtent - 100 &&
-          !_isLoading &&
-          _hasMore &&
-          !_onSwitch // เฉพาะ tab "ทั้งหมด"
-          ) {
-        _loadMore();
-      }
-    });
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+            _scrollController.position.maxScrollExtent - 100 &&
+        !_isLoading &&
+        _hasMore &&
+        !_onSwitch) {
+      _loadMore();
+    }
+  }
 
+  Future<void> _initLoad() async {
     if (_onSwitch) {
       if (widget.recordData.isEmpty) {
-        _fetchRecords(widget.selectionDate, false);
+        await _fetchRecords(widget.selectionDate, false);
       } else {
-        _records = widget.recordData;
+        if (!mounted) return;
+        setState(() {
+          _records = widget.recordData;
+        });
       }
     }
   }
 
-  void _switchTab() {
+  Future<void> _switchTab() async {
     setState(() {
       _onSwitch = !_onSwitch;
     });
 
     if (_onSwitch == false) {
-      _fetchRecords('', true);
+      await _fetchRecords('', true);
     } else {
-      _fetchRecords(widget.selectionDate, true);
+      await _fetchRecords(widget.selectionDate, true);
     }
   }
 
@@ -125,168 +131,215 @@ class _DetailPageState extends State<DetailPage> {
     }
   }
 
+  Future<void> _onRefresh() async {
+    if (_onSwitch == false) {
+      await _fetchRecords('', true);
+    } else {
+      await _fetchRecords(widget.selectionDate, true);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final themeItem = context.watch<ThemeProvider>().currentThemeItem!;
 
     return Background(
-      child: Column(
+      child: Stack(
         children: [
-          Expanded(
-            flex: 2,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "รายการ",
-                  style: TextStyle(
-                    fontSize: 60,
-                    fontWeight: FontWeight.bold,
-                    color: themeItem.textPrimary,
-                    fontFamily: 'Inter',
-                  ),
-                ),
+          Column(
+            children: [
+              Expanded(
+                flex: 2,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "รายการ",
+                      style: TextStyle(
+                        fontSize: 60,
+                        fontWeight: FontWeight.bold,
+                        color: themeItem.textPrimary,
+                        fontFamily: 'Inter',
+                      ),
+                    ),
 
-                Container(
+                    Container(
+                      margin: EdgeInsets.symmetric(horizontal: 15),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          PressScale(
+                            child: Container(
+                              width: min(
+                                MediaQuery.of(context).size.width * 0.45,
+                                500,
+                              ),
+                              height: 40,
+                              decoration: BoxDecoration(
+                                color: themeItem.background2,
+                                border: Border.all(
+                                  color: themeItem.textPrimary,
+                                  width: 1.5,
+                                ),
+                                gradient: _onSwitch
+                                    ? LinearGradient(
+                                        colors: [
+                                          themeItem.secondary,
+                                          themeItem.primary,
+                                        ],
+                                      )
+                                    : null,
+                                borderRadius: BorderRadius.circular(10),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.3),
+                                    blurRadius: 6,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Center(
+                                child: Text(
+                                  '${widget.selectionDate}',
+                                  style: TextStyle(
+                                    color: _onSwitch
+                                        ? themeItem.background2
+                                        : themeItem.textPrimary,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            onTap: () => _switchTab(),
+                          ),
+
+                          PressScale(
+                            child: Container(
+                              width: min(
+                                MediaQuery.of(context).size.width * 0.45,
+                                500,
+                              ),
+                              height: 40,
+                              decoration: BoxDecoration(
+                                color: themeItem.background2,
+                                border: Border.all(
+                                  color: themeItem.textPrimary,
+                                  width: 1.5,
+                                ),
+                                gradient: !_onSwitch
+                                    ? LinearGradient(
+                                        colors: [
+                                          themeItem.secondary,
+                                          themeItem.primary,
+                                        ],
+                                      )
+                                    : null,
+                                borderRadius: BorderRadius.circular(10),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.3),
+                                    blurRadius: 6,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Center(
+                                child: Text(
+                                  'ทั้งหมด',
+                                  style: TextStyle(
+                                    color: !_onSwitch
+                                        ? themeItem.background2
+                                        : themeItem.textPrimary,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            onTap: () => _switchTab(),
+                          ),
+                        ],
+                      ),
+                    ),
+                    _Line(themeItem.textPrimary),
+                  ],
+                ),
+              ),
+              Expanded(
+                flex: 8,
+                child: _isLoading
+                    ? const Center(
+                        child: LoadingAnimation(width: 50, height: 50),
+                      )
+                    : ListView.separated(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 10,
+                        ),
+                        controller: _scrollController,
+                        itemCount: _records.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 0),
+                        itemBuilder: (context, index) {
+                          if (index >= _records.length) {
+                            return Center(child: CircularProgressIndicator());
+                          }
+
+                          final item = _records[index];
+                          return DetailEditBox(
+                            items: item,
+                            onDelete: () => _onRefresh(),
+                            onEdit: () async {
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => CreateActivePage(
+                                    mode: PageMode.edit,
+                                    recordData: item,
+                                  ),
+                                ),
+                              );
+                              if (!mounted) return;
+                              _onRefresh();
+                            },
+                            isLoading: _isLoading,
+                            setLoading: (p0) => setState(() => _isLoading = p0),
+                          );
+                        },
+                      ),
+              ),
+              _Line(themeItem.textPrimary),
+              Expanded(
+                flex: 1,
+                child: Container(
                   margin: EdgeInsets.symmetric(horizontal: 15),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      PressScale(
-                        child: Container(
-                          width: min(
-                            MediaQuery.of(context).size.width * 0.45,
-                            500,
-                          ),
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: themeItem.background2,
-                            border: Border.all(
-                              color: themeItem.textPrimary,
-                              width: 1.5,
-                            ),
-                            gradient: _onSwitch
-                                ? LinearGradient(
-                                    colors: [
-                                      themeItem.secondary,
-                                      themeItem.primary,
-                                    ],
-                                  )
-                                : null,
-                            borderRadius: BorderRadius.circular(10),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.3),
-                                blurRadius: 6,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: Center(
-                            child: Text(
-                              '${widget.selectionDate}',
-                              style: TextStyle(
-                                color: _onSwitch
-                                    ? themeItem.background2
-                                    : themeItem.textPrimary,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
+                      BorderButton(
+                        width: min(
+                          MediaQuery.of(context).size.width * 0.4,
+                          500,
                         ),
-                        onTap: () => _switchTab(),
+                        borderColor1: themeItem.secondary,
+                        borderColor2: themeItem.primary,
+                        backgroundColor: themeItem.background2,
+                        text: 'กลับ',
+                        onPressed: () => Navigator.pop(context),
                       ),
-
-                      PressScale(
-                        child: Container(
-                          width: min(
-                            MediaQuery.of(context).size.width * 0.45,
-                            500,
-                          ),
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: themeItem.background2,
-                            border: Border.all(
-                              color: themeItem.textPrimary,
-                              width: 1.5,
-                            ),
-                            gradient: !_onSwitch
-                                ? LinearGradient(
-                                    colors: [
-                                      themeItem.secondary,
-                                      themeItem.primary,
-                                    ],
-                                  )
-                                : null,
-                            borderRadius: BorderRadius.circular(10),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.3),
-                                blurRadius: 6,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: Center(
-                            child: Text(
-                              'ทั้งหมด',
-                              style: TextStyle(
-                                color: !_onSwitch
-                                    ? themeItem.background2
-                                    : themeItem.textPrimary,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
+                      BorderButton(
+                        width: min(
+                          MediaQuery.of(context).size.width * 0.4,
+                          500,
                         ),
-                        onTap: () => _switchTab(),
-                      ),
-                    ],
-                  ),
-                ),
-                _Line(themeItem.textPrimary),
-              ],
-            ),
-          ),
-          Expanded(
-            flex: 8,
-            child: _isLoading
-                ? const Center(child: LoadingAnimation(width: 50, height: 50))
-                : ListView.separated(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 10,
-                    ),
-                    controller: _scrollController,
-                    itemCount: _records.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 0),
-                    itemBuilder: (context, index) {
-                      if (index >= _records.length) {
-                        return Center(child: CircularProgressIndicator());
-                      }
-
-                      final item = _records[index];
-                      return DetailEditBox(
-                        items: item,
-                        onDelete: () => {
-                          if (_onSwitch == false)
-                            {_fetchRecords('', true)}
-                          else
-                            {_fetchRecords(widget.selectionDate, true)},
-                        },
-                        onEdit: () async {
-                          await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => CreateActivePage(
-                                mode: PageMode.edit,
-                                recordData: item,
-                              ),
-                            ),
-                          );
+                        borderColor1: themeItem.background1,
+                        borderColor2: themeItem.background2,
+                        backgroundColor: themeItem.addButton,
+                        text: '+ เพิ่ม',
+                        onPressed: () async {
+                          await Navigator.pushNamed(context, '/create');
                           if (!mounted) return;
                           if (_onSwitch == false) {
                             _fetchRecords('', true);
@@ -294,44 +347,24 @@ class _DetailPageState extends State<DetailPage> {
                             _fetchRecords(widget.selectionDate, true);
                           }
                         },
-                      );
-                    },
+                      ),
+                    ],
                   ),
+                ),
+              ),
+            ],
           ),
-          _Line(themeItem.textPrimary),
-          Expanded(
-            flex: 1,
-            child: Container(
-              margin: EdgeInsets.symmetric(horizontal: 15),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  BorderButton(
-                    width: min(MediaQuery.of(context).size.width * 0.4, 500),
-                    borderColor1: themeItem.secondary,
-                    borderColor2: themeItem.primary,
-                    backgroundColor: themeItem.background2,
-                    text: 'กลับ',
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                  BorderButton(
-                    width: min(MediaQuery.of(context).size.width * 0.4, 500),
-                    borderColor1: themeItem.background1,
-                    borderColor2: themeItem.background2,
-                    backgroundColor: themeItem.addButton,
-                    text: '+ เพิ่ม',
-                    onPressed: () async {
-                      await Navigator.pushNamed(context, '/create');
-                      if (!mounted) return;
-                      if (_onSwitch == false) {
-                        _fetchRecords('', true);
-                      } else {
-                        _fetchRecords(widget.selectionDate, true);
-                      }
-                    },
-                  ),
-                ],
+
+          AnimatedOpacity(
+            opacity: _isLoading ? 1.0 : 0.0,
+            duration: const Duration(milliseconds: 200),
+            child: IgnorePointer(
+              ignoring: !_isLoading,
+              child: Container(
+                color: themeItem.background2.withValues(alpha: 0.6),
+                child: const Center(
+                  child: LoadingAnimation(width: 50, height: 50),
+                ),
               ),
             ),
           ),

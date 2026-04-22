@@ -27,20 +27,23 @@ class _CalendarPageState extends State<CalendarPage> {
   late String _defaultDate;
   late String _filteredDate;
   bool _isLoading = false;
+  int _requestId = 0;
   final _calendarKey = GlobalKey<CalendarTableState>();
   List<DailyRecordItem> _recordData = [];
 
   @override
-  void initState() async{
+  void initState() {
     super.initState();
     final now = DateTime.now();
     _defaultDate =
         '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
     _filteredDate = _defaultDate;
-    await _fetchRecords(_filteredDate, true);
+    _fetchRecords(_filteredDate, true);
   }
 
   Future<void> _fetchRecords(String date, bool onRefresh) async {
+    final currentId = ++_requestId;
+    if (_isLoading) return;
     setState(() => _isLoading = true);
 
     if (onRefresh) {
@@ -48,9 +51,8 @@ class _CalendarPageState extends State<CalendarPage> {
     }
     try {
       final request = GetDailyRecordsRequest(dateFrom: date, dateTo: date);
-      print(request.toMap());
       final response = await _service.getDailyRecords(request);
-      if (!mounted) return;
+      if (!mounted || currentId != _requestId) return;
       setState(() {
         _recordData = response.data;
       });
@@ -64,7 +66,7 @@ class _CalendarPageState extends State<CalendarPage> {
         );
       }
     } finally {
-      if (!mounted) return;
+      if (!mounted || currentId != _requestId) return;
       setState(() => _isLoading = false);
     }
   }
@@ -105,7 +107,7 @@ class _CalendarPageState extends State<CalendarPage> {
             flex: 5,
             child: CalendarTable(
               key: _calendarKey,
-              onDateSelected: (String date) async{
+              onDateSelected: (String date) async {
                 setState(() {
                   _filteredDate = date; // อัปเดตวันที่ที่ถูกเลือก
                 });

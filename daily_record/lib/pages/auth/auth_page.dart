@@ -24,8 +24,8 @@ class _AuthPageState extends State<AuthPage> {
   void initState() {
     super.initState();
     // ✅ รอให้ first frame build เสร็จก่อนค่อย navigate
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _checkAutoLogin();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _checkAutoLogin();
     });
   }
 

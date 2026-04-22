@@ -47,8 +47,14 @@ class CalendarTableState extends State<CalendarTable> {
   @override
   void initState() {
     super.initState();
+
     _selectedDate = DateTime.now();
-    _fetchStatus(_selectedMonth.month, _selectedMonth.year);
+
+    _initLoad();
+  }
+
+  Future<void> _initLoad() async {
+    await _fetchStatus(_selectedMonth.month, _selectedMonth.year);
   }
 
   // ฟังก์ชันสำหรับดึงจำนวนวันในเดือน
@@ -61,7 +67,7 @@ class CalendarTableState extends State<CalendarTable> {
     return DateTime(date.year, date.month, 1).weekday % 7;
   }
 
-  void previousMonth() {
+  void previousMonth() async {
     final lastMonth = DateTime(
       _selectedMonth.year,
       _selectedMonth.month - 1,
@@ -71,10 +77,10 @@ class CalendarTableState extends State<CalendarTable> {
       _slideDirection = -1;
       _selectedMonth = lastMonth;
     });
-    _fetchStatus(lastMonth.month, lastMonth.year);
+    await _fetchStatus(lastMonth.month, lastMonth.year);
   }
 
-  void nextMonth() {
+  void nextMonth() async {
     final nextMonth = DateTime(
       _selectedMonth.year,
       _selectedMonth.month + 1,
@@ -84,7 +90,7 @@ class CalendarTableState extends State<CalendarTable> {
       _slideDirection = 1;
       _selectedMonth = nextMonth;
     });
-    _fetchStatus(nextMonth.month, nextMonth.year);
+    await _fetchStatus(nextMonth.month, nextMonth.year);
   }
 
   Future<void> _fetchStatus(int month, int year) async {
