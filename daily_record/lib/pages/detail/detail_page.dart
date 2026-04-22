@@ -34,7 +34,7 @@ class _DetailPageState extends State<DetailPage> {
   bool _onSwitch = true;
   bool _isLoading = false;
   int _offset = 0;
-  final int _limit = 10;
+  final int _limit = 20;
   bool _hasMore = true;
 
   void _loadMore() async {
