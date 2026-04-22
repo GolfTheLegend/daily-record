@@ -315,7 +315,7 @@ class CalendarTableState extends State<CalendarTable> {
                                 child: Text(
                                   '$dayNumber',
                                   style: TextStyle(
-                                    fontSize: 16,
+                                    fontSize: (MediaQuery.of(context).size.width * 0.040).clamp(0.0, 30.0),
                                     color: isSelected
                                         ? themeItem.background2
                                         : themeItem.textPrimary,
@@ -327,26 +327,36 @@ class CalendarTableState extends State<CalendarTable> {
                                 Positioned(
                                   top: 4,
                                   right: 4,
-                                  child: Container(
-                                    width: 8,
-                                    height: 8,
-                                    decoration: BoxDecoration(
-                                      color: themeItem.status2,
-                                      shape: BoxShape.circle,
-                                    ),
+                                  child: LayoutBuilder(
+                                    builder: (context, constraints) {
+                                     final dotSize = (MediaQuery.of(context).size.width * 0.022).clamp(0.0, 20.0);
+                                      return Container(
+                                        width: dotSize,
+                                        height: dotSize,
+                                        decoration: BoxDecoration(
+                                          color: themeItem.status2,
+                                          shape: BoxShape.circle,
+                                        ),
+                                      );
+                                    },
                                   ),
                                 ),
                               if (hasRecord)
                                 Positioned(
                                   top: 4,
                                   left: 4,
-                                  child: Container(
-                                    width: 8,
-                                    height: 8,
-                                    decoration: BoxDecoration(
-                                      color: themeItem.status1,
-                                      shape: BoxShape.circle,
-                                    ),
+                                  child: LayoutBuilder(
+                                    builder: (context, constraints) {
+                                      final dotSize = (MediaQuery.of(context).size.width * 0.022).clamp(0.0, 20.0);
+                                      return Container(
+                                        width: dotSize,
+                                        height: dotSize,
+                                        decoration: BoxDecoration(
+                                          color: themeItem.status1,
+                                          shape: BoxShape.circle,
+                                        ),
+                                      );
+                                    },
                                   ),
                                 ),
                             ],

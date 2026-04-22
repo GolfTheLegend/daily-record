@@ -84,8 +84,8 @@ class _ActivityHeaderState extends State<ActivityHeader> {
           ),
         ),
         const SizedBox(height: 20),
-        Expanded(
-          flex: 1,
+        SizedBox(
+          height: 60,
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(

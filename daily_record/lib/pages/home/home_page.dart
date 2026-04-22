@@ -213,16 +213,13 @@ class _HomePageState extends State<HomePage> with RouteAware {
           children: [
             Column(
               children: [
-                Expanded(
-                  flex: 1,
-                  child: Container(
-                    width: double.infinity,
-                    child: ActivityHeader(
-                      onDateSelected: (DateTime date) {
-                        setState(() => _selectedDate = date);
-                        _fetchRecords(date, true);
-                      },
-                    ),
+                Container(
+                  width: double.infinity,
+                  child: ActivityHeader(
+                    onDateSelected: (DateTime date) {
+                      setState(() => _selectedDate = date);
+                      _fetchRecords(date, true);
+                    },
                   ),
                 ),
                 Expanded(

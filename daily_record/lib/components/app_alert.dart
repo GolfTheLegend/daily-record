@@ -60,6 +60,10 @@ class AppAlert extends StatelessWidget {
       backgroundColor: Colors.transparent,
       insetPadding: const EdgeInsets.symmetric(horizontal: 24),
       child: Container(
+        constraints: BoxConstraints(
+          maxWidth: 400,
+          maxHeight: MediaQuery.of(context).size.height * 0.85,
+        ),
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
           color: themeItem.background2,
@@ -146,11 +150,20 @@ class AppAlert extends StatelessWidget {
   }
 
   _AlertConfig _typeConfig(AlertType type) => switch (type) {
-        AlertType.error   => _AlertConfig(Icons.error_rounded,   const Color(0xFFE05C5C)),
-        AlertType.success => _AlertConfig(Icons.check_circle_rounded, const Color(0xFF4CAF80)),
-        AlertType.warning => _AlertConfig(Icons.warning_rounded,  const Color(0xFFF5A623)),
-        AlertType.info    => _AlertConfig(Icons.info_rounded,     const Color(0xFF5B9BD5)),
-      };
+    AlertType.error => _AlertConfig(
+      Icons.error_rounded,
+      const Color(0xFFE05C5C),
+    ),
+    AlertType.success => _AlertConfig(
+      Icons.check_circle_rounded,
+      const Color(0xFF4CAF80),
+    ),
+    AlertType.warning => _AlertConfig(
+      Icons.warning_rounded,
+      const Color(0xFFF5A623),
+    ),
+    AlertType.info => _AlertConfig(Icons.info_rounded, const Color(0xFF5B9BD5)),
+  };
 }
 
 // ปุ่ม
@@ -177,9 +190,7 @@ class _AlertButton extends StatelessWidget {
         height: 48,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: isPrimary
-              ? (color ?? themeItem.primary)
-              : Colors.transparent,
+          color: isPrimary ? (color ?? themeItem.primary) : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isPrimary

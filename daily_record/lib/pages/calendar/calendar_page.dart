@@ -135,70 +135,75 @@ class _CalendarPageState extends State<CalendarPage> {
                         ),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const SizedBox(width: 5),
-                          Row(
-                            children: [
-                              _dot(themeItem.status1),
-                              const SizedBox(width: 5),
-                              const Text(
-                                'รายวัน',
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                              const SizedBox(width: 10),
-                              _dot(themeItem.status2),
-                              const SizedBox(width: 5),
-                              const Text(
-                                'สำคัญ',
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                              const SizedBox(width: 5),
-                            ],
-                          ),
-                          const SizedBox(width: 10),
-                          PressScale(
-                            child: Container(
-                              padding: EdgeInsets.symmetric(horizontal: 20),
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: themeItem.primary,
-                                  width: 4,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            // ← ซ้าย: legend
+                            Row(
+                              children: [
+                                _dot(themeItem.status1),
+                                const SizedBox(width: 5),
+                                const Text(
+                                  'รายวัน',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
                                 ),
-                                borderRadius: BorderRadius.circular(10),
-                                color: themeItem.background2,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.3),
-                                    blurRadius: 6,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              child: const Text(
-                                'รายละเอียด',
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
+                                const SizedBox(width: 10),
+                                _dot(themeItem.status2),
+                                const SizedBox(width: 5),
+                                const Text(
+                                  'สำคัญ',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                              ],
                             ),
-                            onTap: () async {
-                              await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => DetailPage(
-                                    selectionDate: _filteredDate,
-                                    recordData: _recordData,
-                                  ),
+                            // → ขวา: ปุ่มรายละเอียด
+                            PressScale(
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 20,
                                 ),
-                              );
-                              if (!mounted) return;
-                              await _calendarKey.currentState?.refresh();
-                              await _fetchRecords(_filteredDate, false);
-                            },
-                          ),
-                          const SizedBox(width: 5),
-                        ],
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: themeItem.primary,
+                                    width: 4,
+                                  ),
+                                  borderRadius: BorderRadius.circular(10),
+                                  color: themeItem.background2,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(
+                                        alpha: 0.3,
+                                      ),
+                                      blurRadius: 6,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: const Text(
+                                  'รายละเอียด',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                              onTap: () async {
+                                await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => DetailPage(
+                                      selectionDate: _filteredDate,
+                                      recordData: _recordData,
+                                    ),
+                                  ),
+                                );
+                                if (!mounted) return;
+                                await _calendarKey.currentState?.refresh();
+                                await _fetchRecords(_filteredDate, false);
+                              },
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -239,7 +244,14 @@ class _CalendarPageState extends State<CalendarPage> {
                                 itemCount: _recordData.length,
                                 itemBuilder: (context, index) {
                                   final item = _recordData[index];
-
+                                  final double fontSize =
+                                      (MediaQuery.of(context).size.width *
+                                              0.035)
+                                          .clamp(0.0, 25.0);
+                                  final double iconSize =
+                                      (MediaQuery.of(context).size.width *
+                                              0.044)
+                                          .clamp(0.0, 30.0);
                                   final int repeatType = item.repeatType ?? 0;
                                   final Color textColor = item.important == true
                                       ? themeItem.status2
@@ -257,7 +269,7 @@ class _CalendarPageState extends State<CalendarPage> {
                                         Text(
                                           '${item.startTime ?? '00:00'} - ${item.endTime ?? '00:00'}',
                                           style: TextStyle(
-                                            fontSize: 13,
+                                            fontSize: fontSize,
                                             color: textColor,
                                             fontWeight: FontWeight.bold,
                                           ),
@@ -266,13 +278,13 @@ class _CalendarPageState extends State<CalendarPage> {
                                         Text(
                                           '|',
                                           style: TextStyle(
+                                            fontSize: fontSize,
                                             color: themeItem.textPrimary,
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                         const SizedBox(width: 6),
 
-                                        // ✅ ครอบตรงนี้แทน
                                         Expanded(
                                           child: Row(
                                             mainAxisAlignment:
@@ -285,7 +297,7 @@ class _CalendarPageState extends State<CalendarPage> {
                                                       TextOverflow.ellipsis,
                                                   maxLines: 1,
                                                   style: TextStyle(
-                                                    fontSize: 13,
+                                                    fontSize: fontSize,
                                                     fontWeight: FontWeight.bold,
                                                     color: textColor,
                                                   ),
@@ -297,7 +309,7 @@ class _CalendarPageState extends State<CalendarPage> {
                                                   item.checkStatus == true
                                                       ? Icons.check
                                                       : Icons.close,
-                                                  size: 20,
+                                                  size: iconSize,
                                                   color:
                                                       item.checkStatus == true
                                                       ? themeItem.succress
