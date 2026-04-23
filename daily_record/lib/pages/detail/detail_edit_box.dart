@@ -152,7 +152,7 @@ class _DetailEditBoxState extends State<DetailEditBox> {
                             width: 40,
                             height: 40,
                             decoration: BoxDecoration(
-                              color: themeItem.background1,
+                              color: themeItem.background2,
                               border: Border.all(
                                 color: themeItem.textPrimary,
                                 width: 1.5,

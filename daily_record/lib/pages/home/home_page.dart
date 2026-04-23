@@ -201,6 +201,12 @@ class _HomePageState extends State<HomePage> with RouteAware {
     final themeItem = context.watch<ThemeProvider>().currentThemeItem!;
     final upcoming = _records;
 
+    final now = DateTime.now().toUtc().add(const Duration(hours: 7));
+    final isToday =
+        now.year == _selectedDate.year &&
+        now.month == _selectedDate.month &&
+        now.day == _selectedDate.day;
+
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
@@ -256,6 +262,7 @@ class _HomePageState extends State<HomePage> with RouteAware {
                                             title: item.activityHeader ?? '-',
                                             checkStatus: item.checkStatus,
                                             checkListId: item.checkListId,
+                                            isDisable: !isToday,
                                             time:
                                                 '${item.startTime} - ${item.endTime}',
                                             important: item.important ?? false,
@@ -312,20 +319,19 @@ class _HomePageState extends State<HomePage> with RouteAware {
                                       const SizedBox(height: 0),
                                   itemBuilder: (context, index) {
                                     final item = upcoming[index];
-                                    final now = DateTime.now().toUtc().add(
-                                      const Duration(hours: 7),
-                                    );
                                     final nowMin = now.hour * 60 + now.minute;
                                     final endMin = item.endTime != null
                                         ? _toMinutes(item.endTime!)
                                         : null;
                                     final isPast =
                                         endMin != null && nowMin > endMin;
+                                    final isDisable = !isToday || isPast;
+                                    final opacity = isDisable ? 0.35 : 1.0;
 
                                     return KeyedSubtree(
                                       key: index == 0 ? _firstItemKey : null,
                                       child: Opacity(
-                                        opacity: isPast ? 0.35 : 1.0,
+                                        opacity: opacity,
                                         child: ActivityCard(
                                           id: item.id!,
                                           icon: Icons.description,
@@ -336,7 +342,7 @@ class _HomePageState extends State<HomePage> with RouteAware {
                                               '${item.startTime} - ${item.endTime}',
                                           repeatType: item.repeatType,
                                           important: item.important ?? false,
-                                          isDisable: isPast,
+                                          isDisable: isDisable,
                                           loading: (v) {
                                             setState(
                                               () => _checkListLoading = v,
