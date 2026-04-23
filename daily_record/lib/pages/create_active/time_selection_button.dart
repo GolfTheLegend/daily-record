@@ -235,6 +235,10 @@ class _TimePickerModalState extends State<_TimePickerModal> {
         color: themeItem.background2,
         borderRadius: BorderRadius.circular(28),
       ),
+      constraints: BoxConstraints(
+        maxWidth: 500,
+        maxHeight: MediaQuery.of(context).size.height * 0.85,
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

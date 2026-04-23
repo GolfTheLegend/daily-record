@@ -150,7 +150,10 @@ class CalendarModalState extends State<CalendarModal> {
     final int itemCount = rowCount * 7;
     final String monthText = _monthNameTH[_selectedMonth.month - 1];
     final int buddhistYear = _selectedMonth.year + 543;
-
+    final double fontSize = (MediaQuery.of(context).size.width * 0.040).clamp(
+      0.0,
+      30.0,
+    );
     return ConstrainedBox(
       constraints: BoxConstraints(maxHeight: maxHeight),
       child: Container(
@@ -159,6 +162,10 @@ class CalendarModalState extends State<CalendarModal> {
         decoration: BoxDecoration(
           color: themeItem.background2,
           borderRadius: BorderRadius.circular(28),
+        ),
+        constraints: BoxConstraints(
+          maxWidth: 600,
+          maxHeight: MediaQuery.of(context).size.height * 0.85,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -318,7 +325,7 @@ class CalendarModalState extends State<CalendarModal> {
                                 child: Text(
                                   '$dayNumber',
                                   style: TextStyle(
-                                    fontSize: 13,
+                                    fontSize: fontSize,
                                     fontWeight: FontWeight.bold,
                                     color: isSelected
                                         ? themeItem.background2
@@ -395,7 +402,7 @@ class CalendarModalState extends State<CalendarModal> {
                                         child: Text(
                                           _formatDate(date),
                                           style: TextStyle(
-                                            fontSize: 13,
+                                            fontSize: fontSize * 0.8,
                                             fontWeight: FontWeight.w600,
                                             color: themeItem.textPrimary,
                                           ),
@@ -477,6 +484,11 @@ class _BoxHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeItem = context.watch<ThemeProvider>().currentThemeItem!;
+    final double fontSize = (MediaQuery.of(context).size.width * 0.035).clamp(
+      0.0,
+      17.0,
+    );
+
     return Container(
       height: 36,
       margin: const EdgeInsets.symmetric(horizontal: 2),
@@ -495,7 +507,7 @@ class _BoxHeader extends StatelessWidget {
         child: Text(
           text,
           style: TextStyle(
-            fontSize: 13,
+            fontSize: fontSize,
             fontWeight: FontWeight.bold,
             color: themeItem.background2,
           ),

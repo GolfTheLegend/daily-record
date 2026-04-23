@@ -6,6 +6,7 @@ import 'package:daily_record/core/models/edit_check_list_request.dart';
 import 'package:daily_record/core/services/create_check_list_service.dart';
 import 'package:daily_record/core/services/edit_check_list_service.dart';
 import 'package:daily_record/core/themes/theme_provider.dart';
+import 'package:daily_record/pages/home/activity_detal_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:math';
@@ -20,6 +21,7 @@ class ActivityCard extends StatefulWidget {
   final bool isDisable;
   final bool? checkStatus;
   final int? checkListId;
+  final String detail;
   final Function(bool) loading;
   final Function() onSuccress;
 
@@ -36,6 +38,7 @@ class ActivityCard extends StatefulWidget {
     this.checkStatus,
     this.checkListId,
     required this.onSuccress,
+    required this.detail,
   });
 
   @override
@@ -154,6 +157,35 @@ class ActivityCardState extends State<ActivityCard>
       if (!mounted) return;
       widget.loading(false);
     }
+  }
+
+  void _openDetailModal(
+    int id,
+    IconData icon,
+    String title,
+    String time,
+    int repeatType,
+    bool important,
+    bool? checkStatus,
+    String detail,
+  ) {
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+        child: ActivityDetalModal(
+          id: id,
+          icon: icon,
+          title: title,
+          time: time,
+          repeatType: repeatType,
+          important: important,
+          checkStatus: checkStatus,
+          detail: detail,
+        ),
+      ),
+    );
   }
 
   @override
@@ -283,6 +315,8 @@ class ActivityCardState extends State<ActivityCard>
                         children: [
                           Text(
                             widget.title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -292,6 +326,8 @@ class ActivityCardState extends State<ActivityCard>
                           const SizedBox(height: 4),
                           Text(
                             'เวลา : ${widget.time}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               fontSize: 15,
                               color: themeItem.text1,
@@ -306,8 +342,38 @@ class ActivityCardState extends State<ActivityCard>
                         style: TextStyle(
                           color: textColor,
                           fontWeight: FontWeight.bold,
+                          fontSize: 15,
                         ),
                       ),
+                    SizedBox(width: 15),
+
+                    PressScale(
+                      child: Container(
+                        width: 50,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          color: themeItem.background1,
+                          border: Border.all(
+                            color: themeItem.secondary,
+                            width: 2,
+                          ),
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: Center(
+                          child: Icon(Icons.remove_red_eye_outlined),
+                        ),
+                      ),
+                      onTap: () => _openDetailModal(
+                        widget.id,
+                        widget.icon,
+                        widget.title,
+                        widget.time,
+                        widget.repeatType ?? 0,
+                        widget.important,
+                        widget.checkStatus,
+                        widget.detail,
+                      ),
+                    ),
                   ],
                 ),
               ),

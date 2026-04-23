@@ -263,6 +263,7 @@ class _HomePageState extends State<HomePage> with RouteAware {
                                             checkStatus: item.checkStatus,
                                             checkListId: item.checkListId,
                                             isDisable: !isToday,
+                                            detail: item.activityDetail ?? '',
                                             time:
                                                 '${item.startTime} - ${item.endTime}',
                                             important: item.important ?? false,
@@ -338,6 +339,7 @@ class _HomePageState extends State<HomePage> with RouteAware {
                                           title: item.activityHeader ?? '-',
                                           checkStatus: item.checkStatus,
                                           checkListId: item.checkListId,
+                                          detail: item.activityDetail ?? '',
                                           time:
                                               '${item.startTime} - ${item.endTime}',
                                           repeatType: item.repeatType,
