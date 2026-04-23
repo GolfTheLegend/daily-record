@@ -421,7 +421,7 @@ class _HeaderSection extends StatelessWidget {
               color: themeItem.textPrimary,
             ),
           ),
-          GestureDetector(
+          PressScale(
             onTap: onIconTap,
             child: Container(
               padding: const EdgeInsets.all(5),

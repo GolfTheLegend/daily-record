@@ -1,4 +1,5 @@
 import 'package:daily_record/components/border_button.dart';
+import 'package:daily_record/components/press_scale.dart';
 import 'package:daily_record/core/themes/theme.dart';
 import 'package:daily_record/core/themes/theme_provider.dart';
 import 'package:flutter/material.dart';
@@ -102,7 +103,7 @@ class _TimeSelectionButtonState extends State<TimeSelectionButton> {
     final String hh = _hours.toString().padLeft(2, '0');
     final String mm = _minutes.toString().padLeft(2, '0');
 
-    return GestureDetector(
+    return PressScale(
       onTap: _showTimePicker,
       child: Row(
         mainAxisSize: MainAxisSize.min,

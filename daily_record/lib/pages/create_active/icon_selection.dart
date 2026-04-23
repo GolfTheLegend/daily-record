@@ -1,4 +1,5 @@
 import 'package:daily_record/components/border_button.dart';
+import 'package:daily_record/components/press_scale.dart';
 import 'package:daily_record/core/constants/icons.dart';
 import 'package:daily_record/core/themes/theme_provider.dart';
 import 'package:flutter/material.dart';
@@ -42,7 +43,7 @@ class IconSelection extends StatelessWidget {
               itemCount: iconsData.length,
               itemBuilder: (context, index) {
                 final item = iconsData[index];
-                return GestureDetector(
+                return PressScale(
                   onTap: () => _onSelectIcons(context, item.keyId),
                   child: Container(
                     decoration: BoxDecoration(
