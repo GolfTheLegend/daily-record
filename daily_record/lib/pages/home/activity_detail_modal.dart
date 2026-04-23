@@ -4,7 +4,7 @@ import 'package:daily_record/core/themes/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class ActivityDetalModal extends StatefulWidget {
+class ActivityDetailModal extends StatefulWidget {
   final int id;
   final IconData icon;
   final String title;
@@ -14,7 +14,7 @@ class ActivityDetalModal extends StatefulWidget {
   final bool? checkStatus;
   final String detail;
 
-  const ActivityDetalModal({
+  const ActivityDetailModal({
     super.key,
     required this.id,
     required this.icon,
@@ -27,10 +27,10 @@ class ActivityDetalModal extends StatefulWidget {
   });
 
   @override
-  State<ActivityDetalModal> createState() => _ActivityDetalModalState();
+  State<ActivityDetailModal> createState() => _ActivityDetailModalState();
 }
 
-class _ActivityDetalModalState extends State<ActivityDetalModal> {
+class _ActivityDetailModalState extends State<ActivityDetailModal> {
   @override
   Widget build(BuildContext context) {
     final themeItem = context.watch<ThemeProvider>().currentThemeItem!;

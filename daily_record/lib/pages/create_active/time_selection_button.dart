@@ -7,8 +7,16 @@ import 'package:provider/provider.dart';
 
 class TimeSelectionButton extends StatefulWidget {
   final String? initialTime;
+  final String? minTime;
+  final bool disabled;
   final Function(String)? onTimeSelected;
-  const TimeSelectionButton({super.key, this.onTimeSelected, this.initialTime});
+  const TimeSelectionButton({
+    super.key,
+    this.onTimeSelected,
+    this.initialTime,
+    this.minTime,
+    this.disabled = false,
+  });
 
   @override
   State<TimeSelectionButton> createState() => _TimeSelectionButtonState();
@@ -35,21 +43,39 @@ class _TimeSelectionButtonState extends State<TimeSelectionButton> {
   @override
   void didUpdateWidget(covariant TimeSelectionButton oldWidget) {
     super.didUpdateWidget(oldWidget);
-
-    if (widget.initialTime != oldWidget.initialTime &&
-        widget.initialTime != null) {
-      final parts = widget.initialTime!.split(':');
-
-      if (parts.length == 2) {
+    if (widget.initialTime != oldWidget.initialTime) {
+      if (widget.initialTime == null || widget.initialTime!.isEmpty) {
         setState(() {
-          _hours = int.tryParse(parts[0]) ?? 0;
-          _minutes = int.tryParse(parts[1]) ?? 0;
+          _hours = 0;
+          _minutes = 0;
         });
+      } else {
+        final parts = widget.initialTime!.split(':');
+        if (parts.length == 2) {
+          setState(() {
+            _hours = int.tryParse(parts[0]) ?? 0;
+            _minutes = int.tryParse(parts[1]) ?? 0;
+          });
+        }
       }
     }
   }
 
+  static (int, int)? _parseTime(String? t) {
+    if (t == null || t.isEmpty) return null;
+    final parts = t.split(':');
+    if (parts.length != 2) return null;
+    final h = int.tryParse(parts[0]);
+    final m = int.tryParse(parts[1]);
+    if (h == null || m == null) return null;
+    return (h, m);
+  }
+
   void _showTimePicker() {
+    if (widget.disabled) return; // 🆕 ถ้า disabled ไม่เปิด modal
+
+    final minParsed = _parseTime(widget.minTime); // 🆕 parse minTime
+
     showDialog(
       context: context,
       barrierColor: Colors.black.withValues(alpha: 0.4),
@@ -59,6 +85,8 @@ class _TimeSelectionButtonState extends State<TimeSelectionButton> {
         child: _TimePickerModal(
           initialHour: _hours,
           initialMinute: _minutes,
+          minHour: minParsed?.$1,
+          minMinute: minParsed?.$2,
           onTimeSelected: widget.onTimeSelected,
           onSave: (h, m) => setState(() {
             _hours = h;
@@ -70,6 +98,13 @@ class _TimeSelectionButtonState extends State<TimeSelectionButton> {
   }
 
   Widget _timeBox(ThemeItem themeItem, String value) {
+    final Color borderColor = widget.disabled
+        ? themeItem.primary.withValues(alpha: 0.2)
+        : themeItem.primary;
+    final Color textColor = widget.disabled
+        ? themeItem.textPrimary.withValues(alpha: 0.3)
+        : themeItem.textPrimary;
+
     return Container(
       width: 65,
       height: 65,
@@ -83,7 +118,7 @@ class _TimeSelectionButtonState extends State<TimeSelectionButton> {
             offset: const Offset(0, 2),
           ),
         ],
-        border: Border.all(color: themeItem.primary, width: 2),
+        border: Border.all(color: borderColor, width: 2),
       ),
       alignment: Alignment.center,
       child: Text(
@@ -91,7 +126,7 @@ class _TimeSelectionButtonState extends State<TimeSelectionButton> {
         style: TextStyle(
           fontSize: 28,
           fontWeight: FontWeight.w900,
-          color: themeItem.textPrimary,
+          color: textColor,
         ),
       ),
     );
@@ -105,6 +140,7 @@ class _TimeSelectionButtonState extends State<TimeSelectionButton> {
 
     return PressScale(
       onTap: _showTimePicker,
+      disabled: widget.disabled,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -116,7 +152,9 @@ class _TimeSelectionButtonState extends State<TimeSelectionButton> {
               style: TextStyle(
                 fontSize: 30,
                 fontWeight: FontWeight.w900,
-                color: themeItem.textPrimary,
+                color: widget.disabled
+                    ? themeItem.textPrimary.withValues(alpha: 0.3)
+                    : themeItem.textPrimary,
               ),
             ),
           ),
@@ -134,6 +172,8 @@ class _TimeSelectionButtonState extends State<TimeSelectionButton> {
 class _TimePickerModal extends StatefulWidget {
   final int initialHour;
   final int initialMinute;
+  final int? minHour;
+  final int? minMinute;
   final Function(String)? onTimeSelected;
   final void Function(int hour, int minute) onSave;
 
@@ -142,6 +182,8 @@ class _TimePickerModal extends StatefulWidget {
     required this.initialMinute,
     required this.onTimeSelected,
     required this.onSave,
+    this.minHour,
+    this.minMinute,
   });
 
   @override
@@ -157,11 +199,30 @@ class _TimePickerModalState extends State<_TimePickerModal> {
 
   static const double _itemHeight = 64;
 
+  bool get _hasMin => widget.minHour != null;
+
+  int get _effectiveMinMinute {
+    if (!_hasMin) return 0;
+    if (_selectedHour > widget.minHour!) return 0;
+    return widget.minMinute ?? 0;
+  }
+
+  int _clampHour(int h) {
+    if (!_hasMin) return h;
+    return h < widget.minHour! ? widget.minHour! : h;
+  }
+
+  int _clampMinute(int h, int m) {
+    if (!_hasMin) return m;
+    final minM = (h > widget.minHour!) ? 0 : (widget.minMinute ?? 0);
+    return m < minM ? minM : m;
+  }
+
   @override
   void initState() {
     super.initState();
-    _selectedHour = widget.initialHour;
-    _selectedMinute = widget.initialMinute;
+    _selectedHour = _clampHour(widget.initialHour);
+    _selectedMinute = _clampMinute(_selectedHour, widget.initialMinute);
     _hourController = FixedExtentScrollController(initialItem: _selectedHour);
     _minuteController = FixedExtentScrollController(
       initialItem: _selectedMinute,
@@ -175,11 +236,33 @@ class _TimePickerModalState extends State<_TimePickerModal> {
     super.dispose();
   }
 
+  void _onHourChanged(int h) {
+    final clampedMinute = _clampMinute(h, _selectedMinute);
+
+    setState(() {
+      _selectedHour = h;
+      _selectedMinute = clampedMinute;
+    });
+
+    if (clampedMinute != _selectedMinute) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (_minuteController.hasClients) {
+          _minuteController.animateToItem(
+            clampedMinute,
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOut,
+          );
+        }
+      });
+    }
+  }
+
   Widget _buildPicker({
     required BuildContext context,
     required FixedExtentScrollController controller,
     required int itemCount,
     required int selectedValue,
+    required int minValue,
     required void Function(int) onChanged,
   }) {
     final themeItem = context.watch<ThemeProvider>().currentThemeItem!;
@@ -197,13 +280,14 @@ class _TimePickerModalState extends State<_TimePickerModal> {
           childCount: itemCount,
           builder: (context, index) {
             final bool isSelected = index == selectedValue;
+            final bool isDisabled = index < minValue;
             return AnimatedContainer(
               duration: const Duration(milliseconds: 200),
               margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
               decoration: BoxDecoration(
                 color: themeItem.background2,
                 borderRadius: BorderRadius.circular(14),
-                border: isSelected
+                border: isSelected && !isDisabled
                     ? Border.all(color: themeItem.secondary, width: 2.5)
                     : Border.all(color: Colors.transparent, width: 2.5),
               ),
@@ -213,7 +297,9 @@ class _TimePickerModalState extends State<_TimePickerModal> {
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.w700,
-                  color: isSelected
+                  color: isDisabled
+                      ? themeItem.textPrimary.withValues(alpha: 0.15)
+                      : isSelected
                       ? themeItem.textPrimary
                       : themeItem.textPrimary.withValues(alpha: 0.3),
                 ),
@@ -253,7 +339,8 @@ class _TimePickerModalState extends State<_TimePickerModal> {
                 controller: _hourController,
                 itemCount: 24,
                 selectedValue: _selectedHour,
-                onChanged: (v) => setState(() => _selectedHour = v),
+                minValue: widget.minHour ?? 0, // 🆕
+                onChanged: _onHourChanged,
               ),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 4),
@@ -271,6 +358,7 @@ class _TimePickerModalState extends State<_TimePickerModal> {
                 controller: _minuteController,
                 itemCount: 60,
                 selectedValue: _selectedMinute,
+                minValue: _effectiveMinMinute,
                 onChanged: (v) => setState(() => _selectedMinute = v),
               ),
             ],

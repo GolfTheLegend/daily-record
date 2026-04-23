@@ -314,6 +314,13 @@ class _CreateActivePageState extends State<CreateActivePage> {
     );
   }
 
+  void _onStartTimeChanged(String newStart) {
+    setState(() {
+      _startTime = newStart;
+      _endTime = null;
+    });
+  }
+
   // ─── Build ─────────────────────────────────────────────────────────────────
 
   @override
@@ -339,7 +346,7 @@ class _CreateActivePageState extends State<CreateActivePage> {
                 startTime: _startTime,
                 endTime: _endTime,
                 themeItem: themeItem,
-                onStartTimeSelected: (v) => setState(() => _startTime = v),
+                onStartTimeSelected: _onStartTimeChanged,
                 onEndTimeSelected: (v) => setState(() => _endTime = v),
               ),
               Expanded(
@@ -487,6 +494,8 @@ class _TimeSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool endDisabled = startTime == null || startTime!.isEmpty;
+
     return Expanded(
       flex: 1,
       child: Padding(
@@ -508,6 +517,8 @@ class _TimeSection extends StatelessWidget {
             ),
             TimeSelectionButton(
               initialTime: endTime,
+              minTime: startTime,
+              disabled: endDisabled,
               onTimeSelected: onEndTimeSelected,
             ),
           ],

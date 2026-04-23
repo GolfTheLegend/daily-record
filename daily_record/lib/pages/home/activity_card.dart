@@ -6,7 +6,7 @@ import 'package:daily_record/core/models/edit_check_list_request.dart';
 import 'package:daily_record/core/services/create_check_list_service.dart';
 import 'package:daily_record/core/services/edit_check_list_service.dart';
 import 'package:daily_record/core/themes/theme_provider.dart';
-import 'package:daily_record/pages/home/activity_detal_modal.dart';
+import 'package:daily_record/pages/home/activity_detail_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:math';
@@ -174,7 +174,7 @@ class ActivityCardState extends State<ActivityCard>
       builder: (_) => Dialog(
         backgroundColor: Colors.transparent,
         insetPadding: const EdgeInsets.symmetric(horizontal: 24),
-        child: ActivityDetalModal(
+        child: ActivityDetailModal(
           id: id,
           icon: icon,
           title: title,
