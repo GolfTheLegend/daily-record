@@ -1,16 +1,16 @@
 class DeleteDailyRecordResponse {
-  final String message;
-  final int recordId;
+  final bool success;
+  final String error;
 
   DeleteDailyRecordResponse({
-    required this.message,
-    required this.recordId,
+    required this.success,
+    required this.error,
   });
 
   factory DeleteDailyRecordResponse.fromMap(Map<String, dynamic> map) {
     return DeleteDailyRecordResponse(
-      message: map['message'] ?? '',
-      recordId: map['record_id'] ?? 0,
+      success: map['success'] ?? false,
+      error: map['error'] ?? '',
     );
   }
 }

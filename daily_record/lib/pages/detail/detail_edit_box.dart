@@ -11,15 +11,11 @@ class DetailEditBox extends StatefulWidget {
   final DailyRecordItem items;
   final VoidCallback onDelete;
   final VoidCallback onEdit;
-  final bool isLoading;
-  final Function(bool)? setLoading;
   const DetailEditBox({
     super.key,
     required this.items,
     required this.onDelete,
     required this.onEdit,
-    this.setLoading,
-    this.isLoading = false,
   });
 
   @override
@@ -37,22 +33,21 @@ class _DetailEditBoxState extends State<DetailEditBox> {
       confirmText: 'ลบ',
       cancelText: 'ยกเลิก',
       type: AlertType.warning,
-      onConfirm: _deleteRecord,
+      onConfirm: () async => await _deleteRecord(),
     );
   }
 
   Future<void> _deleteRecord() async {
-    if (widget.isLoading) return;
-
-    widget.setLoading?.call(true);
-
     try {
       final id = widget.items.id;
-      if (id == null) return;
+      if (id == null) {
+        throw Exception('Invalid ID');
+      }
 
       await _service.deleteDailyRecords(id);
 
       if (!mounted) return;
+
       AppAlert.show(
         context,
         title: 'สำเร็จ',
@@ -63,15 +58,14 @@ class _DetailEditBoxState extends State<DetailEditBox> {
         },
       );
     } catch (e) {
+      if (!mounted) return;
+
       AppAlert.show(
         context,
         title: 'เกิดข้อผิดพลาด',
         message: e.toString(),
         type: AlertType.error,
       );
-    } finally {
-      if (!mounted) return;
-      widget.setLoading?.call(false);
     }
   }
 
