@@ -352,15 +352,15 @@ class ActivityCardState extends State<ActivityCard>
                         width: 50,
                         height: 50,
                         decoration: BoxDecoration(
-                          color: themeItem.background1,
+                          color: themeItem.background2,
                           border: Border.all(
-                            color: themeItem.secondary,
-                            width: 2,
+                            color: themeItem.primary,
+                            width: 4,
                           ),
                           borderRadius: BorderRadius.circular(15),
                         ),
                         child: Center(
-                          child: Icon(Icons.remove_red_eye_outlined),
+                          child: Icon(Icons.remove_red_eye_outlined,color: themeItem.textPrimary,),
                         ),
                       ),
                       onTap: () => _openDetailModal(

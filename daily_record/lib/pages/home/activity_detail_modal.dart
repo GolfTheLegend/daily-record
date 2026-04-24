@@ -73,6 +73,7 @@ class _ActivityDetailModalState extends State<ActivityDetailModal> {
                     height: 60,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
+                      color: themeItem.background1,
                       border: Border.all(width: 4),
                     ),
                     child: Icon(
