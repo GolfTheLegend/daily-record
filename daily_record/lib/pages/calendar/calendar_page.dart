@@ -232,11 +232,13 @@ class _CalendarPageState extends State<CalendarPage> {
                                 child: LoadingAnimation(width: 50, height: 50),
                               )
                             : _recordData.isEmpty
-                            ? Text(
-                                'ไม่มีรายการ',
-                                style: TextStyle(
-                                  color: themeItem.textPrimary.withValues(
-                                    alpha: 0.5,
+                            ? Center(
+                                child: Text(
+                                  'ไม่มีรายการ',
+                                  style: TextStyle(
+                                    color: themeItem.textPrimary.withValues(
+                                      alpha: 0.5,
+                                    ),
                                   ),
                                 ),
                               )

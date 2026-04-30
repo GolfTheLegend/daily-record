@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:daily_record/components/app_alert.dart';
 import 'package:daily_record/components/loading.dart';
+import 'package:daily_record/core/constants/icons.dart';
 import 'package:daily_record/core/models/get_daily_record_request.dart';
 import 'package:daily_record/core/models/get_daily_record_response.dart';
 import 'package:daily_record/core/services/get_daily_record_service.dart';
@@ -309,7 +310,8 @@ class _HomePageState extends State<HomePage> with RouteAware {
                                     height: 50,
                                   ),
                                 )
-                              : ListView.separated(
+                              : upcoming.isNotEmpty
+                              ? ListView.separated(
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 10,
                                     vertical: 10,
@@ -329,13 +331,18 @@ class _HomePageState extends State<HomePage> with RouteAware {
                                     final isDisable = !isToday || isPast;
                                     final opacity = isDisable ? 0.35 : 1.0;
 
+                                    final icon = iconsData.firstWhere(
+                                      (i) => i.keyId == item.iconId,
+                                      orElse: () => iconsData.first,
+                                    );
+
                                     return KeyedSubtree(
                                       key: index == 0 ? _firstItemKey : null,
                                       child: Opacity(
                                         opacity: opacity,
                                         child: ActivityCard(
                                           id: item.id!,
-                                          icon: Icons.description,
+                                          icon: icon.icon!,
                                           title: item.activityHeader ?? '-',
                                           checkStatus: item.checkStatus,
                                           checkListId: item.checkListId,
@@ -358,6 +365,17 @@ class _HomePageState extends State<HomePage> with RouteAware {
                                       ),
                                     );
                                   },
+                                )
+                              : Center(
+                                  child: Text(
+                                    'ไม่มีรายการ',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: themeItem.textPrimary.withValues(
+                                        alpha: 0.5,
+                                      ),
+                                    ),
+                                  ),
                                 ),
                         ),
                       ],

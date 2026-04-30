@@ -74,7 +74,7 @@ class _DetailPageState extends State<DetailPage> {
 
   Future<void> _switchTab() async {
     if (_isLoading) return;
-    
+
     setState(() {
       _onSwitch = !_onSwitch;
     });
@@ -271,7 +271,8 @@ class _DetailPageState extends State<DetailPage> {
             flex: 8,
             child: _isLoading
                 ? const Center(child: LoadingAnimation(width: 50, height: 50))
-                : ListView.separated(
+                : _records.isNotEmpty
+                ? ListView.separated(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 10,
                       vertical: 10,
@@ -303,6 +304,15 @@ class _DetailPageState extends State<DetailPage> {
                         },
                       );
                     },
+                  )
+                : Center(
+                    child: Text(
+                      'ไม่มีรายการ',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: themeItem.textPrimary.withValues(alpha: 0.5),
+                      ),
+                    ),
                   ),
           ),
           _Line(themeItem.textPrimary),

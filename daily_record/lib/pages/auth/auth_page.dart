@@ -1,6 +1,7 @@
 import 'package:daily_record/components/action_background.dart';
 import 'package:daily_record/components/loading.dart';
 import 'package:daily_record/components/switch_button.dart';
+import 'package:daily_record/core/themes/theme.dart';
 import 'package:daily_record/core/themes/theme_provider.dart';
 import 'package:daily_record/core/utils/token_storage.dart';
 import 'package:daily_record/pages/auth/login.dart';
@@ -19,6 +20,7 @@ class _AuthPageState extends State<AuthPage> {
   bool _isCheckingAuth = true;
   bool _isLogin = true;
   bool _isLoading = false;
+  final _loadingNotifier = ValueNotifier<bool>(false);
 
   @override
   void initState() {
@@ -27,6 +29,12 @@ class _AuthPageState extends State<AuthPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await _checkAutoLogin();
     });
+  }
+
+  @override
+  void dispose() {
+    _loadingNotifier.dispose();
+    super.dispose();
   }
 
   void _onSwitch(value) {
@@ -56,18 +64,17 @@ class _AuthPageState extends State<AuthPage> {
 
   @override
   Widget build(BuildContext context) {
-    final header = _TextHeader(_isLogin);
     final themeItem = context.watch<ThemeProvider>().currentThemeItem!;
 
     if (_isCheckingAuth) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    return ActionBackground(
-      header: header,
-      child: Stack(
-        children: [
-          Container(
+    return Stack(
+      children: [
+        ActionBackground(
+          header: _TextHeader(_isLogin, themeItem),
+          child: Container(
             decoration: BoxDecoration(),
             width: double.infinity,
             child: Column(
@@ -99,7 +106,10 @@ class _AuthPageState extends State<AuthPage> {
                         bottom: 0,
                         child: Login(
                           isLoading: _isLoading,
-                          setLoading: (p0) => setState(() => _isLoading = p0),
+                          setLoading: (p0) {
+                            if (p0) FocusScope.of(context).unfocus();
+                            _loadingNotifier.value = p0;
+                          },
                         ),
                       ),
 
@@ -112,7 +122,10 @@ class _AuthPageState extends State<AuthPage> {
                         bottom: 0,
                         child: Register(
                           isLoading: _isLoading,
-                          setLoading: (p0) => setState(() => _isLoading = p0),
+                          setLoading: (p0) {
+                            if (p0) FocusScope.of(context).unfocus();
+                            _loadingNotifier.value = p0;
+                          },
                           onRegisterSuccess: (success) {
                             if (success) {
                               setState(() {
@@ -128,26 +141,24 @@ class _AuthPageState extends State<AuthPage> {
               ],
             ),
           ),
-
-          AnimatedOpacity(
-            opacity: _isLoading ? 1.0 : 0.0,
+        ),
+        ValueListenableBuilder<bool>(
+          valueListenable: _loadingNotifier,
+          builder: (context, isLoading, child) => AnimatedOpacity(
+            opacity: isLoading ? 1.0 : 0.0,
             duration: const Duration(milliseconds: 200),
-            child: IgnorePointer(
-              ignoring: !_isLoading,
-              child: Container(
-                color: themeItem.background2.withValues(alpha: 0.6),
-                child: const Center(
-                  child: LoadingAnimation(width: 50, height: 50),
-                ),
-              ),
-            ),
+            child: IgnorePointer(ignoring: !isLoading, child: child),
           ),
-        ],
-      ),
+          child: Container(
+            color: themeItem.background2.withValues(alpha: 0.6),
+            child: const Center(child: LoadingAnimation(width: 50, height: 50)),
+          ),
+        ),
+      ],
     );
   }
 
-  Widget _TextHeader(bool _isLogin) {
+  Widget _TextHeader(bool _isLogin, ThemeItem themeItem) {
     return Stack(
       children: [
         AnimatedPositioned(
@@ -164,6 +175,7 @@ class _AuthPageState extends State<AuthPage> {
                 fontSize: 70,
                 fontWeight: FontWeight.bold,
                 fontFamily: 'Inter',
+                color: themeItem.secondary,
               ),
             ),
           ),
@@ -183,6 +195,7 @@ class _AuthPageState extends State<AuthPage> {
                 fontSize: 70,
                 fontWeight: FontWeight.bold,
                 fontFamily: 'Inter',
+                color: themeItem.secondary,
               ),
             ),
           ),
