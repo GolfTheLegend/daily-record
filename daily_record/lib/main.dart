@@ -1,4 +1,5 @@
 import 'package:daily_record/core/network/dio_client.dart';
+import 'package:daily_record/core/utils/auth_event_bus.dart';
 import 'package:daily_record/pages/auth/auth_page.dart';
 import 'package:daily_record/pages/calendar/calendar_page.dart';
 import 'package:daily_record/pages/create_active/create_active_page.dart';
@@ -15,9 +16,20 @@ void main() async {
   final themeProvider = ThemeProvider();
   await themeProvider.loadSavedTheme(); // โหลด key ที่บันทึกไว้
 
-  runApp(
-    ChangeNotifierProvider.value(value: themeProvider, child: const MyApp()),
+  final app = ChangeNotifierProvider.value(
+    value: themeProvider,
+    child: const MyApp(),
   );
+
+  await DioClient.initAuthState();
+  runApp(app);
+
+  DioClient.authEvents.listen((event) {
+    if (event is LogoutEvent) {
+      DioClient.navigatorKey.currentState
+          ?.pushNamedAndRemoveUntil('/', (route) => false);
+    }
+  });
 }
 
 final RouteObserver<ModalRoute<void>> routeObserver =

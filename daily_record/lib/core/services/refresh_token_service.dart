@@ -3,7 +3,6 @@ import 'package:daily_record/core/models/refresh_token_response.dart';
 import 'package:daily_record/core/utils/error_handler.dart';
 import 'package:dio/dio.dart';
 import 'package:daily_record/core/constants/api_constants.dart';
-import 'package:daily_record/core/utils/token_storage.dart';
 
 class RefreshTokenService {
   final Dio _dio;
@@ -18,15 +17,9 @@ class RefreshTokenService {
         ApiConstants.refreshToken,
         data: request.toMap(),
       );
-      final refreshTokenResponse = RefreshTokenResponse.fromMap(
+      return RefreshTokenResponse.fromMap(
         response.data['data'],
       );
-      await TokenStorage.updateTokens(
-        accessToken: refreshTokenResponse.accessToken,
-        refreshToken: refreshTokenResponse.refreshToken,
-        expiresIn: refreshTokenResponse.expiresIn,
-      );
-      return refreshTokenResponse;
     } on DioException catch (e) {
       throw DioErrorHandler.handle(e);
     }

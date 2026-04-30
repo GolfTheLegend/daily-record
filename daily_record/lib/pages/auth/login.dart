@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:daily_record/components/app_alert.dart';
 import 'package:daily_record/components/border_button.dart';
-import 'package:daily_record/components/checkbox_button.dart';
 import 'package:daily_record/components/input.dart';
 import 'package:daily_record/core/themes/theme_provider.dart';
 import 'package:daily_record/core/models/login_request.dart';
@@ -24,7 +23,6 @@ class _LoginState extends State<Login> {
   late TextEditingController _usernameController;
   late TextEditingController _passwordController;
   final LoginService _loginService = LoginService();
-  bool _autoLogin = false;
 
   @override
   void initState() {
@@ -49,7 +47,7 @@ class _LoginState extends State<Login> {
         password: _passwordController.text,
       );
 
-      await _loginService.login(request, autoLogin: _autoLogin);
+      await _loginService.login(request);
 
       if (mounted) {
         AppAlert.show(
@@ -139,31 +137,6 @@ class _LoginState extends State<Login> {
                   ),
                 ),
               ],
-            ),
-            const SizedBox(height: 10),
-            Container(
-              width: screenWidth * 0.8,
-              child: Row(
-                children: [
-                  CheckboxButton(
-                    value: _autoLogin,
-                    onChanged: (v) => {
-                      setState(() {
-                        _autoLogin = v;
-                      }),
-                    },
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    'จดจำรหัสผ่าน',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: themeItem.textPrimary,
-                      fontSize: 17,
-                    ),
-                  ),
-                ],
-              ),
             ),
             const SizedBox(height: 10),
             Center(

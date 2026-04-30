@@ -9,10 +9,7 @@ import 'package:daily_record/core/models/login_response.dart';
 class LoginService {
   final Dio _dio = DioClient.getInstance();
 
-  Future<LoginResponse> login(
-    LoginRequest request, {
-    bool autoLogin = false,
-  }) async {
+  Future<LoginResponse> login(LoginRequest request) async {
     try {
       final response = await _dio.post(
         ApiConstants.login,
@@ -23,7 +20,6 @@ class LoginService {
         accessToken: loginResponse.tokens.accessToken,
         refreshToken: loginResponse.tokens.refreshToken,
         expiresIn: loginResponse.tokens.expiresIn,
-        autoLogin: autoLogin,
       );
       return loginResponse;
     } on DioException catch (e) {

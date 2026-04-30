@@ -4,6 +4,7 @@ import 'package:daily_record/components/switch_button.dart';
 import 'package:daily_record/core/themes/theme.dart';
 import 'package:daily_record/core/themes/theme_provider.dart';
 import 'package:daily_record/core/utils/token_storage.dart';
+import 'package:daily_record/core/network/dio_client.dart';
 import 'package:daily_record/pages/auth/login.dart';
 import 'package:daily_record/pages/auth/register.dart';
 import 'package:flutter/material.dart';
@@ -27,7 +28,7 @@ class _AuthPageState extends State<AuthPage> {
     super.initState();
     // ✅ รอให้ first frame build เสร็จก่อนค่อย navigate
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await _checkAutoLogin();
+      await _checkAuthSession();
     });
   }
 
@@ -43,19 +44,26 @@ class _AuthPageState extends State<AuthPage> {
     });
   }
 
-  Future<void> _checkAutoLogin() async {
-    final autoLogin = await TokenStorage.getAutoLogin();
+  Future<void> _checkAuthSession() async {
+    final refreshToken = await TokenStorage.getRefreshToken();
+    final isExpired = await TokenStorage.isAccessTokenExpired();
 
-    if (autoLogin) {
-      final isExpired = await TokenStorage.isAccessTokenExpired();
+    if (refreshToken != null) {
       if (!isExpired) {
-        // ✅ token ยังใช้ได้ → ไป Home เลย
         if (mounted) {
           Navigator.pushNamedAndRemoveUntil(context, '/Home', (route) => false);
-          return;
         }
+        return;
       }
-      // token หมดอายุ → ล้างแล้วไป login
+
+      final refreshed = await DioClient.tryRefreshDirect();
+      if (refreshed) {
+        if (mounted) {
+          Navigator.pushNamedAndRemoveUntil(context, '/Home', (route) => false);
+        }
+        return;
+      }
+
       await TokenStorage.clearTokens();
     }
 
