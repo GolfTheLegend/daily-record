@@ -211,7 +211,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.User"
+                            "$ref": "#/definitions/handlers.RegisterRequest"
                         }
                     }
                 ],
@@ -871,6 +871,9 @@ const docTemplate = `{
         "handlers.LoginRequest": {
             "type": "object",
             "properties": {
+                "device_id": {
+                    "type": "string"
+                },
                 "password": {
                     "type": "string"
                 },
@@ -882,6 +885,9 @@ const docTemplate = `{
         "handlers.LogoutRequest": {
             "type": "object",
             "properties": {
+                "device_id": {
+                    "type": "string"
+                },
                 "refresh_token": {
                     "type": "string"
                 }
@@ -890,7 +896,24 @@ const docTemplate = `{
         "handlers.RefreshRequest": {
             "type": "object",
             "properties": {
+                "device_id": {
+                    "type": "string"
+                },
                 "refresh_token": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.RegisterRequest": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "username": {
                     "type": "string"
                 }
             }
@@ -1053,29 +1076,6 @@ const docTemplate = `{
                 },
                 "start_time": {
                     "description": "\"HH:MM\"",
-                    "type": "string"
-                }
-            }
-        },
-        "models.User": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "role": {
-                    "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "username": {
                     "type": "string"
                 }
             }

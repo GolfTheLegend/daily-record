@@ -17,51 +17,55 @@ func NewTokenStore(db *sql.DB) *TokenStore {
 	}
 }
 
-func (s *TokenStore) SaveRefreshToken(rt *RefreshToken) {
+func (s *TokenStore) SaveRefreshToken(rt *RefreshToken) error {
 	query := `
-		INSERT INTO refresh_tokens (token, user_id, expires_at, created_at, revoked)
-		VALUES ($1, $2, $3, $4, $5)
+		INSERT INTO refresh_tokens (token_hash, user_id, device_id, expires_at, created_at, revoked)
+		VALUES ($1, $2, $3, $4, $5, $6)
 	`
-	_, err := s.db.Exec(query, rt.Token, rt.UserID, rt.ExpiresAt, rt.CreatedAt, rt.Revoked)
+	_, err := s.db.Exec(query, rt.TokenHash, rt.UserID, rt.DeviceID, rt.ExpiresAt, rt.CreatedAt, rt.Revoked)
 	if err != nil {
 		log.Printf("Error saving refresh token: %v", err)
+		return err
 	}
+	return nil
 }
 
-func (s *TokenStore) FindRefreshToken(token string) (*RefreshToken, bool) {
+func (s *TokenStore) FindRefreshTokenByHash(tokenHash string) (*RefreshToken, bool, error) {
 	query := `
-		SELECT token, user_id, expires_at, created_at, revoked
+		SELECT token_hash, user_id, device_id, expires_at, created_at, revoked
 		FROM refresh_tokens
-		WHERE token = $1
+		WHERE token_hash = $1
 	`
 	rt := &RefreshToken{}
-	err := s.db.QueryRow(query, token).Scan(
-		&rt.Token, &rt.UserID, &rt.ExpiresAt, &rt.CreatedAt, &rt.Revoked,
+	err := s.db.QueryRow(query, tokenHash).Scan(
+		&rt.TokenHash, &rt.UserID, &rt.DeviceID, &rt.ExpiresAt, &rt.CreatedAt, &rt.Revoked,
 	)
 	if err == sql.ErrNoRows {
-		return nil, false
+		return nil, false, nil
 	}
 	if err != nil {
 		log.Printf("Error finding refresh token: %v", err)
-		return nil, false
+		return nil, false, err
 	}
-	return rt, true
+	return rt, true, nil
 }
 
-func (s *TokenStore) RevokeRefreshToken(token string) {
+func (s *TokenStore) RevokeRefreshTokenByHash(tokenHash string) error {
 	query := `
 		UPDATE refresh_tokens
 		SET revoked = true
-		WHERE token = $1
+		WHERE token_hash = $1
 	`
-	_, err := s.db.Exec(query, token)
+	_, err := s.db.Exec(query, tokenHash)
 	if err != nil {
 		log.Printf("Error revoking refresh token: %v", err)
+		return err
 	}
+	return nil
 }
 
 // RevokeAllUserTokens revoke ทุก session ของ user — ใช้เมื่อ logout-all หรือเปลี่ยน password
-func (s *TokenStore) RevokeAllUserTokens(userID uint) {
+func (s *TokenStore) RevokeAllUserTokens(userID uint) error {
 	query := `
 		UPDATE refresh_tokens
 		SET revoked = true
@@ -70,18 +74,20 @@ func (s *TokenStore) RevokeAllUserTokens(userID uint) {
 	_, err := s.db.Exec(query, userID)
 	if err != nil {
 		log.Printf("Error revoking all user tokens: %v", err)
+		return err
 	}
+	return nil
 }
 
 // CleanExpiredTokens ลบ token ที่หมดอายุแล้ว — เรียกจาก background goroutine
 func (s *TokenStore) CleanExpiredTokens() {
 	query := `
 		DELETE FROM refresh_tokens
-		WHERE expires_at < NOW() OR revoked = true
+		WHERE expires_at < NOW()
 	`
 	result, err := s.db.Exec(query)
 	if err != nil {
-		log.Printf("Error cleaning expired tokens: %v", err)
+		log.Printf("Error cleaning expired refresh tokens: %v", err)
 		return
 	}
 	rowsAffected, err := result.RowsAffected()
@@ -89,6 +95,6 @@ func (s *TokenStore) CleanExpiredTokens() {
 		log.Printf("Error getting rows affected: %v", err)
 	}
 	if rowsAffected > 0 {
-		log.Printf("[Cleanup] %d expired tokens removed", rowsAffected)
+		log.Printf("[Cleanup] %d expired refresh tokens removed", rowsAffected)
 	}
 }

@@ -35,7 +35,7 @@ type RegisterRequest struct {
 // @Tags Authentication
 // @Accept json
 // @Produce json
-// @Param request body models.User true "ข้อมูลการลงทะเบียน"
+// @Param request body RegisterRequest true "ข้อมูลการลงทะเบียน"
 // @Success 200 {object} map[string]interface{} "ลงทะเบียนสำเร็จ"
 // @Failure 400 {object} map[string]interface{} "ข้อมูลไม่ถูกต้อง"
 // @Router /auth/register [post]
@@ -110,6 +110,7 @@ func (h *AuthHandler) Register(c fiber.Ctx) error {
 type LoginRequest struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
+	DeviceID string `json:"device_id"`
 }
 
 // @Summary Login user
@@ -129,9 +130,9 @@ func (h *AuthHandler) Login(c fiber.Ctx) error {
 		)
 	}
 
-	if req.Username == "" || req.Password == "" {
+	if req.Username == "" || req.Password == "" || req.DeviceID == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(
-			utils.ErrorResponse("username and password are required"),
+			utils.ErrorResponse("username, password and device_id are required"),
 		)
 	}
 
@@ -150,8 +151,8 @@ func (h *AuthHandler) Login(c fiber.Ctx) error {
 		)
 	}
 
-	// ออก token คู่
-	pair, err := IssueTokenPair(user, h.store, h.cfg)
+	// ออก token คู่ พร้อม device binding
+	pair, err := IssueTokenPair(user, h.store, h.cfg, req.DeviceID)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(
 			utils.ErrorResponse("Failed to generate tokens"),
@@ -175,6 +176,7 @@ func (h *AuthHandler) Login(c fiber.Ctx) error {
 
 type RefreshRequest struct {
 	RefreshToken string `json:"refresh_token"`
+	DeviceID     string `json:"device_id"`
 }
 
 // @Summary Refresh access token
@@ -188,16 +190,42 @@ type RefreshRequest struct {
 // @Router /auth/refresh [post]
 func (h *AuthHandler) Refresh(c fiber.Ctx) error {
 	var req RefreshRequest
-	if err := c.Bind().Body(&req); err != nil || req.RefreshToken == "" {
+	if err := c.Bind().Body(&req); err != nil || req.RefreshToken == "" || req.DeviceID == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(
-			utils.ErrorResponse("refresh_token is required"),
+			utils.ErrorResponse("refresh_token and device_id are required"),
 		)
 	}
 
-	rt, exists := h.store.FindRefreshToken(req.RefreshToken)
-	if !exists || !rt.IsValid() {
+	tokenHash := hashRefreshToken(req.RefreshToken, h.cfg.RefreshTokenSecret)
+	rt, exists, err := h.store.FindRefreshTokenByHash(tokenHash)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(
+			utils.ErrorResponse("Internal server error"),
+		)
+	}
+	if !exists {
 		return c.Status(fiber.StatusUnauthorized).JSON(
 			utils.ErrorResponse("Invalid or expired refresh token"),
+		)
+	}
+
+	if rt.Revoked {
+		_ = h.store.RevokeAllUserTokens(rt.UserID)
+		return c.Status(fiber.StatusUnauthorized).JSON(
+			utils.ErrorResponse("Refresh token reuse detected. All sessions revoked."),
+		)
+	}
+
+	if rt.IsExpired() {
+		return c.Status(fiber.StatusUnauthorized).JSON(
+			utils.ErrorResponse("Invalid or expired refresh token"),
+		)
+	}
+
+	if rt.DeviceID != req.DeviceID {
+		_ = h.store.RevokeAllUserTokens(rt.UserID)
+		return c.Status(fiber.StatusUnauthorized).JSON(
+			utils.ErrorResponse("Invalid device for refresh token"),
 		)
 	}
 
@@ -209,10 +237,13 @@ func (h *AuthHandler) Refresh(c fiber.Ctx) error {
 	}
 
 	// Token Rotation — revoke เก่า แล้วออกใหม่
-	// ถ้า attacker ขโมย token ไปใช้ก่อน เจ้าของจะ refresh แล้วพบว่า token ถูก revoke แล้ว
-	h.store.RevokeRefreshToken(req.RefreshToken)
+	if err := h.store.RevokeRefreshTokenByHash(tokenHash); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(
+			utils.ErrorResponse("Internal server error"),
+		)
+	}
 
-	pair, err := IssueTokenPair(user, h.store, h.cfg)
+	pair, err := IssueTokenPair(user, h.store, h.cfg, req.DeviceID)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(
 			utils.ErrorResponse("Failed to generate tokens"),
@@ -230,6 +261,7 @@ func (h *AuthHandler) Refresh(c fiber.Ctx) error {
 
 type LogoutRequest struct {
 	RefreshToken string `json:"refresh_token"`
+	DeviceID     string `json:"device_id"`
 }
 
 // @Summary Logout user
@@ -248,7 +280,18 @@ func (h *AuthHandler) Logout(c fiber.Ctx) error {
 		)
 	}
 
-	h.store.RevokeRefreshToken(req.RefreshToken)
+	if req.DeviceID == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(
+			utils.ErrorResponse("device_id is required"),
+		)
+	}
+
+	tokenHash := hashRefreshToken(req.RefreshToken, h.cfg.RefreshTokenSecret)
+	if err := h.store.RevokeRefreshTokenByHash(tokenHash); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(
+			utils.ErrorResponse("Internal server error"),
+		)
+	}
 
 	return c.JSON(utils.SuccessResponse("Logged out successfully", nil))
 }

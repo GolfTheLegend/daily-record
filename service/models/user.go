@@ -18,8 +18,9 @@ type User struct {
 }
 
 type RefreshToken struct {
-	Token     string    `json:"token"`
+	TokenHash string    `json:"token_hash"`
 	UserID    uint      `json:"user_id"`
+	DeviceID  string    `json:"device_id"`
 	ExpiresAt time.Time `json:"expires_at"`
 	CreatedAt time.Time `json:"created_at"`
 	Revoked   bool      `json:"revoked"`

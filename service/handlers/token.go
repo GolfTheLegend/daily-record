@@ -1,7 +1,9 @@
 package handlers
 
 import (
+	"crypto/hmac"
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/hex"
 	"time"
 
@@ -57,8 +59,15 @@ func generateRefreshToken() (string, error) {
 	return hex.EncodeToString(b), nil
 }
 
-// IssueTokenPair ออก token คู่และบันทึก refresh token ลง store
-func IssueTokenPair(user *models.User, store *models.Store, cfg *config.Config) (*TokenPair, error) {
+// hashRefreshToken สร้าง HMAC-SHA256 hash ของ refresh token
+func hashRefreshToken(token string, secret string) string {
+	h := hmac.New(sha256.New, []byte(secret))
+	h.Write([]byte(token))
+	return hex.EncodeToString(h.Sum(nil))
+}
+
+// IssueTokenPair ออก token คู่และบันทึก refresh token ลง store พร้อม device binding
+func IssueTokenPair(user *models.User, store *models.Store, cfg *config.Config, deviceID string) (*TokenPair, error) {
 	accessToken, err := generateAccessToken(user, cfg)
 	if err != nil {
 		return nil, err
@@ -69,13 +78,18 @@ func IssueTokenPair(user *models.User, store *models.Store, cfg *config.Config) 
 		return nil, err
 	}
 
-	store.SaveRefreshToken(&models.RefreshToken{
-		Token:     refreshTokenStr,
+	tokenHash := hashRefreshToken(refreshTokenStr, cfg.RefreshTokenSecret)
+	err = store.SaveRefreshToken(&models.RefreshToken{
+		TokenHash: tokenHash,
 		UserID:    user.ID,
+		DeviceID:  deviceID,
 		ExpiresAt: time.Now().Add(cfg.RefreshTokenExpiry),
 		CreatedAt: time.Now(),
 		Revoked:   false,
 	})
+	if err != nil {
+		return nil, err
+	}
 
 	return &TokenPair{
 		AccessToken:  accessToken,
