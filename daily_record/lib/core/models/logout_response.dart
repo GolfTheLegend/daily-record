@@ -7,10 +7,11 @@ class LogoutResponse {
     required this.recordId,
   });
 
-  factory LogoutResponse.fromMap(Map<String, dynamic> map) {
+  factory LogoutResponse.fromMap(Map<String, dynamic>? map) {
+    final safeMap = map ?? <String, dynamic>{};
     return LogoutResponse(
-      message: map['message'] ?? '',
-      recordId: map['record_id'] ?? 0,
+      message: safeMap['message'] ?? '',
+      recordId: safeMap['record_id'] ?? 0,
     );
   }
 }

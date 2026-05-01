@@ -1,4 +1,5 @@
 import 'package:daily_record/core/network/dio_client.dart';
+import 'package:daily_record/core/services/device_service.dart';
 import 'package:daily_record/core/utils/auth_event_bus.dart';
 import 'package:daily_record/pages/auth/auth_page.dart';
 import 'package:daily_record/pages/calendar/calendar_page.dart';
@@ -21,6 +22,7 @@ void main() async {
     child: const MyApp(),
   );
 
+  await DeviceService.init();
   await DioClient.initAuthState();
   runApp(app);
 

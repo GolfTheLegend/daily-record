@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:daily_record/components/app_alert.dart';
 import 'package:daily_record/components/border_button.dart';
 import 'package:daily_record/components/input.dart';
+import 'package:daily_record/core/services/device_service.dart';
 import 'package:daily_record/core/themes/theme_provider.dart';
 import 'package:daily_record/core/models/login_request.dart';
 import 'package:daily_record/core/services/login_service.dart';
@@ -42,9 +43,12 @@ class _LoginState extends State<Login> {
     widget.setLoading?.call(true);
 
     try {
+      final deviceId = await DeviceService.getDeviceId();
+
       final request = LoginRequest(
         username: _usernameController.text,
         password: _passwordController.text,
+        deviceId: deviceId,
       );
 
       await _loginService.login(request);

@@ -40,8 +40,7 @@ dependencies:
   flutter_svg: ^2.2.3
   dio: ^5.4.0
   flutter_secure_storage: ^9.0.0
-
-
+  device_info_plus: ^12.4.0
 
 flutter_icons:
   android: true
@@ -49,7 +48,6 @@ flutter_icons:
   image_path: "assets/icons/app_icon.png"
   adaptive_icon_background: "#0000"
   adaptive_icon_foreground: "assets/icons/app_icon.png"
-
 
 dev_dependencies:
   flutter_test:

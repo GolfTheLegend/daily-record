@@ -45,26 +45,20 @@ class _AuthPageState extends State<AuthPage> {
   }
 
   Future<void> _checkAuthSession() async {
-    final refreshToken = await TokenStorage.getRefreshToken();
-    final isExpired = await TokenStorage.isAccessTokenExpired();
+    final hasRefreshToken = await TokenStorage.hasRefreshToken();
 
-    if (refreshToken != null) {
-      if (!isExpired) {
+    if (hasRefreshToken) {
+      final refreshStatus = await DioClient.tryRefreshDirect();
+      if (refreshStatus == RefreshStatus.success) {
         if (mounted) {
           Navigator.pushNamedAndRemoveUntil(context, '/Home', (route) => false);
         }
         return;
       }
 
-      final refreshed = await DioClient.tryRefreshDirect();
-      if (refreshed) {
-        if (mounted) {
-          Navigator.pushNamedAndRemoveUntil(context, '/Home', (route) => false);
-        }
-        return;
+      if (refreshStatus == RefreshStatus.invalidToken) {
+        await TokenStorage.clearTokens();
       }
-
-      await TokenStorage.clearTokens();
     }
 
     if (mounted) setState(() => _isCheckingAuth = false);
@@ -116,7 +110,10 @@ class _AuthPageState extends State<AuthPage> {
                           isLoading: _isLoading,
                           setLoading: (p0) {
                             if (p0) FocusScope.of(context).unfocus();
-                            _loadingNotifier.value = p0;
+                            setState(() {
+                              _isLoading = p0;
+                              _loadingNotifier.value = p0;
+                            });
                           },
                         ),
                       ),

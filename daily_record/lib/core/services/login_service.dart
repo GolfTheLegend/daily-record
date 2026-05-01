@@ -17,10 +17,10 @@ class LoginService {
       );
       final loginResponse = LoginResponse.fromMap(response.data['data']);
       await TokenStorage.saveTokens(
-        accessToken: loginResponse.tokens.accessToken,
         refreshToken: loginResponse.tokens.refreshToken,
         expiresIn: loginResponse.tokens.expiresIn,
       );
+      DioClient.setAccessToken(loginResponse.tokens.accessToken);
       return loginResponse;
     } on DioException catch (e) {
       throw DioErrorHandler.handle(e);

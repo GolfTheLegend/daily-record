@@ -4,7 +4,9 @@ import 'package:daily_record/components/app_alert.dart';
 import 'package:daily_record/components/background.dart';
 import 'package:daily_record/components/border_button.dart';
 import 'package:daily_record/components/press_scale.dart';
+import 'package:daily_record/core/models/logout_all_request.dart';
 import 'package:daily_record/core/models/logout_request.dart';
+import 'package:daily_record/core/services/device_service.dart';
 import 'package:daily_record/core/services/logout_service.dart';
 import 'package:daily_record/core/themes/theme_provider.dart';
 import 'package:daily_record/core/utils/token_storage.dart';
@@ -52,13 +54,22 @@ class _SettingPageState extends State<SettingPage> {
 
   Future<void> _logOut() async {
     setState(() => _isLoading = true);
+    var success = false;
 
     try {
       final refreshToken = await TokenStorage.getRefreshToken();
+      final deviceId = await DeviceService.getDeviceId();
 
       if (refreshToken != null) {
-        await _service.logout(LogoutRequest(refreshToken: refreshToken));
+        await _service.logout(
+          LogoutRequest(
+            refreshToken: refreshToken,
+            deviceId: deviceId,
+          ),
+        );
       }
+
+      success = true;
     } catch (e) {
       AppAlert.show(
         context,
@@ -67,19 +78,61 @@ class _SettingPageState extends State<SettingPage> {
         type: AlertType.error,
       );
     } finally {
-      await TokenStorage.clearTokens();
+      if (success) {
+        await TokenStorage.clearTokens();
 
-      if (!mounted) return;
-      setState(() => _isLoading = false);
+        if (!mounted) return;
+        setState(() => _isLoading = false);
+        AppAlert.show(
+          context,
+          title: 'ออกจากระบบสำเร็จ',
+          message: '',
+          type: AlertType.success,
+          onConfirm: () {
+            Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+          },
+        );
+      } else {
+        if (!mounted) return;
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  Future<void> _logoutAllDevices() async {
+    setState(() => _isLoading = true);
+    var success = false;
+
+    try {
+      final deviceId = await DeviceService.getDeviceId();
+      await _service.logoutAll(LogoutAllRequest(deviceId: deviceId));
+      success = true;
+    } catch (e) {
       AppAlert.show(
         context,
-        title: 'ออกจากระบบสำเร็จ',
-        message: '',
-        type: AlertType.success,
-        onConfirm: () {
-          Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
-        },
+        title: 'เกิดข้อผิดพลาด',
+        message: e.toString(),
+        type: AlertType.error,
       );
+    } finally {
+      if (success) {
+        await TokenStorage.clearTokens();
+
+        if (!mounted) return;
+        setState(() => _isLoading = false);
+        AppAlert.show(
+          context,
+          title: 'ออกจากระบบทั้งหมดสำเร็จ',
+          message: '',
+          type: AlertType.success,
+          onConfirm: () {
+            Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+          },
+        );
+      } else {
+        if (!mounted) return;
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -281,28 +334,56 @@ class _SettingPageState extends State<SettingPage> {
                       const SizedBox(height: 10),
                       Padding(
                         padding: const EdgeInsets.all(10),
-                        child: SizedBox(
-                          width: double.infinity,
-                          height: 50,
-                          child: PressScale(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: themeItem.status2,
-                                borderRadius: BorderRadius.circular(15),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  'ออกจากระบบ',
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                    color: themeItem.background2,
+                        child: Column(
+                          children: [
+                            SizedBox(
+                              width: double.infinity,
+                              height: 50,
+                              child: PressScale(
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: themeItem.status2,
+                                    borderRadius: BorderRadius.circular(15),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      'ออกจากระบบ',
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        color: themeItem.background2,
+                                      ),
+                                    ),
                                   ),
                                 ),
+                                onTap: () => _isLoading ? null : _logOut(),
                               ),
                             ),
-                            onTap: () => _isLoading ? null : _logOut(),
-                          ),
+                            const SizedBox(height: 10),
+                            SizedBox(
+                              width: double.infinity,
+                              height: 50,
+                              child: PressScale(
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: themeItem.status1,
+                                    borderRadius: BorderRadius.circular(15),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      'ออกจากระบบทั้งหมด',
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        color: themeItem.textPrimary,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                onTap: () => _isLoading ? null : _logoutAllDevices(),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
