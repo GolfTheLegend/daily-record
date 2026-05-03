@@ -3,9 +3,10 @@ import 'dart:async';
 import 'package:daily_record/components/app_alert.dart';
 import 'package:daily_record/components/loading.dart';
 import 'package:daily_record/core/constants/icons.dart';
+import 'package:daily_record/core/di/injection.dart';
 import 'package:daily_record/core/models/get_daily_record_request.dart';
 import 'package:daily_record/core/models/get_daily_record_response.dart';
-import 'package:daily_record/core/services/get_daily_record_service.dart';
+import 'package:daily_record/core/repositories/repositories.dart';
 import 'package:daily_record/core/themes/theme_provider.dart';
 import 'package:daily_record/main.dart';
 import 'package:daily_record/pages/home/activity_card.dart';
@@ -23,7 +24,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> with RouteAware {
-  final _service = GetDailyRecordService();
+  final IDailyRecordRepository _dailyRecordRepository = getIt<IDailyRecordRepository>();
   List<DailyRecordItem> _records = [];
   List<DailyRecordItem> _currentRecords = [];
   bool _shouldRefreshOnPop = true;
@@ -146,7 +147,7 @@ class _HomePageState extends State<HomePage> with RouteAware {
         dateTo: dateStr,
       );
 
-      final response = await _service.getDailyRecords(request);
+      final response = await _dailyRecordRepository.getDailyRecords(request);
 
       final isToday =
           now.year == date.year &&

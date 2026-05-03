@@ -4,9 +4,10 @@ import 'package:daily_record/components/background.dart';
 import 'package:daily_record/components/border_button.dart';
 import 'package:daily_record/components/loading.dart';
 import 'package:daily_record/components/press_scale.dart';
+import 'package:daily_record/core/di/injection.dart';
 import 'package:daily_record/core/models/get_daily_record_request.dart';
 import 'package:daily_record/core/models/get_daily_record_response.dart';
-import 'package:daily_record/core/services/get_daily_record_service.dart';
+import 'package:daily_record/core/repositories/repositories.dart';
 import 'package:daily_record/core/themes/theme_provider.dart';
 import 'package:daily_record/pages/create_active/create_active_page.dart';
 import 'package:daily_record/pages/detail/detail_edit_box.dart';
@@ -29,7 +30,8 @@ class DetailPage extends StatefulWidget {
 
 class _DetailPageState extends State<DetailPage> {
   final ScrollController _scrollController = ScrollController();
-  final _service = GetDailyRecordService();
+  final IDailyRecordRepository _dailyRecordRepository =
+      getIt<IDailyRecordRepository>();
   List<DailyRecordItem> _records = [];
   bool _onSwitch = true;
   bool _isLoading = false;
@@ -104,7 +106,7 @@ class _DetailPageState extends State<DetailPage> {
           ? GetDailyRecordsRequest(dateFrom: date, dateTo: date)
           : GetDailyRecordsRequest(limit: _limit, offset: _offset);
 
-      final response = await _service.getDailyRecords(request);
+      final response = await _dailyRecordRepository.getDailyRecords(request);
 
       if (!mounted) return;
 

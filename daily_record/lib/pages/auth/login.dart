@@ -3,10 +3,11 @@ import 'dart:math';
 import 'package:daily_record/components/app_alert.dart';
 import 'package:daily_record/components/border_button.dart';
 import 'package:daily_record/components/input.dart';
+import 'package:daily_record/core/di/injection.dart';
+import 'package:daily_record/core/models/login_request.dart';
+import 'package:daily_record/core/repositories/repositories.dart';
 import 'package:daily_record/core/services/device_service.dart';
 import 'package:daily_record/core/themes/theme_provider.dart';
-import 'package:daily_record/core/models/login_request.dart';
-import 'package:daily_record/core/services/login_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
@@ -23,7 +24,7 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> {
   late TextEditingController _usernameController;
   late TextEditingController _passwordController;
-  final LoginService _loginService = LoginService();
+  final IAuthRepository _authRepository = getIt<IAuthRepository>();
 
   @override
   void initState() {
@@ -51,7 +52,7 @@ class _LoginState extends State<Login> {
         deviceId: deviceId,
       );
 
-      await _loginService.login(request);
+      await _authRepository.login(request);
 
       if (mounted) {
         AppAlert.show(

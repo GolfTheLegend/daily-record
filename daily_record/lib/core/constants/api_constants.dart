@@ -1,6 +1,7 @@
+import 'package:daily_record/core/config/app_config.dart';
+
 class ApiConstants {
-  static const String baseUrl ='https://luca-nonbacterial-regenia.ngrok-free.dev/api/v1';   //test
-  // static const String baseUrl ='https://daily-record.onrender.com/api/v1';   //deploy
+  static String get baseUrl => AppConfig.instance.baseUrl;
 
   // Auth endpoints
   static const String login = '/auth/login';

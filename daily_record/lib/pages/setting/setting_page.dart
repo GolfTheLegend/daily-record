@@ -4,10 +4,11 @@ import 'package:daily_record/components/app_alert.dart';
 import 'package:daily_record/components/background.dart';
 import 'package:daily_record/components/border_button.dart';
 import 'package:daily_record/components/press_scale.dart';
+import 'package:daily_record/core/di/injection.dart';
 import 'package:daily_record/core/models/logout_all_request.dart';
 import 'package:daily_record/core/models/logout_request.dart';
+import 'package:daily_record/core/repositories/repositories.dart';
 import 'package:daily_record/core/services/device_service.dart';
-import 'package:daily_record/core/services/logout_service.dart';
 import 'package:daily_record/core/themes/theme_provider.dart';
 import 'package:daily_record/core/utils/token_storage.dart';
 import 'package:daily_record/pages/setting/themeselection.dart';
@@ -24,7 +25,7 @@ class SettingPage extends StatefulWidget {
 }
 
 class _SettingPageState extends State<SettingPage> {
-  final _service = LogoutService();
+  final IAuthRepository _authRepository = getIt<IAuthRepository>();
   bool _isLoading = false;
 
   @override
@@ -61,7 +62,7 @@ class _SettingPageState extends State<SettingPage> {
       final deviceId = await DeviceService.getDeviceId();
 
       if (refreshToken != null) {
-        await _service.logout(
+        await _authRepository.logout(
           LogoutRequest(
             refreshToken: refreshToken,
             deviceId: deviceId,
@@ -105,7 +106,7 @@ class _SettingPageState extends State<SettingPage> {
 
     try {
       final deviceId = await DeviceService.getDeviceId();
-      await _service.logoutAll(LogoutAllRequest(deviceId: deviceId));
+      await _authRepository.logoutAll(LogoutAllRequest(deviceId: deviceId));
       success = true;
     } catch (e) {
       AppAlert.show(

@@ -1,10 +1,10 @@
 import 'package:daily_record/components/app_alert.dart';
 import 'package:daily_record/components/press_scale.dart';
 import 'package:daily_record/core/constants/constants.dart';
+import 'package:daily_record/core/di/injection.dart';
 import 'package:daily_record/core/models/check_list_request.dart';
 import 'package:daily_record/core/models/edit_check_list_request.dart';
-import 'package:daily_record/core/services/create_check_list_service.dart';
-import 'package:daily_record/core/services/edit_check_list_service.dart';
+import 'package:daily_record/core/repositories/repositories.dart';
 import 'package:daily_record/core/themes/theme_provider.dart';
 import 'package:daily_record/pages/home/activity_detail_modal.dart';
 import 'package:flutter/material.dart';
@@ -47,8 +47,8 @@ class ActivityCard extends StatefulWidget {
 
 class ActivityCardState extends State<ActivityCard>
     with SingleTickerProviderStateMixin {
-  final _createService = CreateCheckListService();
-  final _updateService = UpdateCheckListService();
+  final ICheckListRepository _checkListRepository =
+      getIt<ICheckListRepository>();
   bool _showActions = false;
   late AnimationController _controller;
   late Animation<double> _scaleAnim;
@@ -126,12 +126,12 @@ class ActivityCardState extends State<ActivityCard>
       final updateRequest = EditCheckListRequest(checkStatus: onCheck);
 
       if (widget.checkListId != null) {
-        await _updateService.updateCheckLists(
+        await _checkListRepository.updateCheckLists(
           widget.checkListId!,
           updateRequest,
         );
       } else {
-        await _createService.createCheckLists(widget.id, createRequest);
+        await _checkListRepository.createCheckLists(widget.id, createRequest);
       }
       if (!mounted) return;
       AppAlert.show(

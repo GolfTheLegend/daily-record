@@ -1,8 +1,9 @@
 import 'package:daily_record/components/app_alert.dart';
 import 'package:daily_record/components/loading.dart';
 import 'package:daily_record/components/press_scale.dart';
+import 'package:daily_record/core/di/injection.dart';
 import 'package:daily_record/core/models/get_status_daily_record_request.dart';
-import 'package:daily_record/core/services/get_daily_record_service.dart';
+import 'package:daily_record/core/repositories/repositories.dart';
 import 'package:daily_record/core/themes/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -18,7 +19,8 @@ class CalendarTable extends StatefulWidget {
 class CalendarTableState extends State<CalendarTable> {
   DateTime _selectedMonth = DateTime.now(); // เดือนปจุบัน
   DateTime? _selectedDate; // วันที่เลือก
-  final _service = GetDailyRecordService();
+  final IDailyRecordRepository _dailyRecordRepository =
+      getIt<IDailyRecordRepository>();
   bool _isLoading = false;
   int _slideDirection = 1;
 
@@ -107,7 +109,7 @@ class CalendarTableState extends State<CalendarTable> {
       final request = GetStatusDailyRecordsRequest(month: month, year: year);
       print(request.toMap());
 
-      final response = await _service.getStatusDailyRecords(request);
+      final response = await _dailyRecordRepository.getStatusDailyRecords(request);
 
       final waiting = <int>[];
       final record = <int>[];

@@ -8,10 +8,10 @@ import 'package:daily_record/components/checkbox_button.dart';
 import 'package:daily_record/components/dropdown_button.dart';
 import 'package:daily_record/components/loading.dart';
 import 'package:daily_record/components/press_scale.dart';
+import 'package:daily_record/core/di/injection.dart';
 import 'package:daily_record/core/models/daily_record_request.dart';
 import 'package:daily_record/core/models/get_daily_record_response.dart';
-import 'package:daily_record/core/services/create_daily_record_service.dart';
-import 'package:daily_record/core/services/edit_daily_record_service.dart';
+import 'package:daily_record/core/repositories/repositories.dart';
 import 'package:daily_record/core/themes/theme_provider.dart';
 import 'package:daily_record/pages/create_active/icon_selection.dart';
 import 'package:daily_record/components/input.dart';
@@ -75,9 +75,9 @@ class CreateActivePage extends StatefulWidget {
 // ─── State ────────────────────────────────────────────────────────────────────
 
 class _CreateActivePageState extends State<CreateActivePage> {
-  // Services
-  final _createService = CreateDailyRecordService();
-  final _updateService = UpdateDailyRecordService();
+  // Repositories
+  final IDailyRecordRepository _dailyRecordRepository =
+      getIt<IDailyRecordRepository>();
 
   // Controllers — ใช้ TextEditingController เพื่อโหลดค่าเดิมในโหมด edit
   late final TextEditingController _headerController;
@@ -229,12 +229,12 @@ class _CreateActivePageState extends State<CreateActivePage> {
       );
 
       if (_isEditMode) {
-        await _updateService.updateDailyRecords(
+        await _dailyRecordRepository.updateDailyRecords(
           widget.recordData!.id!,
           request,
         );
       } else {
-        await _createService.createDailyRecords(request);
+        await _dailyRecordRepository.createDailyRecords(request);
       }
 
       if (!mounted) return;

@@ -6,10 +6,11 @@ import 'package:daily_record/components/border_button.dart';
 import 'package:daily_record/components/loading.dart';
 import 'package:daily_record/components/press_scale.dart';
 import 'package:daily_record/core/constants/constants.dart';
+import 'package:daily_record/core/di/injection.dart';
 import 'package:daily_record/pages/calendar/calendar_table.dart';
 import 'package:daily_record/core/models/get_daily_record_request.dart';
 import 'package:daily_record/core/models/get_daily_record_response.dart';
-import 'package:daily_record/core/services/get_daily_record_service.dart';
+import 'package:daily_record/core/repositories/repositories.dart';
 import 'package:daily_record/core/themes/theme_provider.dart';
 import 'package:daily_record/pages/detail/detail_page.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +24,8 @@ class CalendarPage extends StatefulWidget {
 }
 
 class _CalendarPageState extends State<CalendarPage> {
-  final _service = GetDailyRecordService();
+  final IDailyRecordRepository _dailyRecordRepository =
+      getIt<IDailyRecordRepository>();
   late String _defaultDate;
   late String _filteredDate;
   bool _isLoading = false;
@@ -51,7 +53,7 @@ class _CalendarPageState extends State<CalendarPage> {
     }
     try {
       final request = GetDailyRecordsRequest(dateFrom: date, dateTo: date);
-      final response = await _service.getDailyRecords(request);
+      final response = await _dailyRecordRepository.getDailyRecords(request);
       if (!mounted || currentId != _requestId) return;
       setState(() {
         _recordData = response.data;

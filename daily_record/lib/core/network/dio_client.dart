@@ -6,6 +6,7 @@ import 'package:daily_record/core/services/device_service.dart';
 import 'package:daily_record/core/services/refresh_token_service.dart';
 import 'package:daily_record/core/utils/auth_event_bus.dart';
 import 'package:daily_record/core/utils/token_storage.dart';
+import 'package:daily_record/core/config/app_config.dart';
 import 'package:daily_record/core/constants/api_constants.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +18,7 @@ class DioClient {
   static Dio? _instance;
   
   // ✅ Dio แยกต่างหากสำหรับ refresh (ไม่มี interceptor)
-  static final Dio _refreshDio = Dio(BaseOptions(baseUrl: ApiConstants.baseUrl));
+  static final Dio _refreshDio = Dio(BaseOptions(baseUrl: AppConfig.instance.baseUrl));
   
   static late final RefreshTokenService _refreshService =
       RefreshTokenService(dio: _refreshDio); // inject dio แยก
@@ -47,7 +48,7 @@ class DioClient {
   }
 
   static Dio _createDio() {
-    final dio = Dio(BaseOptions(baseUrl: ApiConstants.baseUrl));
+    final dio = Dio(BaseOptions(baseUrl: AppConfig.instance.baseUrl));
 
     dio.interceptors.add(
       InterceptorsWrapper(

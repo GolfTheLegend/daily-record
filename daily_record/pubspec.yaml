@@ -41,6 +41,7 @@ dependencies:
   dio: ^5.4.0
   flutter_secure_storage: ^9.0.0
   device_info_plus: ^12.4.0
+  get_it: ^8.1.0
 
 flutter_icons:
   android: true

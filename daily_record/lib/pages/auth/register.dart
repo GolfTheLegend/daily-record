@@ -3,8 +3,9 @@ import 'dart:math';
 import 'package:daily_record/components/app_alert.dart';
 import 'package:daily_record/components/border_button.dart';
 import 'package:daily_record/components/input.dart';
+import 'package:daily_record/core/di/injection.dart';
 import 'package:daily_record/core/models/register_request.dart';
-import 'package:daily_record/core/services/register_service.dart';
+import 'package:daily_record/core/repositories/repositories.dart';
 import 'package:daily_record/core/themes/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -29,7 +30,7 @@ class _RegisterState extends State<Register> {
   late TextEditingController _usernameController;
   late TextEditingController _emailController;
   late TextEditingController _passwordController;
-  final RegisterService _registerService = RegisterService();
+  final IAuthRepository _authRepository = getIt<IAuthRepository>();
 
   @override
   void initState() {
@@ -57,7 +58,7 @@ class _RegisterState extends State<Register> {
         password: _passwordController.text,
       );
 
-      await _registerService.register(request);
+      await _authRepository.register(request);
 
       if (mounted) {
         AppAlert.show(

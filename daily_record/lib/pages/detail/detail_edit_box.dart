@@ -1,8 +1,9 @@
 import 'package:daily_record/components/app_alert.dart';
 import 'package:daily_record/components/press_scale.dart';
 import 'package:daily_record/core/constants/constants.dart';
+import 'package:daily_record/core/di/injection.dart';
 import 'package:daily_record/core/models/get_daily_record_response.dart';
-import 'package:daily_record/core/services/delete_daily_record_service.dart';
+import 'package:daily_record/core/repositories/repositories.dart';
 import 'package:daily_record/core/themes/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -23,7 +24,8 @@ class DetailEditBox extends StatefulWidget {
 }
 
 class _DetailEditBoxState extends State<DetailEditBox> {
-  final _service = DeleteDailyRecordService();
+  final IDailyRecordRepository _dailyRecordRepository =
+      getIt<IDailyRecordRepository>();
 
   void _onConfirmDelete() {
     AppAlert.show(
@@ -44,7 +46,7 @@ class _DetailEditBoxState extends State<DetailEditBox> {
         throw Exception('Invalid ID');
       }
 
-      await _service.deleteDailyRecords(id);
+      await _dailyRecordRepository.deleteDailyRecords(id);
 
       if (!mounted) return;
 

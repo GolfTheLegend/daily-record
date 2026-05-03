@@ -1,3 +1,5 @@
+import 'package:daily_record/core/config/app_config.dart';
+import 'package:daily_record/core/di/injection.dart';
 import 'package:daily_record/core/network/dio_client.dart';
 import 'package:daily_record/core/services/device_service.dart';
 import 'package:daily_record/core/utils/auth_event_bus.dart';
@@ -14,6 +16,21 @@ import 'package:provider/provider.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // ต้องมีก่อน SharedPreferences
 
+  const environment = String.fromEnvironment('ENV', defaultValue: 'dev');
+  const baseUrl = String.fromEnvironment(
+    'BASE_URL',
+    defaultValue: 'https://luca-nonbacterial-regenia.ngrok-free.dev/api/v1',
+  );
+  const useMockServices = bool.fromEnvironment('USE_MOCK_SERVICES', defaultValue: false);
+
+  AppConfig.init(
+    environment: environment,
+    baseUrl: baseUrl,
+    useMockServices: useMockServices,
+  );
+
+  configureDependencies();
+
   final themeProvider = ThemeProvider();
   await themeProvider.loadSavedTheme(); // โหลด key ที่บันทึกไว้
 
@@ -28,8 +45,10 @@ void main() async {
 
   DioClient.authEvents.listen((event) {
     if (event is LogoutEvent) {
-      DioClient.navigatorKey.currentState
-          ?.pushNamedAndRemoveUntil('/', (route) => false);
+      DioClient.navigatorKey.currentState?.pushNamedAndRemoveUntil(
+        '/',
+        (route) => false,
+      );
     }
   });
 }
@@ -53,7 +72,8 @@ class MyApp extends StatelessWidget {
         '/Home': (context) => const HomePage(),
         '/create': (context) => const CreateActivePage(mode: PageMode.create),
         '/calendar': (context) => const CalendarPage(),
-        '/detail': (context) => const DetailPage(selectionDate: '',recordData: []),
+        '/detail': (context) =>
+            const DetailPage(selectionDate: '', recordData: []),
         '/setting': (context) => const SettingPage(),
       },
     );
