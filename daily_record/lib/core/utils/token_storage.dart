@@ -5,7 +5,15 @@ class TokenStorage {
   static const String _expiresAtKey = 'expires_at';
   static const String _deviceIdKey = 'device_id';
 
-  static final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
+  static final FlutterSecureStorage _secureStorage = const FlutterSecureStorage(
+    aOptions: AndroidOptions(
+      encryptedSharedPreferences: true, // AES encryption
+    ),
+    iOptions: IOSOptions(
+      accessibility: KeychainAccessibility.first_unlock_this_device,
+      // first_unlock_this_device = ไม่ backup iCloud + ใช้ได้หลัง unlock ครั้งแรก
+    ),
+  );
 
   // Save
   // In mobile enterprise flow, refresh token is the source of truth for auto login.
@@ -15,7 +23,9 @@ class TokenStorage {
     required String refreshToken,
     required int expiresIn,
   }) async {
-    final expiresAt = DateTime.now().add(Duration(seconds: expiresIn)).millisecondsSinceEpoch;
+    final expiresAt = DateTime.now()
+        .add(Duration(seconds: expiresIn))
+        .millisecondsSinceEpoch;
 
     await _secureStorage.write(key: _refreshTokenKey, value: refreshToken);
     await _secureStorage.write(key: _expiresAtKey, value: expiresAt.toString());
@@ -38,14 +48,17 @@ class TokenStorage {
   }
 
   // เช็คว่า token หมดอายุหรือยัง
-  static Future<bool> isAccessTokenExpired({Duration buffer = const Duration(minutes: 2)}) async {
+  static Future<bool> isAccessTokenExpired({
+    Duration buffer = const Duration(minutes: 2),
+  }) async {
     final expiresAtString = await _secureStorage.read(key: _expiresAtKey);
     if (expiresAtString == null) return true;
 
     final expiresAt = int.tryParse(expiresAtString);
     if (expiresAt == null) return true;
 
-    return DateTime.now().millisecondsSinceEpoch + buffer.inMilliseconds >= expiresAt;
+    return DateTime.now().millisecondsSinceEpoch + buffer.inMilliseconds >=
+        expiresAt;
   }
 
   //update

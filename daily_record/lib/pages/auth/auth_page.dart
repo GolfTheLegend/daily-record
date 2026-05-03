@@ -103,17 +103,15 @@ class _AuthPageState extends State<AuthPage> {
                         duration: const Duration(milliseconds: 600),
                         curve: Curves.easeOutCubic,
                         top: 0,
-                        left: _isLogin ? 0 : -4000,
-                        right: _isLogin ? 0 : 4000,
+                        left: _isLogin ? 0 : -(MediaQuery.of(context).size.width + 100),
+                        right: _isLogin ? 0 : (MediaQuery.of(context).size.width + 100),
                         bottom: 0,
                         child: Login(
                           isLoading: _isLoading,
                           setLoading: (p0) {
                             if (p0) FocusScope.of(context).unfocus();
-                            setState(() {
-                              _isLoading = p0;
-                              _loadingNotifier.value = p0;
-                            });
+                            _isLoading = p0;
+                            _loadingNotifier.value = p0;
                           },
                         ),
                       ),
@@ -122,8 +120,8 @@ class _AuthPageState extends State<AuthPage> {
                         duration: const Duration(milliseconds: 600),
                         curve: Curves.easeOutCubic,
                         top: 0,
-                        left: _isLogin ? 4000 : 0,
-                        right: _isLogin ? -4000 : 0,
+                        left: _isLogin ? (MediaQuery.of(context).size.width + 100) : 0,
+                        right: _isLogin ? -(MediaQuery.of(context).size.width + 100) : 0,
                         bottom: 0,
                         child: Register(
                           isLoading: _isLoading,
@@ -133,9 +131,7 @@ class _AuthPageState extends State<AuthPage> {
                           },
                           onRegisterSuccess: (success) {
                             if (success) {
-                              setState(() {
-                                _isLogin = true;
-                              });
+                              _isLogin = true;
                             }
                           },
                         ),
@@ -170,8 +166,8 @@ class _AuthPageState extends State<AuthPage> {
           duration: const Duration(milliseconds: 600),
           curve: Curves.easeOutCubic,
           top: 0,
-          left: _isLogin ? 0 : -4000,
-          right: _isLogin ? 0 : 4000,
+          left: _isLogin ? 0 : -(MediaQuery.of(context).size.width + 100),
+          right: _isLogin ? 0 : (MediaQuery.of(context).size.width + 100),
           bottom: 0,
           child: Center(
             child: Text(
@@ -190,8 +186,8 @@ class _AuthPageState extends State<AuthPage> {
           duration: const Duration(milliseconds: 600),
           curve: Curves.easeOutCubic,
           top: 0,
-          left: _isLogin ? 4000 : 0,
-          right: _isLogin ? -4000 : 0,
+          left: _isLogin ? (MediaQuery.of(context).size.width + 100) : 0,
+          right: _isLogin ? -(MediaQuery.of(context).size.width + 100) : 0,
           bottom: 0,
           child: Center(
             child: Text(

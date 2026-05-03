@@ -16,12 +16,19 @@ enum RefreshStatus { success, invalidToken, networkIssue }
 class DioClient {
   // ✅ Singleton — สร้างครั้งเดียว
   static Dio? _instance;
-  
+
   // ✅ Dio แยกต่างหากสำหรับ refresh (ไม่มี interceptor)
-  static final Dio _refreshDio = Dio(BaseOptions(baseUrl: AppConfig.instance.baseUrl));
-  
-  static late final RefreshTokenService _refreshService =
-      RefreshTokenService(dio: _refreshDio); // inject dio แยก
+  static final Dio _refreshDio = Dio(
+    BaseOptions(
+      baseUrl: AppConfig.instance.baseUrl,
+      connectTimeout: const Duration(seconds: 10),
+      receiveTimeout: const Duration(seconds: 10),
+    ),
+  );
+
+  static late final RefreshTokenService _refreshService = RefreshTokenService(
+    dio: _refreshDio,
+  ); // inject dio แยก
 
   static final GlobalKey<NavigatorState> navigatorKey =
       GlobalKey<NavigatorState>();
@@ -30,7 +37,7 @@ class DioClient {
   static String? _cachedAccessToken;
 
   static const Duration _refreshTimeout = Duration(seconds: 10);
-  static const Duration _refreshGracePeriod = Duration(minutes: 2);
+  static const Duration _refreshGracePeriod = Duration(seconds: 30);
   static const int _maxRefreshAttempts = 3;
 
   // ✅ ป้องกัน refresh ซ้อนกัน และให้ request อื่นรอผล
@@ -40,6 +47,12 @@ class DioClient {
   // ✅ ป้องกัน request ใหม่ระหว่าง logout
   static bool _isLoggingOut = false;
 
+  static const _publicPaths = {
+    ApiConstants.login,
+    ApiConstants.register,
+    ApiConstants.refreshToken,
+  };
+
   static Stream<AuthEvent> get authEvents => AuthEventBus.stream;
 
   static Dio getInstance() {
@@ -48,11 +61,21 @@ class DioClient {
   }
 
   static Dio _createDio() {
-    final dio = Dio(BaseOptions(baseUrl: AppConfig.instance.baseUrl));
+    final dio = Dio(
+      BaseOptions(
+        baseUrl: AppConfig.instance.baseUrl,
+        connectTimeout: const Duration(seconds: 10),
+        receiveTimeout: const Duration(seconds: 30),
+        sendTimeout: const Duration(seconds: 15),
+      ),
+    );
 
     dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
+          if (_publicPaths.contains(options.path)) {
+            return handler.next(options);
+          }
           if (_isLoggingOut &&
               options.path != ApiConstants.logout &&
               options.path != ApiConstants.logoutAll) {
@@ -60,10 +83,7 @@ class DioClient {
               DioException(
                 requestOptions: options,
                 error: 'Request blocked during logout',
-                response: Response(
-                  requestOptions: options,
-                  statusCode: 409,
-                ),
+                response: Response(requestOptions: options, statusCode: 409),
               ),
             );
           }
@@ -73,7 +93,8 @@ class DioClient {
           if (options.path != ApiConstants.refreshToken) {
             final hasRefreshToken = await TokenStorage.hasRefreshToken();
             final currentToken = await _getAccessToken();
-            final needsRefresh = hasRefreshToken &&
+            final needsRefresh =
+                hasRefreshToken &&
                 _isAccessTokenExpiredOrExpiringSoon(currentToken);
 
             if (needsRefresh) {
@@ -123,9 +144,14 @@ class DioClient {
           }
 
           if (error.response?.statusCode == 401) {
-            final requestPath = error.requestOptions.path;
-            if (requestPath == ApiConstants.refreshToken) {
-              await _forceLogout();
+            // ✅ 1. helper method — ชัดเจน อ่านง่าย
+            if (!_shouldAttemptRefresh(error.requestOptions)) {
+              return handler.next(error);
+            }
+
+            // ✅ 2. เช็ค refresh token ก่อน — กันเคส user ยังไม่ login
+            final hasRefreshToken = await TokenStorage.hasRefreshToken();
+            if (!hasRefreshToken) {
               return handler.next(error);
             }
 
@@ -161,6 +187,12 @@ class DioClient {
     );
 
     return dio;
+  }
+
+  static bool _shouldAttemptRefresh(RequestOptions request) {
+    if (_publicPaths.contains(request.path)) return false;
+    if (request.path == ApiConstants.refreshToken) return false;
+    return true;
   }
 
   static Future<void> _retryRequest(
@@ -235,10 +267,12 @@ class DioClient {
     for (var attempt = 1; attempt <= _maxRefreshAttempts; attempt += 1) {
       try {
         final response = await _refreshService
-            .refreshToken(RefreshTokenRequest(
-              refreshToken: refreshToken,
-              deviceId: deviceId,
-            ))
+            .refreshToken(
+              RefreshTokenRequest(
+                refreshToken: refreshToken,
+                deviceId: deviceId,
+              ),
+            )
             .timeout(_refreshTimeout);
 
         await TokenStorage.updateTokens(
@@ -259,8 +293,11 @@ class DioClient {
         final backoffSeconds = 1 << (attempt - 1);
         await Future.delayed(Duration(seconds: backoffSeconds));
       } catch (e, st) {
-        debugPrint('Refresh token failed: $e');
-        debugPrint('$st');
+        assert(() {
+          debugPrint('Refresh token failed: $e');
+          debugPrint('$st');
+          return true;
+        }());
 
         if (attempt >= _maxRefreshAttempts) {
           return RefreshStatus.networkIssue;
@@ -302,7 +339,10 @@ class DioClient {
       if (exp is String) {
         final expInt = int.tryParse(exp);
         if (expInt != null) {
-          return DateTime.fromMillisecondsSinceEpoch(expInt * 1000, isUtc: true);
+          return DateTime.fromMillisecondsSinceEpoch(
+            expInt * 1000,
+            isUtc: true,
+          );
         }
       }
     } catch (_) {
