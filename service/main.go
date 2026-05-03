@@ -38,7 +38,7 @@ import (
 func main() {
 	//โหลด .env ก่อน เพื่อให้ config สามารถอ่านค่าได้
 	if err := godotenv.Load(); err != nil {
-		log.Fatal("ไม่พบไฟล์ .env")
+		log.Println("No .env file found, using system environment variables")
 	}
 
 	// 1. Load config
