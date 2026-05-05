@@ -217,6 +217,7 @@ class _HomePageState extends State<HomePage> with RouteAware {
       },
       child: Background(
         floatingActionButton: _floatingButton(context),
+        resizeToAvoidBottomInset: false,
         child: Stack(
           children: [
             Column(
@@ -329,8 +330,8 @@ class _HomePageState extends State<HomePage> with RouteAware {
                                         : null;
                                     final isPast =
                                         endMin != null && nowMin > endMin;
-                                    final isDisable = !isToday || isPast;
-                                    final opacity = isDisable ? 0.35 : 1.0;
+                                    final isDisable = !isToday;
+                                    final opacity = isDisable || isPast ? 0.35 : 1.0;
 
                                     final icon = iconsData.firstWhere(
                                       (i) => i.keyId == item.iconId,

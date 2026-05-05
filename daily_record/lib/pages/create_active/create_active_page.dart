@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:daily_record/components/app_alert.dart';
@@ -74,7 +75,8 @@ class CreateActivePage extends StatefulWidget {
 
 // ─── State ────────────────────────────────────────────────────────────────────
 
-class _CreateActivePageState extends State<CreateActivePage> {
+class _CreateActivePageState extends State<CreateActivePage>
+    with WidgetsBindingObserver {
   // Repositories
   final IDailyRecordRepository _dailyRecordRepository =
       getIt<IDailyRecordRepository>();
@@ -82,6 +84,16 @@ class _CreateActivePageState extends State<CreateActivePage> {
   // Controllers — ใช้ TextEditingController เพื่อโหลดค่าเดิมในโหมด edit
   late final TextEditingController _headerController;
   late final TextEditingController _detailController;
+  final ScrollController _scrollController = ScrollController();
+  final GlobalKey _headerKey = GlobalKey();
+  final GlobalKey _detailKey = GlobalKey();
+  late final FocusNode _headerFocus;
+  late final FocusNode _detailFocus;
+
+  // scroll-to-center: FocusNode เก็บ key ที่รอ scroll
+  // didChangeMetrics + debounce รอให้ keyboard หยุดนิ่งก่อน scroll จริง
+  GlobalKey? _pendingScrollKey;
+  Timer? _scrollDebounce;
 
   // State
   bool _isLoading = false;
@@ -162,11 +174,27 @@ class _CreateActivePageState extends State<CreateActivePage> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     final data = widget.recordData;
 
     // สร้าง controller พร้อม initial value ทันที → edit mode เห็นข้อมูลเดิม
     _headerController = TextEditingController(text: data?.activityHeader ?? '');
     _detailController = TextEditingController(text: data?.activityDetail ?? '');
+
+    _headerFocus = FocusNode();
+    _detailFocus = FocusNode();
+    _headerFocus.addListener(() {
+      if (_headerFocus.hasFocus) {
+        _pendingScrollKey = _headerKey;
+        _scheduleScroll(); // กรณี keyboard เปิดอยู่แล้ว → scroll ทันทีหลัง debounce
+      }
+    });
+    _detailFocus.addListener(() {
+      if (_detailFocus.hasFocus) {
+        _pendingScrollKey = _detailKey;
+        _scheduleScroll(); // กรณี keyboard เปิดอยู่แล้ว → scroll ทันทีหลัง debounce
+      }
+    });
 
     if (_isEditMode && data != null) {
       _iconSelect = data.iconId!;
@@ -178,11 +206,40 @@ class _CreateActivePageState extends State<CreateActivePage> {
     }
   }
 
+  /// fires ทุก frame ที่ keyboard กำลัง animate → debounce จนกว่าจะหยุดนิ่ง
+  @override
+  void didChangeMetrics() {
+    _scheduleScroll();
+  }
+
+  /// debounce 80ms: scroll จริงหลัง keyboard หยุดเคลื่อนไหว (fully open)
+  void _scheduleScroll() {
+    _scrollDebounce?.cancel();
+    _scrollDebounce = Timer(const Duration(milliseconds: 80), () {
+      if (!mounted) return;
+      final kbHeight = MediaQuery.of(context).viewInsets.bottom;
+      final key = _pendingScrollKey;
+      // scroll เฉพาะตอน keyboard เปิดอยู่ และมี field ที่รอ scroll
+      if (kbHeight > 0 && key != null) {
+        _pendingScrollKey = null;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) _performScroll(key);
+        });
+      }
+    });
+  }
+
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _scrollDebounce?.cancel();
     // dispose controllers เสมอ เพื่อป้องกัน memory leak
     _headerController.dispose();
     _detailController.dispose();
+
+    _headerFocus.dispose();
+    _detailFocus.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -198,6 +255,40 @@ class _CreateActivePageState extends State<CreateActivePage> {
           onSelect: (value) => setState(() => _iconSelect = value),
         ),
       ),
+    );
+  }
+
+  /// Scroll widget ไปกึ่งกลางพื้นที่ที่มองเห็นได้ (เหนือ keyboard)
+  /// เรียกหลัง keyboard fully open และ layout rebuild เสร็จแล้ว
+  void _performScroll(GlobalKey key) {
+    if (!mounted) return;
+    final keyContext = key.currentContext;
+    if (keyContext == null) return;
+    final box = keyContext.findRenderObject() as RenderBox?;
+    if (box == null) return;
+
+    // พื้นที่ที่มองเห็นได้ (ไม่รวม keyboard)
+    final mq = MediaQuery.of(context);
+    final visibleHeight = mq.size.height - mq.viewInsets.bottom;
+
+    // ตำแหน่งปัจจุบันของ widget บนหน้าจอ (global)
+    final widgetTop = box.localToGlobal(Offset.zero).dy;
+    final widgetCenter = widgetTop + box.size.height / 2;
+
+    // จุดที่ต้องการให้ widget center อยู่ = กึ่งกลางของ visibleHeight
+    final targetCenter = visibleHeight / 2;
+
+    // ความต่างที่ต้องเลื่อน scroll
+    final delta = widgetCenter - targetCenter;
+    final targetOffset = (_scrollController.offset + delta).clamp(
+      0.0,
+      _scrollController.position.maxScrollExtent,
+    );
+
+    _scrollController.animateTo(
+      targetOffset,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
     );
   }
 
@@ -326,49 +417,73 @@ class _CreateActivePageState extends State<CreateActivePage> {
   @override
   Widget build(BuildContext context) {
     final themeItem = context.watch<ThemeProvider>().currentThemeItem!;
-    final screenWidth = MediaQuery.sizeOf(
-      context,
-    ).width; // ใช้ sizeOf แทน size.width (ไม่ rebuild ทั้งหน้า)
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
 
     return Background(
       resizeToAvoidBottomInset: false,
       child: Stack(
         children: [
-          Column(
-            children: [
-              _HeaderSection(
-                themeItem: themeItem,
-                formattedDate: _formattedDate,
-                iconSelect: _iconSelect,
-                onIconTap: _showIconPicker,
-              ),
-              _TimeSection(
-                startTime: _startTime,
-                endTime: _endTime,
-                themeItem: themeItem,
-                onStartTimeSelected: _onStartTimeChanged,
-                onEndTimeSelected: (v) => setState(() => _endTime = v),
-              ),
-              Expanded(
-                flex: 4,
-                child: _FormSection(
-                  themeItem: themeItem,
-                  screenWidth: screenWidth,
-                  headerController: _headerController,
-                  detailController: _detailController,
-                  isImportant: _isImportant,
-                  repeatType: _repeatType,
-                  dates: _dates,
-                  isLoading: _isLoading,
-                  isEditMode: _isEditMode,
-                  onImportantChanged: (v) => setState(() => _isImportant = v),
-                  onRepeatTypeChanged: _onRepeatTypeChanged,
-                  onSelectDate: _showDatePicker,
-                  onBack: _onBack,
-                  onSubmit: _submit,
-                ),
-              ),
-            ],
+          SafeArea(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  controller: _scrollController,
+                  keyboardDismissBehavior:
+                      ScrollViewKeyboardDismissBehavior.onDrag,
+                  padding: EdgeInsets.only(bottom: keyboardHeight),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: constraints.maxHeight,
+                    ),
+                    child: IntrinsicHeight(
+                      child: Column(
+                        children: [
+                          _HeaderSection(
+                            themeItem: themeItem,
+                            formattedDate: _formattedDate,
+                            iconSelect: _iconSelect,
+                            onIconTap: _showIconPicker,
+                          ),
+                          _TimeSection(
+                            startTime: _startTime,
+                            endTime: _endTime,
+                            themeItem: themeItem,
+                            onStartTimeSelected: _onStartTimeChanged,
+                            onEndTimeSelected: (v) =>
+                                setState(() => _endTime = v),
+                          ),
+                          Expanded(
+                            flex: 4,
+                            child: _FormSection(
+                              headerKey: _headerKey,
+                              detailKey: _detailKey,
+                              headerFocus: _headerFocus,
+                              detailFocus: _detailFocus,
+                              themeItem: themeItem,
+                              screenWidth: screenWidth,
+                              headerController: _headerController,
+                              detailController: _detailController,
+                              isImportant: _isImportant,
+                              repeatType: _repeatType,
+                              dates: _dates,
+                              isLoading: _isLoading,
+                              isEditMode: _isEditMode,
+                              onImportantChanged: (v) =>
+                                  setState(() => _isImportant = v),
+                              onRepeatTypeChanged: _onRepeatTypeChanged,
+                              onSelectDate: _showDatePicker,
+                              onBack: _onBack,
+                              onSubmit: _submit,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
           ),
           AnimatedOpacity(
             opacity: _isLoading ? 1.0 : 0.0,
@@ -544,6 +659,10 @@ class _FormSection extends StatelessWidget {
     required this.onSelectDate,
     required this.onBack,
     required this.onSubmit,
+    required this.headerFocus,
+    required this.detailFocus,
+    required this.headerKey,
+    required this.detailKey,
   });
 
   final dynamic themeItem;
@@ -560,6 +679,10 @@ class _FormSection extends StatelessWidget {
   final VoidCallback onSelectDate;
   final VoidCallback onBack;
   final VoidCallback onSubmit;
+  final FocusNode headerFocus;
+  final FocusNode detailFocus;
+  final GlobalKey headerKey;
+  final GlobalKey detailKey;
 
   bool get _isSelectDayMode => repeatType == RepeatType.selectDay;
 
@@ -588,7 +711,9 @@ class _FormSection extends StatelessWidget {
                   child: SizedBox(
                     height: 45,
                     child: Input(
-                      controller: headerController, // ส่ง controller เข้าไป
+                      key: headerKey,
+                      controller: headerController,
+                      focusNode: headerFocus,
                       isMultiline: false,
                       maxLength: 50,
                     ),
@@ -663,7 +788,9 @@ class _FormSection extends StatelessWidget {
                     ),
                     const SizedBox(height: 10),
                     Input(
-                      controller: detailController, // ส่ง controller เข้าไป
+                      key: detailKey,
+                      controller: detailController,
+                      focusNode: detailFocus,
                       isMultiline: true,
                       height: 130,
                       maxLength: 150,

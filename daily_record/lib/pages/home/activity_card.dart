@@ -112,6 +112,12 @@ class ActivityCardState extends State<ActivityCard>
     }
   }
 
+  @override
+  void dispose() {
+    _controller.dispose(); 
+    super.dispose();
+  }
+
   Future<void> _saveCheckList(bool onCheck) async {
     final now = DateTime.now();
     final formattedDate = now.toIso8601String().split('T').first;
@@ -360,7 +366,10 @@ class ActivityCardState extends State<ActivityCard>
                           borderRadius: BorderRadius.circular(15),
                         ),
                         child: Center(
-                          child: Icon(Icons.remove_red_eye_outlined,color: themeItem.textPrimary,),
+                          child: Icon(
+                            Icons.remove_red_eye_outlined,
+                            color: themeItem.textPrimary,
+                          ),
                         ),
                       ),
                       onTap: () => _openDetailModal(

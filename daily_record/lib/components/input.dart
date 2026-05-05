@@ -12,6 +12,7 @@ class Input extends StatefulWidget {
   final double? height;
   final bool? hideMaxWord;
   final bool ispassword;
+  final FocusNode? focusNode;
 
   const Input({
     super.key,
@@ -23,6 +24,7 @@ class Input extends StatefulWidget {
     this.height,
     this.hideMaxWord = false,
     this.ispassword = false,
+    this.focusNode,
   });
 
   @override
@@ -85,6 +87,7 @@ class _InputState extends State<Input> {
           child: TextField(
             controller: _controller,
             maxLength: widget.maxLength,
+            focusNode: widget.focusNode,
             maxLines: 1,
             obscureText: _obscureText,
             decoration: InputDecoration(
@@ -122,6 +125,7 @@ class _InputState extends State<Input> {
         TextField(
           controller: _controller,
           maxLength: widget.maxLength,
+          focusNode: widget.focusNode,
           maxLines: null,
           keyboardType: TextInputType.multiline,
           decoration: InputDecoration(
