@@ -24,7 +24,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> with RouteAware {
-  final IDailyRecordRepository _dailyRecordRepository = getIt<IDailyRecordRepository>();
+  final IDailyRecordRepository _dailyRecordRepository =
+      getIt<IDailyRecordRepository>();
   List<DailyRecordItem> _records = [];
   List<DailyRecordItem> _currentRecords = [];
   bool _shouldRefreshOnPop = true;
@@ -198,6 +199,15 @@ class _HomePageState extends State<HomePage> with RouteAware {
     }
   }
 
+  IconData _getIcons(int iconsId) {
+    final icon = iconsData.firstWhere(
+      (i) => i.keyId == iconsId,
+      orElse: () => iconsData.first,
+    );
+
+    return icon.icon!;
+  }
+
   @override
   Widget build(BuildContext context) {
     final themeItem = context.watch<ThemeProvider>().currentThemeItem!;
@@ -261,7 +271,7 @@ class _HomePageState extends State<HomePage> with RouteAware {
                                         ..._currentRecords.map(
                                           (item) => ActivityCard(
                                             id: item.id!,
-                                            icon: Icons.directions_run,
+                                            icon: _getIcons(item.iconId!),
                                             title: item.activityHeader ?? '-',
                                             checkStatus: item.checkStatus,
                                             checkListId: item.checkListId,
@@ -331,12 +341,9 @@ class _HomePageState extends State<HomePage> with RouteAware {
                                     final isPast =
                                         endMin != null && nowMin > endMin;
                                     final isDisable = !isToday;
-                                    final opacity = isDisable || isPast ? 0.35 : 1.0;
-
-                                    final icon = iconsData.firstWhere(
-                                      (i) => i.keyId == item.iconId,
-                                      orElse: () => iconsData.first,
-                                    );
+                                    final opacity = isDisable || isPast
+                                        ? 0.35
+                                        : 1.0;
 
                                     return KeyedSubtree(
                                       key: index == 0 ? _firstItemKey : null,
@@ -344,7 +351,7 @@ class _HomePageState extends State<HomePage> with RouteAware {
                                         opacity: opacity,
                                         child: ActivityCard(
                                           id: item.id!,
-                                          icon: icon.icon!,
+                                          icon: _getIcons(item.iconId!),
                                           title: item.activityHeader ?? '-',
                                           checkStatus: item.checkStatus,
                                           checkListId: item.checkListId,
