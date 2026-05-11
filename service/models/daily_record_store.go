@@ -155,7 +155,7 @@ func (s *DailyRecordStore) GetDailyRecordsByUserID(
 		JOIN daily_records r ON r.id = paged.id
 		LEFT JOIN daily_record_days d ON r.id = d.record_id
 		%s
-		ORDER BY r.id, d.record_date ASC
+		ORDER BY r.start_time,r.id ASC
 	`, checkIDSelect, checkStatusSelect, whereClause, i, i+1, checkJoin)
 
 	args = append(args, filter.Limit, filter.Offset)
